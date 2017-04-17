@@ -325,27 +325,57 @@ public class ListManager extends Stage {
 
 		String startLineRemove = "last_mods";
 		String currentLine;
-		boolean startEdit=false, startCopy=true, noLast_Mods=true;
+		boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = true;
 
-		while((currentLine = reader.readLine()) != null) {
-		    // trim newline when comparing with lineToRemove
-		    String trimmedLine = currentLine.trim();
-		    if(trimmedLine.contains(startLineRemove)){
-		    	startEdit=true;
-		    	noLast_Mods=false;
-		    	startCopy=false;
-		    	writer.write(currentLine + System.getProperty("line.separator"));
-		    }
-		    if(startEdit){
-		    	modPrint(applyMods,writer);
-		    	startEdit=false;
-		    }else{
-		    	if(!startCopy){
-		    		if(trimmedLine.equals("}")) startCopy=true;
-		    	}
-		    	if(startCopy)
-		    		writer.write(currentLine + System.getProperty("line.separator"));
-		    }
+		while ((currentLine = reader.readLine()) != null) {
+			// trim newline when comparing with lineToRemove
+			String trimmedLine = currentLine.trim();
+			if (hasEqual && trimmedLine.contains("{")) {
+				hasEqual = false;
+				startEdit = true;
+				writer.write(currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+			}
+			if (waitEqual && trimmedLine.contains("=")) {
+				waitEqual = false;
+				if (trimmedLine.contains("{")) {
+					startEdit = true;
+					writer.write(
+							currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+				} else {
+					hasEqual = true;
+				}
+			}
+			if (trimmedLine.contains(startLineRemove)) {
+				String toWrite;
+				if (trimmedLine.contains(startLineRemove + "={")) {
+					startEdit = true;
+					toWrite = currentLine.substring(0, currentLine.indexOf("{") + 1);
+				} else if (trimmedLine.contains(startLineRemove + "=")) {
+					hasEqual = true;
+					toWrite = currentLine.substring(0, currentLine.indexOf("=") + 1);
+				} else {
+					waitEqual = true;
+					toWrite = currentLine.substring(0,
+							currentLine.indexOf(startLineRemove.charAt(startLineRemove.length() - 1)));
+				}
+				noLast_Mods = false;
+				startCopy = false;
+				writer.write(toWrite + System.getProperty("line.separator"));
+			}
+			if (startEdit) {
+				modPrint(applyMods, writer);
+				startEdit = false;
+			} else {
+				if (startCopy)
+					writer.write(currentLine + System.getProperty("line.separator"));
+				if (!startCopy && !hasEqual && !waitEqual) {
+					if (trimmedLine.contains("}")) {
+						startCopy = true;
+						writer.write(currentLine.substring(currentLine.indexOf("}"), currentLine.length())
+								+ System.getProperty("line.separator"));
+					}
+				}
+			}
 		}
 		if(noLast_Mods){
 			writer.write("last_mods={" + System.getProperty("line.separator"));
