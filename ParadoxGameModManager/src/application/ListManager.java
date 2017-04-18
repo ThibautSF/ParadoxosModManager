@@ -325,7 +325,7 @@ public class ListManager extends Stage {
 
 		String startLineRemove = "last_mods";
 		String currentLine;
-		boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = true;
+		boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
 
 		while ((currentLine = reader.readLine()) != null) {
 			// trim newline when comparing with lineToRemove
