@@ -54,6 +54,7 @@ public class ListCreator extends Stage {
 	private VBox yrModsBox = new VBox();
 	private String lblYrMods = "Your mods (%d founds)";
 	private Label yourMods = new Label(lblYrMods);
+	
 	private VBox listBox = new VBox();
 	TableView<Mod> mods = new TableView<Mod>();
 	TableColumn<Mod,String> modNameCol = new TableColumn<Mod,String>("Mod Name");
