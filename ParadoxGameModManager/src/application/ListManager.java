@@ -19,6 +19,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -27,8 +28,10 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -41,16 +44,22 @@ public class ListManager extends Stage {
 	
 	//Window Var
 	private static int WINDOW_WIDTH = 600;
-	private static int WINDOW_HEIGHT = 300;
-	private BorderPane window = new BorderPane();
-	private HBox menu = new HBox();
-	private String lblstr = "Path : %s \nMod founds : %d";
-	private Label pthMod = new Label(lblstr);
-	private VBox content = new VBox();
+	private static int WINDOW_HEIGHT = 350;
+	private GridPane window = new GridPane();
+	
+	private VBox menu = new VBox();
+	private String pthModstr = "Path : %s";
+	private Label pthModLbl = new Label(pthModstr);
+	private String nbModstr = "Mod founds : %d";
+	private Label nbModLbl = new Label(nbModstr);
+	
+	private VBox yrListsBox = new VBox();
 	private String lblYrLists = "Your lists (%d founds)";
 	private Label yourLists = new Label(lblYrLists);
+	
+	private VBox content = new VBox();
 	private ListView<String> lists = new ListView<String>();
-	private VBox bottom = new VBox();
+	
 	private HBox buttons = new HBox();
 	private Button newList = new Button("New");
 	private Button modifyList = new Button("Modify");
@@ -79,27 +88,64 @@ public class ListManager extends Stage {
 		
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
-		//Top
-		window.setTop(menu);
+		window.setHgap(8);
+		window.setVgap(8);
+		window.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		window.setPadding(new Insets(0, 0, 5, 0));
+		//window.setGridLinesVisible(true);
+		
+		RowConstraints row1 = new RowConstraints();
+	    row1.setPercentHeight(15);
+	    RowConstraints row2 = new RowConstraints();
+	    row2.setPercentHeight(10);
+	    RowConstraints row3 = new RowConstraints();
+	    row3.setPercentHeight(55);
+	    RowConstraints row4 = new RowConstraints();
+	    row4.setPercentHeight(15);
+	    RowConstraints row5 = new RowConstraints();
+	    row5.setPercentHeight(15);
+	    window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
+	    
+	    ColumnConstraints col1 = new ColumnConstraints();
+	    col1.setPercentWidth(0);
+	    ColumnConstraints col2 = new ColumnConstraints();
+	    col2.setPercentWidth(25);
+	    ColumnConstraints col3 = new ColumnConstraints();
+	    col3.setPercentWidth(25);
+	    ColumnConstraints col4 = new ColumnConstraints();
+	    col4.setPercentWidth(25);
+	    ColumnConstraints col5 = new ColumnConstraints();
+	    col5.setPercentWidth(25);
+	    ColumnConstraints col6 = new ColumnConstraints();
+	    col6.setPercentWidth(0);
+	    window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
+		
+		
+		//ListManager Top
+		window.add(menu, 0, 0, 6, 1);
 		menu.setStyle("-fx-background-color: #EAE795;");
-		menu.getChildren().add(pthMod);
-		pthMod.setText(String.format(lblstr,absolutePath,getModNumbers()));
-		//launchGame.setStyle("-fx-alignment: right;");
+		menu.getChildren().addAll(pthModLbl,nbModLbl);
+		pthModLbl.setText(String.format(pthModstr,absolutePath));
+		nbModLbl.setText(String.format(nbModstr, getModNumbers()));
+		
+		//ModList "Your mods" field
+		window.add(yrListsBox, 1, 1, 4, 1);
+		yrListsBox.getChildren().add(yourLists);
+		yrListsBox.setStyle("-fx-alignment: center;");
+		yourLists.setText(String.format(lblYrLists,modFiles.length));
+		yourLists.setStyle("-fx-font: bold 20 serif;");
 		
 		//Center
-		window.setCenter(content);
-		content.getChildren().addAll(yourLists,lists);
+		window.add(content, 1, 2, 4, 1);
+		content.getChildren().add(lists);
 		content.setStyle("-fx-alignment: center;");
-		yourLists.setText(lblYrLists);
-		yourLists.setStyle("-fx-font: bold 20 serif;");
 		try {
 			updateList();
 		} catch (Exception eCreate) {
 			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
 			eCreate.printStackTrace();
 		}
-		
-		lists.setPrefHeight(200);
 		
 		//fixed width for buttons
 		newList.setPrefWidth(75);
@@ -109,13 +155,16 @@ public class ListManager extends Stage {
 		importList.setPrefWidth(75);
 		exportList.setPrefWidth(75);
 		
-		//Bottom
-		window.setBottom(bottom);
-		buttons.setStyle("-fx-alignment: center;");
+		//Buttons line 1
+		window.add(buttons, 1, 3, 4, 1);
+		buttons.setStyle("-fx-alignment: bottom-center;");
+		buttons.setSpacing(8);
 		buttons.getChildren().addAll(newList,modifyList,delList,applyList);
-		buttons2.setStyle("-fx-alignment: center;");
+		
+		window.add(buttons2, 1, 4, 4, 1);
+		buttons2.setStyle("-fx-alignment: top-center;");
+		buttons2.setSpacing(8);
 		buttons2.getChildren().addAll(importList,exportList);
-		bottom.getChildren().addAll(buttons,buttons2);
 		
 	    Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 		this.setScene(sc);
