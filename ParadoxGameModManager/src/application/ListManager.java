@@ -409,13 +409,15 @@ public class ListManager extends Stage {
 					toWrite = currentLine.substring(0,
 							currentLine.indexOf(startLineRemove.charAt(startLineRemove.length() - 1)));
 				}
-				noLast_Mods = false;
+				if (startLineRemove.equals("last_mods")) {
+					noLast_Mods = false;
+				}
 				startCopy = false;
 				writer.write(toWrite + System.getProperty("line.separator"));
 			}
 			if (startEdit) {
 				if (startLineRemove.equals("gui")) {
-					printLanguage(applyList.getLanguageCode(), writer);
+					printCk2Language(applyList.getLanguageCode(), writer);
 					startLineRemove = "last_mods";
 				} else {
 					modPrint(applyMods, writer);
@@ -457,7 +459,7 @@ public class ListManager extends Stage {
 		}
 	}
 	
-	private void printLanguage(String languageCode, BufferedWriter writer) throws IOException {
+	private void printCk2Language(String languageCode, BufferedWriter writer) throws IOException {
 		writer.write("\tlanguage=" + languageCode + System.getProperty("line.separator") +
 				"\thas_set_language=yes" + System.getProperty("line.separator"));
 	}
