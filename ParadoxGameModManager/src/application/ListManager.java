@@ -375,6 +375,7 @@ public class ListManager extends Stage {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 
 		String startLineRemove = "gui";
+		String aloneLineRemove = "language";
 		String currentLine;
 		boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
 
@@ -417,15 +418,22 @@ public class ListManager extends Stage {
 			}
 			if (startEdit) {
 				if (startLineRemove.equals("gui")) {
-					printCk2Language(applyList.getLanguageCode(), writer);
+					printLanguageBloc(applyList.getLanguageCode(), writer);
 					startLineRemove = "last_mods";
 				} else {
 					modPrint(applyMods, writer);
 				}
 				startEdit = false;
 			} else {
-				if (startCopy)
-					writer.write(currentLine + System.getProperty("line.separator"));
+				if (startCopy) {
+					if (trimmedLine.contains(aloneLineRemove)) {
+						writer.write(aloneLineRemove + "=\"" + applyList.getLanguageCode()
+								+ "\"" + System.getProperty("line.separator"));
+						startLineRemove = "last_mods";
+					} else {
+						writer.write(currentLine + System.getProperty("line.separator"));
+					}
+				}
 				if (!startCopy && !hasEqual && !waitEqual) {
 					if (trimmedLine.contains("}")) {
 						startCopy = true;
@@ -459,7 +467,7 @@ public class ListManager extends Stage {
 		}
 	}
 	
-	private void printCk2Language(String languageCode, BufferedWriter writer) throws IOException {
+	private void printLanguageBloc(String languageCode, BufferedWriter writer) throws IOException {
 		writer.write("\tlanguage=" + languageCode + System.getProperty("line.separator") +
 				"\thas_set_language=yes" + System.getProperty("line.separator"));
 	}
