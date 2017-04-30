@@ -12,6 +12,7 @@ public class ModList {
 	//
 	private String name;
 	private String description;
+	private Languages language;
 	private ArrayList<Mod> modlist;
 
 	/**
@@ -19,9 +20,10 @@ public class ModList {
 	 * @param description
 	 * @param modlist
 	 */
-	public ModList(String name, String description, ArrayList<Mod> modlist) {
+	public ModList(String name, String description, Languages language, ArrayList<Mod> modlist) {
 		this.name=name;
 		this.description=description;
+		this.language=language;
 		this.modlist=modlist;
 	}
 	
@@ -54,6 +56,10 @@ public class ModList {
 	 */
 	public void setDescription(String description){
 		this.description=description;
+	}
+	
+	public String getLanguage() {
+		return this.language.getName();
 	}
 
 	/**

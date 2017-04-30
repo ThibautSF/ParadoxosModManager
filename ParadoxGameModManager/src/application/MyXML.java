@@ -13,6 +13,19 @@ import org.jdom2.output.*;
  *
  */
 public class MyXML {
+	private static final String USER_LISTS = "userlists";
+	private static final String EXPORTED_LIST = "exportedlist";
+	private static final String GAME_ID = "gameID";
+	private static final String LIST = "list";
+	private static final String NAME = "name";
+	private static final String DESCR = "descr";
+	private static final String LANG = "lang";
+	private static final String MOD = "mod";
+	private static final String ID = "id";
+	private static final String FILE_NAME = "fileName";
+	private static final String REMOTE_ID = "remoteID";
+	private static final String MOD_NAME = "modName";
+	
 	private static Element root;
 	private static org.jdom2.Document document;
 	private static Element root_exported;
@@ -33,13 +46,13 @@ public class MyXML {
 			root = document.getRootElement();
 		}
 		else{
-			root = new Element("userlists");
+			root = new Element(USER_LISTS);
 			document = new Document(root);
 		}
 		
 		//Init for export lists
-		root_exported = new Element("exportedlist");
-		root_exported.setAttribute("gameID", ModManager.STEAM_ID.toString());
+		root_exported = new Element(EXPORTED_LIST);
+		root_exported.setAttribute(GAME_ID, ModManager.STEAM_ID.toString());
 		document_exported = new Document(root_exported);
 		
 		this.file = file;
@@ -59,26 +72,32 @@ public class MyXML {
 	 */
 	public ArrayList<ModList> getSavedList(){
 		ArrayList<ModList> userLists = new ArrayList<ModList>();
-		List<Element> modLists = root.getChildren("list");
+		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> i = modLists.iterator();
 		while(i.hasNext()){
 			ArrayList<Mod> listMods = new ArrayList<Mod>();
 			
 			Element oneListElement = (Element) i.next();
-			String listName = oneListElement.getAttribute("name").getValue();
-			String listDescr = oneListElement.getChild("descr").getText();
-			List<Element> modsElements = oneListElement.getChildren("mod");
+			String listName = oneListElement.getAttribute(NAME).getValue();
+			String listDescr = oneListElement.getChild(DESCR).getText();
+			String listLang;
+			try {
+				listLang = oneListElement.getChild(LANG).getText();
+			} catch (RuntimeException e) {
+				listLang = null;
+			}
+			List<Element> modsElements = oneListElement.getChildren(MOD);
 			for (Element modElement : modsElements) {
 				List<Attribute> modElementAttr = modElement.getAttributes();
 				String fileName="",remoteFileId=null;
 				for (Attribute attribute : modElementAttr) {
 					switch (attribute.getName()) {
-					case "id":
-					case "fileName":
+					case ID:
+					case FILE_NAME:
 						fileName = attribute.getValue();
 						break;
 					
-					case "remoteID":
+					case REMOTE_ID:
 						remoteFileId = attribute.getValue();
 						break;
 					
@@ -91,7 +110,8 @@ public class MyXML {
 				listMods.add(oneMod);
 			}
 			
-			ModList oneList = new ModList(listName, listDescr, listMods);
+			ModList oneList = new ModList(listName, listDescr,
+					Languages.getLanguage(listLang),listMods);
 			userLists.add(oneList);
 		}
 		return userLists;
@@ -102,11 +122,11 @@ public class MyXML {
 	 * @throws Exception
 	 */
 	public void removeList(String listName) throws Exception{
-		List<Element> modLists = root.getChildren("list");
+		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> iE = modLists.iterator();
 		while(iE.hasNext()){
 			Element oneListElement = (Element) iE.next();
-			String listElementName = oneListElement.getAttribute("name").getValue();
+			String listElementName = oneListElement.getAttribute(NAME).getValue();
 			if(listElementName.equals(listName)){
 				root.removeContent(oneListElement);
 				break;
@@ -127,27 +147,33 @@ public class MyXML {
 	 * @throws Exception
 	 */
 	public void modifyList(ModList list, String listName) throws Exception{
-		Element oneListElement,listDescrElement,listModElement;
+		Element oneListElement,listDescrElement,listLangElement,listModElement;
 		ArrayList<Mod> listMods;
 		if(listName!=null){
-			List<Element> modLists = root.getChildren("list");
+			List<Element> modLists = root.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
 			while(i.hasNext()){
 				oneListElement = (Element) i.next();
-				String listElementName = oneListElement.getAttribute("name").getValue();
+				String listElementName = oneListElement.getAttribute(NAME).getValue();
 				if(listElementName.equals(listName)){
-					oneListElement.setAttribute("name", list.getName());
+					oneListElement.setAttribute(NAME, list.getName());
 					
-					listDescrElement = oneListElement.getChild("descr");
+					listDescrElement = oneListElement.getChild(DESCR);
 					listDescrElement.setText(list.getDescription());
 					
-					oneListElement.removeChildren("mod");
+					
+					listLangElement = oneListElement.getChild(LANG);
+					if (listLangElement != null) {
+						listLangElement.setText(list.getLanguage());
+					}
+					
+					oneListElement.removeChildren(MOD);
 					listMods = list.getModlist();
 					for (Mod mod : listMods) {
-						listModElement = new Element("mod");
-						listModElement.setAttribute("modName", mod.getName());
-						listModElement.setAttribute("fileName", mod.getFileName());
-						listModElement.setAttribute("remoteID", mod.getRemoteFileID());
+						listModElement = new Element(MOD);
+						listModElement.setAttribute(MOD_NAME, mod.getName());
+						listModElement.setAttribute(FILE_NAME, mod.getFileName());
+						listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
 						oneListElement.addContent(listModElement);
 					}
 					break;
@@ -155,19 +181,23 @@ public class MyXML {
 			}
 		}
 		else{
-			oneListElement = new Element("list");
-			oneListElement.setAttribute("name", list.getName());
+			oneListElement = new Element(LIST);
+			oneListElement.setAttribute(NAME, list.getName());
 			root.addContent(oneListElement);
 			
-			listDescrElement = new Element("descr");
+			listDescrElement = new Element(DESCR);
 			listDescrElement.setText(list.getDescription());
 			oneListElement.addContent(listDescrElement);
 			
+			listLangElement = new Element(LANG);
+			listLangElement.setText(list.getLanguage());
+			oneListElement.addContent(listLangElement);
+			
 			listMods = list.getModlist();
 			for (Mod mod : listMods) {
-				listModElement = new Element("mod");
-				listModElement.setAttribute("fileName", mod.getFileName());
-				listModElement.setAttribute("remoteID", mod.getRemoteFileID());
+				listModElement = new Element(MOD);
+				listModElement.setAttribute(FILE_NAME, mod.getFileName());
+				listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
 				oneListElement.addContent(listModElement);
 			}
 		}
@@ -179,11 +209,11 @@ public class MyXML {
 	 * @throws Exception
 	 */
 	public void exportList(String listName) throws Exception{
-		List<Element> modLists = root.getChildren("list");
+		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> iE_export = modLists.iterator();
 		while(iE_export.hasNext()){
 			Element oneListElement = (Element) iE_export.next();
-			String listElementName = oneListElement.getAttribute("name").getValue();
+			String listElementName = oneListElement.getAttribute(NAME).getValue();
 			if(listElementName.equals(listName)){
 				root_exported.addContent(oneListElement.detach());
 				XMLOutputter sortie = new XMLOutputter(Format.getPrettyFormat());
@@ -203,27 +233,28 @@ public class MyXML {
 		SAXBuilder sxb = new SAXBuilder();
 		Document importDocument = sxb.build(xml);
 		Element importRoot = importDocument.getRootElement();
-		if(importRoot.getAttribute("gameID").getValue().equals(ModManager.STEAM_ID.toString())){
-			List<Element> modLists = importRoot.getChildren("list");
+		if(importRoot.getAttribute(GAME_ID).getValue().equals(ModManager.STEAM_ID.toString())){
+			List<Element> modLists = importRoot.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
 			while(i.hasNext()){
 				ArrayList<Mod> listMods = new ArrayList<Mod>();
 				
 				Element oneListElement = (Element) i.next();
-				String listName = oneListElement.getAttribute("name").getValue();
-				String listDescr = oneListElement.getChild("descr").getText();
-				List<Element> modsElements = oneListElement.getChildren("mod");
+				String listName = oneListElement.getAttribute(NAME).getValue();
+				String listDescr = oneListElement.getChild(DESCR).getText();
+				String listLang = oneListElement.getChild(LANG).getText();
+				List<Element> modsElements = oneListElement.getChildren(MOD);
 				for (Element modElement : modsElements) {
 					List<Attribute> modElementAttr = modElement.getAttributes();
 					String fileName="",remoteFileId=null;
 					for (Attribute attribute : modElementAttr) {
 						switch (attribute.getName()) {
-						case "id":
-						case "fileName":
+						case ID:
+						case FILE_NAME:
 							fileName = attribute.getValue();
 							break;
 						
-						case "remoteID":
+						case REMOTE_ID:
 							remoteFileId = attribute.getValue();
 							break;
 						
@@ -236,7 +267,8 @@ public class MyXML {
 					listMods.add(oneMod);
 				}
 				
-				ModList oneList = new ModList("[Imported]"+listName, listDescr, listMods);
+				ModList oneList = new ModList("[Imported]"+listName, listDescr,
+						Languages.getLanguage(listLang), listMods);
 				modifyList(oneList);
 			}
 			return "Import done.";

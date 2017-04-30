@@ -83,7 +83,7 @@ public class ListCreator extends Stage {
 	 * @param modFiles
 	 */
 	public ListCreator(String path, String[] modFiles) {
-		this(path,modFiles,new ModList(null,null,new ArrayList<Mod>()));
+		this(path,modFiles,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
 	}
 
 
