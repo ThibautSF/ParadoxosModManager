@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 
 import javafx.beans.value.ChangeListener;
@@ -348,7 +349,8 @@ public class ListManager extends Stage {
 		ArrayList<String> userListArrayStr = new ArrayList<String>();
 		
 		for (ModList oneModList : userListArray) {
-			userListArrayStr.add(oneModList.getName()+" ("+oneModList.getModlist().size()+" mods)");
+			userListArrayStr.add(oneModList.getName()+" ("+oneModList.getModlist().size()+" mods)"+
+					" : "+oneModList.getLanguageName().toUpperCase(Locale.ENGLISH));
 		}
 		
 		ObservableList<String> items = FXCollections.observableList(userListArrayStr);

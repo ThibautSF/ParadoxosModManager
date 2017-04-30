@@ -58,8 +58,20 @@ public class ModList {
 		this.description=description;
 	}
 	
-	public String getLanguage() {
+	public Languages getLanguage() {
+		return this.language;
+	}
+	
+	public String getLanguageName() {
 		return this.language.getName();
+	}
+	
+	public String getLanguageCode() {
+		return this.language.getCode();
+	}
+
+	public void setLanguage(Languages language) {
+		this.language = language;
 	}
 
 	/**

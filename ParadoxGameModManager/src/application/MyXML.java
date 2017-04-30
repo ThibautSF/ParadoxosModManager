@@ -164,7 +164,11 @@ public class MyXML {
 					
 					listLangElement = oneListElement.getChild(LANG);
 					if (listLangElement != null) {
-						listLangElement.setText(list.getLanguage());
+						listLangElement.setText(list.getLanguageName());
+					} else {
+						listLangElement = new Element(LANG);
+						listLangElement.setText(list.getLanguageName());
+						oneListElement.addContent(listLangElement);
 					}
 					
 					oneListElement.removeChildren(MOD);
@@ -190,7 +194,7 @@ public class MyXML {
 			oneListElement.addContent(listDescrElement);
 			
 			listLangElement = new Element(LANG);
-			listLangElement.setText(list.getLanguage());
+			listLangElement.setText(list.getLanguageName());
 			oneListElement.addContent(listLangElement);
 			
 			listMods = list.getModlist();

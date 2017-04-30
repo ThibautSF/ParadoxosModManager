@@ -22,11 +22,15 @@ public enum Languages {
 	}
 	
 	public static Languages getLanguage(String language) {
+		final Languages DEFAULT = ENGLISH; 
+		if (language == null) {
+			return DEFAULT;
+		}
 		for (Languages l : values()) {
-			if (l.getName() == language) {
+			if (l.getName().toLowerCase().equals(language.toLowerCase())) {
 				return l;
 			}
 		}
-		return ENGLISH;
+		return DEFAULT;
 	}
 }

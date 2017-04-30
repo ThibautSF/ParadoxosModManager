@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -50,6 +52,10 @@ public class ListCreator extends Stage {
 	private VBox descrBox = new VBox();
 	private Label lblListDesc = new Label("Description : ");
 	private TextField fieldListDesc = new TextField ();
+	
+	private VBox langBox = new VBox();
+	private Label lblListLang = new Label("Language : ");
+	private ComboBox<Languages> cbListLang = new ComboBox<>(FXCollections.observableArrayList(Languages.values()));
 	
 	private VBox yrModsBox = new VBox();
 	private String lblYrMods = "Your mods (%d founds)";
@@ -135,9 +141,9 @@ public class ListCreator extends Stage {
 	    ColumnConstraints col1 = new ColumnConstraints();
 	    col1.setPercentWidth(0);
 	    ColumnConstraints col2 = new ColumnConstraints();
-	    col2.setPercentWidth(50);
+	    col2.setPercentWidth(70);
 	    ColumnConstraints col3 = new ColumnConstraints();
-	    col3.setPercentWidth(50);
+	    col3.setPercentWidth(30);
 	    ColumnConstraints col4 = new ColumnConstraints();
 	    col4.setPercentWidth(0);
 	    window.getColumnConstraints().addAll(col1,col2,col3,col4);
@@ -156,11 +162,18 @@ public class ListCreator extends Stage {
 		helpBox.setStyle("-fx-alignment: center;");
 		
 		//ModList Descr fields
-		window.add(descrBox, 1, 1, 2, 1);
+		window.add(descrBox, 1, 1, 1, 1);
 		descrBox.getChildren().add(lblListDesc);
 		descrBox.getChildren().add(fieldListDesc);
 		descrBox.setStyle("-fx-alignment: center-left;");
 		fieldListDesc.setText(list.getDescription());
+		
+		//ModList Descr fields
+		window.add(langBox, 2, 1, 1, 1);
+		langBox.getChildren().add(lblListLang);
+		langBox.getChildren().add(cbListLang);
+		langBox.setStyle("-fx-alignment: center-left;");
+		cbListLang.setValue(list.getLanguage());
 		
 		//ModList "Your mods" field
 		window.add(yrModsBox, 1, 2, 2, 1);
@@ -276,6 +289,7 @@ public class ListCreator extends Stage {
 				String listOldName = list.getName();
 				list.setName(fieldListName.getText());
 				list.setDescription(fieldListDesc.getText());
+				list.setLanguage(cbListLang.getValue());
 				ArrayList<Mod> saveSelectedMods = new ArrayList<Mod>();
 				for (Mod mod : selectedModsList) {
 					saveSelectedMods.add(mod);
