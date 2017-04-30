@@ -374,7 +374,7 @@ public class ListManager extends Stage {
 		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 
-		String startLineRemove = "last_mods";
+		String startLineRemove = "gui";
 		String currentLine;
 		boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
 
@@ -414,7 +414,12 @@ public class ListManager extends Stage {
 				writer.write(toWrite + System.getProperty("line.separator"));
 			}
 			if (startEdit) {
-				modPrint(applyMods, writer);
+				if (startLineRemove.equals("gui")) {
+					printLanguage(applyList.getLanguageCode(), writer);
+					startLineRemove = "last_mods";
+				} else {
+					modPrint(applyMods, writer);
+				}
 				startEdit = false;
 			} else {
 				if (startCopy)
@@ -450,6 +455,11 @@ public class ListManager extends Stage {
     		String addLine="\t\"mod/"+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));
 		}
+	}
+	
+	private void printLanguage(String languageCode, BufferedWriter writer) throws IOException {
+		writer.write("\tlanguage=" + languageCode + System.getProperty("line.separator") +
+				"\thas_set_language=yes" + System.getProperty("line.separator"));
 	}
 	
 	/**
