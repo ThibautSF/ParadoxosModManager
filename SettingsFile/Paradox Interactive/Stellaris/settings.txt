@@ -1,0 +1,50 @@
+force_pow2_textures=no
+language="l_french"
+graphics={
+	size={
+		x=1920
+		y=1080
+	}
+
+	min_gui={
+		x=1280
+		y=720
+	}
+
+	gui_scale=1.000000
+	refreshRate=60
+	fullScreen=no
+	borderless=yes
+	shadowSize=2048
+	multi_sampling=4
+	maxanisotropy=16
+	gamma=50.000000
+	vsync=yes
+}
+sound_fx_volume=50.000000
+music_volume=50.000000
+scroll_speed=50.000000
+camera_rotation_speed=50.000000
+zoom_speed=50.000000
+mouse_speed=50.000000
+soundgroup=""
+master_volume=100.000000
+ambient_volume=50.000000
+dev_master_volume=75.000000
+voice_volume=50.000000
+camera_look_sensitivity=1.000000
+camera_speed=50.000000
+name="UserName"
+last_mods={
+	"mod/ugc_775944333.mod"
+	"mod/ugc_790455347.mod"
+	"mod/ugc_769329731.mod"
+}
+autosave=4
+tutorial=2
+gfx_quality=2
+bloom={
+	quality=2
+	lens_flare=yes
+}
+mp_max_ticks_ahead=30
