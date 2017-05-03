@@ -14,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,6 +24,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.ColumnConstraints;
@@ -46,8 +48,9 @@ public class ListCreator extends Stage {
 	private Label lblListName = new Label("List Name : ");
 	private TextField fieldListName = new TextField ();
 	
-	private VBox helpBox = new VBox();	
-	private Label lblHelp = new Label("Primary Click on mod to activate/desactivate\nSecondary Click to open workshop");
+	private VBox helpBox = new VBox();
+	private Button buttonHelp = new Button("?");
+	private Tooltip tooltipHelp = new Tooltip("Primary Click on mod to activate/desactivate\nSecondary Click to open workshop");
 	
 	private VBox descrBox = new VBox();
 	private Label lblListDesc = new Label("Description : ");
@@ -141,9 +144,9 @@ public class ListCreator extends Stage {
 	    ColumnConstraints col1 = new ColumnConstraints();
 	    col1.setPercentWidth(0);
 	    ColumnConstraints col2 = new ColumnConstraints();
-	    col2.setPercentWidth(70);
+	    col2.setPercentWidth(50);
 	    ColumnConstraints col3 = new ColumnConstraints();
-	    col3.setPercentWidth(30);
+	    col3.setPercentWidth(50);
 	    ColumnConstraints col4 = new ColumnConstraints();
 	    col4.setPercentWidth(0);
 	    window.getColumnConstraints().addAll(col1,col2,col3,col4);
@@ -157,9 +160,10 @@ public class ListCreator extends Stage {
 		fieldListName.setText(list.getName());
 		
 		//ModList help/info fields
-		window.add(helpBox, 2, 0);
-		helpBox.getChildren().add(lblHelp);
-		helpBox.setStyle("-fx-alignment: center;");
+		window.add(helpBox, 2, 0, 3, 3);
+		buttonHelp.setTooltip(tooltipHelp);
+		helpBox.getChildren().add(buttonHelp);
+		helpBox.setAlignment(Pos.TOP_RIGHT);
 		
 		//ModList Descr fields
 		window.add(descrBox, 1, 1, 1, 1);
@@ -168,8 +172,8 @@ public class ListCreator extends Stage {
 		descrBox.setStyle("-fx-alignment: center-left;");
 		fieldListDesc.setText(list.getDescription());
 		
-		//ModList Descr fields
-		window.add(langBox, 2, 1, 1, 1);
+		//ModList Lang fields
+		window.add(langBox, 2, 0, 1, 1);
 		langBox.getChildren().add(lblListLang);
 		langBox.getChildren().add(cbListLang);
 		langBox.setStyle("-fx-alignment: center-left;");
