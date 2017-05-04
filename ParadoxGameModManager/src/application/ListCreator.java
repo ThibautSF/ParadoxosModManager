@@ -59,7 +59,7 @@ public class ListCreator extends Stage {
 	private TextField fieldListDesc = new TextField ();
 	
 	private VBox langBox = new VBox();
-	private Label lblListLang = new Label("Language : ");
+	private Label lblListLang = new Label("Game language : ");
 	private ComboBox<Languages> cbListLang = new ComboBox<>(FXCollections.observableArrayList(Languages.values()));
 	
 	private VBox yrModsBox = new VBox();
