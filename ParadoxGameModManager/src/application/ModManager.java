@@ -46,7 +46,7 @@ import javafx.stage.Stage;
 public class ModManager extends Application {
 	
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static String VERSION = "0.3.1";
+	public static String VERSION = "0.4.0";
 	public static String urlAppInfoTxt = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
 	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(									  281990,				   236850, 				203770, 			 394360);
@@ -65,7 +65,7 @@ public class ModManager extends Application {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle(APP_NAME);
 			alert.setHeaderText("A new version is available !");
-			alert.setContentText(String.format("A new version of %s is available online !", APP_NAME));
+			alert.setContentText(String.format("A new version of %s is\n available online !", APP_NAME));
 
 			ButtonType buttonWeb = new ButtonType("Get Update");
 			ButtonType buttonCancel = new ButtonType("Continue", ButtonData.CANCEL_CLOSE);
@@ -316,15 +316,12 @@ public class ModManager extends Application {
 					String[] aOnlineV = onlineVersion.split("\\.");
 					String[] aLocalV = VERSION.split("\\.");
 					
-					System.out.println(VERSION+" / "+onlineVersion);
-					System.out.println(aLocalV[0]+" "+aLocalV[1]+" "+aLocalV[2]+" / "+aOnlineV[0]+" "+aOnlineV[1]+" "+aOnlineV[2]);
-					
 					if(Integer.parseInt(aOnlineV[0]) > Integer.parseInt(aLocalV[0])) {
 						return true;
-					} else {
+					} else if(Integer.parseInt(aOnlineV[0]) == Integer.parseInt(aLocalV[0])) {
 						if(Integer.parseInt(aOnlineV[1]) > Integer.parseInt(aLocalV[1])) {
 							return true;
-						} else {
+						} else if(Integer.parseInt(aOnlineV[1]) == Integer.parseInt(aLocalV[1])){
 							if(Integer.parseInt(aOnlineV[2]) > Integer.parseInt(aLocalV[2])) {
 								return true;
 							}
