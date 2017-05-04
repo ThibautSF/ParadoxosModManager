@@ -19,6 +19,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -94,6 +95,7 @@ public class ListManager extends Stage {
 		window.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
+		//Uncomment when editing window to see cells
 		//window.setGridLinesVisible(true);
 		
 		RowConstraints row1 = new RowConstraints();
@@ -147,6 +149,24 @@ public class ListManager extends Stage {
 			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
 			eCreate.printStackTrace();
 		}
+		//Enable/Disable buttons which need a selected list
+		lists.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event event) {
+				int pos = lists.getSelectionModel().getSelectedIndex();
+				if(pos>=0){
+					modifyList.setDisable(false);
+					delList.setDisable(false);
+					applyList.setDisable(false);
+					exportList.setDisable(false);
+				} else {
+					modifyList.setDisable(true);
+					delList.setDisable(true);
+					applyList.setDisable(true);
+					exportList.setDisable(true);
+				}
+			}
+		});
 		
 		//fixed width for buttons
 		newList.setPrefWidth(75);
@@ -161,11 +181,16 @@ public class ListManager extends Stage {
 		buttons.setStyle("-fx-alignment: bottom-center;");
 		buttons.setSpacing(8);
 		buttons.getChildren().addAll(newList,modifyList,delList,applyList);
+		modifyList.setDisable(true);
+		delList.setDisable(true);
+		applyList.setDisable(true);
 		
+		//Buttons line 2
 		window.add(buttons2, 1, 4, 4, 1);
 		buttons2.setStyle("-fx-alignment: top-center;");
 		buttons2.setSpacing(8);
 		buttons2.getChildren().addAll(importList,exportList);
+		exportList.setDisable(true);
 		
 	    Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 		this.setScene(sc);
