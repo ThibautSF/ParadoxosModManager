@@ -74,7 +74,6 @@ public class ModManager extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.get() == buttonWeb){
-			    // user chose "One"
 				if(Desktop.isDesktopSupported()){
         			new Thread(() -> {
         		           try {
