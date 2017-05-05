@@ -60,7 +60,7 @@ public class Mod {
 			this.missing = true;
 			this.name = new SimpleStringProperty("MOD MISSING");
 			this.versionCompatible = new SimpleStringProperty("");
-			ErrorPrint.printError("Unable to open "+filename+" ! File is missing or corrupted !");
+			ErrorPrint.printError("Unable to open "+ModManager.PATH+"mod"+File.separator+filename+" ! File is missing or corrupted !");
 			e.printStackTrace();
 		}
 	}

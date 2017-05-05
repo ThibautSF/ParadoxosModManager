@@ -185,7 +185,11 @@ public class ModManager extends Application {
 					docPath.setText(newPath);
 					gamePath.setText("Steam launch | steam://run/"+newSteamID);
 					dirDocChooser.setTitle("Choose document path for "+newGame);
-					dirDocChooser.setInitialDirectory(new File(newPath));
+					File f = new File(newPath);
+					if(f.isDirectory())
+						dirDocChooser.setInitialDirectory(f);
+					else
+						dirDocChooser.setInitialDirectory(new File(File.separator));
 					//exeGameChooser.setTitle("Choose exe path for "+newGame);
 					//exeGameChooser.setInitialDirectory(new File(File.separator));
 					//"steam://run/"+ModManager.STEAM_ID
@@ -246,7 +250,11 @@ public class ModManager extends Application {
 		if(docUserPath!=null){
 			//System.out.println(userPath);
 			docPath.setText(docUserPath);
-			dirDocChooser.setInitialDirectory(new File(docUserPath));
+			File f = new File(docUserPath);
+			if(f.isDirectory())
+				dirDocChooser.setInitialDirectory(f);
+			else
+				dirDocChooser.setInitialDirectory(new File(File.separator));
 		}
 		Platform.runLater(() -> game.requestFocus());
 		
