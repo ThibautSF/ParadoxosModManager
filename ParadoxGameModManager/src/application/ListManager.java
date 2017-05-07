@@ -52,11 +52,11 @@ public class ListManager extends Stage {
 	private VBox menu = new VBox();
 	private String pthModstr = "Path : %s";
 	private Label pthModLbl = new Label(pthModstr);
-	private String nbModstr = "Mod founds : %d";
+	private String nbModstr = "Mod(s) found : %d";
 	private Label nbModLbl = new Label(nbModstr);
 	
 	private VBox yrListsBox = new VBox();
-	private String lblYrLists = "Your lists (%d founds)";
+	private String lblYrLists = "Your lists (%d found)";
 	private Label yourLists = new Label(lblYrLists);
 	
 	private VBox content = new VBox();
