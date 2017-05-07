@@ -277,6 +277,7 @@ public class ModManager extends Application {
 			
 			//In case the user write wrong separator
 			docPathStr = docPathStr.replaceAll("(\\\\+|/+)", Matcher.quoteReplacement(File.separator));
+			if(!(docPathStr.lastIndexOf(File.separator)==docPathStr.length()-1)) docPathStr+=File.separator;
 			
 			if(checkPath(docPathStr)){
 				PATH = docPathStr;
