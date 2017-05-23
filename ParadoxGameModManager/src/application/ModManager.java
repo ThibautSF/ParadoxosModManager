@@ -55,6 +55,8 @@ public class ModManager extends Application {
 	public static String GAME;
 	public static Integer STEAM_ID;
 	public static File xmlDir;
+	private MyXML settingsXML;
+	private String fileXML = "settings.xml";
 	
 	/* (non-Javadoc)
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
@@ -90,6 +92,9 @@ public class ModManager extends Application {
 			    
 			}
 		}
+		this.settingsXML = new MyXML();
+		settingsXML.readSettingFile(fileXML);
+		
 		if(initApp()){
 			//Clean debug log file
 			File debugFile = new File("DebugLog.txt");

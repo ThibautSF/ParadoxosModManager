@@ -1,0 +1,5 @@
+<appsettings>
+	<game steamid="281990">
+		<docfolder path="path/to/game"/>
+	</game>
+</appsettings>

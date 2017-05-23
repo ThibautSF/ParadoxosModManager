@@ -26,6 +26,10 @@ public class MyXML {
 	private static final String REMOTE_ID = "remoteID";
 	private static final String MOD_NAME = "modName";
 	
+	private static final String APP_SETTINGS = "appsettings";
+	private static final String GAME = "game";
+	private static final String Doc_Folder = "docfolder";
+	
 	private static Element root;
 	private static org.jdom2.Document document;
 	private static Element root_exported;
@@ -54,6 +58,25 @@ public class MyXML {
 		root_exported = new Element(EXPORTED_LIST);
 		root_exported.setAttribute(GAME_ID, ModManager.STEAM_ID.toString());
 		document_exported = new Document(root_exported);
+		
+		this.file = file;
+	}
+	
+	/**
+	 * @param file
+	 * @throws Exception
+	 */
+	public void readSettingFile(String file) throws Exception{
+		SAXBuilder sxb = new SAXBuilder();
+		File xml = new File(file);
+		if(xml.exists()){
+			document = sxb.build(xml);
+			root = document.getRootElement();
+		}
+		else{
+			root = new Element(APP_SETTINGS);
+			document = new Document(root);
+		}
 		
 		this.file = file;
 	}
@@ -278,5 +301,19 @@ public class MyXML {
 			return "Import done.";
 		}
 		return "Import procedure aborted, this list is not for the current game !";
+	}
+	
+	/**
+	 * 
+	 */
+	public String getGameSettings(Integer gameID){
+		String path = "";
+		//TODO return the path in the settings xml for the game gameID or return ""
+		// Called when the user select a game in the first window
+		return path;
+	}
+	
+	public void modifyGameSettings(Integer gameID) throws Exception {
+		//TODO modify settings for gameID and save (call this.saveFile() method)
 	}
 }
