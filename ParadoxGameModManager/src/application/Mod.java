@@ -76,15 +76,15 @@ public class Mod {
 		Path pth = Paths.get(ModManager.PATH+"mod"+sep+fileName.get());
 		List<String> lines = Files.readAllLines(pth);
 		for (String line : lines) {
-			if(line.contains("name=")) {
+			if(line.matches("\\s*name\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-			}else if (line.contains("supported_version=")) {
+			}else if (line.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
 				    versionCompatible = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-			}else if (line.contains("remote_file_id=")){
+			}else if (line.matches("\\s*remote_file_id\\s*=.*")){
 				m = p.matcher(line);
 				if(m.find()){
 				    remoteFileID = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
