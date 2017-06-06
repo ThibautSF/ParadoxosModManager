@@ -9,9 +9,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
+
+import org.jdom2.DataConversionException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -55,6 +58,7 @@ public class ModManager extends Application {
 	public static String GAME;
 	public static Integer STEAM_ID;
 	public static File xmlDir;
+	public static HashMap<String, String> APP_PARAMS;
 	private MyXML settingsXML;
 	private String fileXML = "settings.xml";
 	
@@ -63,6 +67,11 @@ public class ModManager extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		//Clean debug log file
+		File debugFile = new File("DebugLog.txt");
+		if(debugFile.exists())
+			debugFile.delete();
+		
 		if(checkOnlineVersion()){
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle(APP_NAME);
@@ -96,11 +105,8 @@ public class ModManager extends Application {
 		settingsXML.readSettingFile(fileXML);
 		
 		if(initApp()){
-			//Clean debug log file
-			File debugFile = new File("DebugLog.txt");
-			if(debugFile.exists())
-				debugFile.delete();
-				
+			settingsXML.modifyGameSettings(STEAM_ID, "docfolderpath", PATH);
+			
 			//Create a dir to save lists of the selected game
 			xmlDir = new File(GAME);
 			if(!xmlDir.exists())
@@ -186,7 +192,19 @@ public class ModManager extends Application {
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 					String newGame = SUPPORTED_GAMES.get((int) newValue);
 					Integer newSteamID = GAMES_STEAM_ID.get((int) newValue);
-					String newPath = generatePath(newGame);
+					try {
+						ModManager.APP_PARAMS = settingsXML.getGameSettings(newSteamID);
+					} catch (DataConversionException e) {
+						// TODO Bloc catch généré automatiquement
+						e.printStackTrace();
+					}
+					String newPath;
+					String docPathParam = ModManager.APP_PARAMS.get("docfolderpath");
+					if(docPathParam!=null){
+						newPath = docPathParam;
+					} else{
+						newPath = generatePath(newGame);
+					}
 					docPath.setText(newPath);
 					gamePath.setText("Steam launch | steam://run/"+newSteamID);
 					dirDocChooser.setTitle("Choose document path for "+newGame);

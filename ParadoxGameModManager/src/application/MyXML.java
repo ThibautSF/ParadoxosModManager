@@ -3,6 +3,7 @@ package application;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import org.jdom2.*;
 import org.jdom2.input.*;
@@ -28,7 +29,8 @@ public class MyXML {
 	
 	private static final String APP_SETTINGS = "appsettings";
 	private static final String GAME = "game";
-	private static final String Doc_Folder = "docfolder";
+	private static final String ATTR_STEAMID = "steamid";
+	private static final String ATTR_VALUE = "value";
 	
 	private static Element root;
 	private static org.jdom2.Document document;
@@ -304,16 +306,69 @@ public class MyXML {
 	}
 	
 	/**
+	 * @throws DataConversionException 
 	 * 
 	 */
-	public String getGameSettings(Integer gameID){
-		String path = "";
-		//TODO return the path in the settings xml for the game gameID or return ""
-		// Called when the user select a game in the first window
-		return path;
+	public HashMap<String, String> getGameSettings(Integer gameID) throws DataConversionException{
+		HashMap<String, String> params = new HashMap<>();
+		List<Element> gameLists = root.getChildren(GAME);
+		Iterator<Element> i = gameLists.iterator();
+		while(i.hasNext()){
+			Element oneListElement = (Element) i.next();
+			
+			if (gameID==oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+				List<Element> gameParamsElements = oneListElement.getChildren();
+				for (Element element : gameParamsElements) {
+					params.put(element.getName(), element.getAttributeValue(ATTR_VALUE));
+				}
+				break;
+			}
+		}
+		return params;
 	}
 	
-	public void modifyGameSettings(Integer gameID) throws Exception {
-		//TODO modify settings for gameID and save (call this.saveFile() method)
+	public void modifyGameSettings(Integer gameID, String attrName, String value) throws Exception {
+		List<Element> gameLists = root.getChildren(GAME);
+		Iterator<Element> i = gameLists.iterator();
+		Boolean flag_nogame=true, flag_noattrparam=true;
+		while(i.hasNext()){
+			Element oneListElement = (Element) i.next();
+			
+			if(gameID == oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+				flag_nogame=false;
+				List<Element> gameParamsElements = oneListElement.getChildren();
+				Iterator<Element> j = gameParamsElements.iterator();
+				
+				while(j.hasNext()) {
+					Element oneParamElement = (Element) j.next();
+					
+					if(attrName == oneParamElement.getName()){
+						flag_noattrparam=false;
+						oneParamElement.setAttribute(ATTR_VALUE, value);
+						
+						break;
+					}
+				}
+				
+				if(flag_noattrparam){
+					Element newParamElement = new Element(attrName);
+					newParamElement.setAttribute(ATTR_VALUE, value);
+					oneListElement.addContent(newParamElement);
+				}
+				
+				break;
+			}
+		}
+		
+		if(flag_nogame) {
+			Element newGameElement = new Element(GAME);
+			newGameElement.setAttribute(ATTR_STEAMID,gameID.toString());
+			root.addContent(newGameElement);
+			Element newParamElement = new Element(attrName);
+			newParamElement.setAttribute(ATTR_VALUE,value);
+			newGameElement.addContent(newParamElement);
+		}
+		
+		saveFile();
 	}
 }

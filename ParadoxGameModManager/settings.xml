@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <appsettings>
-	<game steamid="281990">
-		<docfolder path="path/to/game"/>
-	</game>
+  <game steamid="281990">
+    <docfolderpath value="/home/tsimonfine/.local/share/Paradox Interactive/Stellaris/" />
+  </game>
 </appsettings>
