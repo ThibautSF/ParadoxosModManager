@@ -49,7 +49,8 @@ import javafx.stage.Stage;
 public class ModManager extends Application {
 	
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static String VERSION = "0.4.2";
+	public static String VERSION = "0.5.0";
+	public static String ONLINE_VERSION;
 	public static String urlAppInfoTxt = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
 	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(									  281990,				   236850, 				203770, 			 394360);
@@ -76,7 +77,7 @@ public class ModManager extends Application {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle(APP_NAME);
 			alert.setHeaderText("A new version is available !");
-			alert.setContentText(String.format("A new version of %s is\n available online !", APP_NAME));
+			alert.setContentText(String.format("A new version of %s is\n available online !\nLocal : %s\nOnline : %s", APP_NAME, VERSION, ONLINE_VERSION));
 
 			ButtonType buttonWeb = new ButtonType("Get Update");
 			ButtonType buttonCancel = new ButtonType("Continue", ButtonData.CANCEL_CLOSE);
@@ -192,14 +193,16 @@ public class ModManager extends Application {
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 					String newGame = SUPPORTED_GAMES.get((int) newValue);
 					Integer newSteamID = GAMES_STEAM_ID.get((int) newValue);
+					String docPathParam=null;
 					try {
-						ModManager.APP_PARAMS = settingsXML.getGameSettings(newSteamID);
+						//ModManager.APP_PARAMS = settingsXML.getGameSettings(newSteamID);
+						docPathParam = settingsXML.getOneGameSetting(newSteamID,"docfolderpath");
 					} catch (DataConversionException e) {
-						// TODO Bloc catch généré automatiquement
+						ErrorPrint.printError(e, "Error reading the saved params for gameID : '"+newSteamID+"'");
 						e.printStackTrace();
 					}
 					String newPath;
-					String docPathParam = ModManager.APP_PARAMS.get("docfolderpath");
+					//String docPathParam = ModManager.APP_PARAMS.get("docfolderpath");
 					if(docPathParam!=null){
 						newPath = docPathParam;
 					} else{
@@ -348,6 +351,8 @@ public class ModManager extends Application {
 					String[] aOnlineV = onlineVersion.split("\\.");
 					String[] aLocalV = VERSION.split("\\.");
 					
+					ONLINE_VERSION = onlineVersion;
+					
 					if(Integer.parseInt(aOnlineV[0]) > Integer.parseInt(aLocalV[0])) {
 						return true;
 					} else if(Integer.parseInt(aOnlineV[0]) == Integer.parseInt(aLocalV[0])) {
@@ -363,7 +368,7 @@ public class ModManager extends Application {
 			}
 	        in.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			ErrorPrint.printError(e, "Unable to check online version");
 		}
 		
 		return false;

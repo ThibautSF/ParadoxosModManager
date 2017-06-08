@@ -327,6 +327,29 @@ public class MyXML {
 		return params;
 	}
 	
+	/**
+	 * @throws DataConversionException 
+	 * 
+	 */
+	public String getOneGameSetting(Integer gameID, String attrName) throws DataConversionException{
+		List<Element> gameLists = root.getChildren(GAME);
+		Iterator<Element> i = gameLists.iterator();
+		while(i.hasNext()){
+			Element oneListElement = (Element) i.next();
+			
+			if (gameID==oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+				List<Element> gameParamsElements = oneListElement.getChildren();
+				for (Element element : gameParamsElements) {
+					if(element.getName().equals(attrName)){
+						String value = element.getAttributeValue(ATTR_VALUE);
+						return value;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 	public void modifyGameSettings(Integer gameID, String attrName, String value) throws Exception {
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
