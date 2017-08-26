@@ -502,6 +502,14 @@ public class ListManager extends Stage {
 	 */
 	private int getModNumbers(){
 		int modNumbers;
+		
+		loadModFilesArray();
+		
+		modNumbers = modFiles.length;
+		return modNumbers;
+	}
+	
+	private void loadModFilesArray(){
 		String sep = File.separator;
 		File modFile = new File(absolutePath+sep+"mod");
 		modFiles = modFile.list(new FilenameFilter(){
@@ -509,9 +517,6 @@ public class ListManager extends Stage {
 		    public boolean accept(File dir, String name) {
 		        return name.toLowerCase().endsWith(".mod");
 		    }
-		    });
-		
-		modNumbers = modFiles.length;
-		return modNumbers;
+		});
 	}
 }

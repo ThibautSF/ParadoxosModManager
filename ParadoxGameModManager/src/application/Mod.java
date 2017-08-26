@@ -80,6 +80,8 @@ public class Mod {
 				m = p.matcher(line);
 				if(m.find())
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
+				System.out.println(m);
+				System.out.println("Name found : "+name);
 			}else if (line.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
