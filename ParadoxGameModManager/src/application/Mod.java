@@ -76,17 +76,18 @@ public class Mod {
 		Path pth = Paths.get(ModManager.PATH+"mod"+sep+fileName.get());
 		List<String> lines = Files.readAllLines(pth);
 		for (String line : lines) {
-			if(line.matches("\\s*name\\s*=.*")) {
+			String lineWFirstChar = (line.length() > 0) ? line.substring(1, line.length()) : "";
+			if(line.matches("\\s*name\\s*=.*") || lineWFirstChar.matches("\\s*name\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
 				System.out.println(m);
 				System.out.println("Name found : "+name);
-			}else if (line.matches("\\s*supported_version\\s*=.*")) {
+			}else if (line.matches("\\s*supported_version\\s*=.*") || lineWFirstChar.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
 				    versionCompatible = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-			}else if (line.matches("\\s*remote_file_id\\s*=.*")){
+			}else if (line.matches("\\s*remote_file_id\\s*=.*") || lineWFirstChar.matches("\\s*remote_file_id\\s*=.*")){
 				m = p.matcher(line);
 				if(m.find()){
 				    remoteFileID = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
