@@ -108,7 +108,6 @@ public class ListCreator extends Stage {
 		this.list = list;
 		
 		for (String oneModFiles : modFiles) {
-			System.out.println("TODO : "+oneModFiles);
 			Mod m = new Mod(oneModFiles);
 			userMods.add(m);
 		}
