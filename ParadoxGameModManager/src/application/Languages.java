@@ -12,7 +12,8 @@ public enum Languages {
 	HUNGARIAN ("hungarian"),
 	DUTCH ("dutch"),
 	RUSSIAN ("russian"),
-	FINNISH ("finnish");
+	FINNISH ("finnish"),
+	BRAZ_PORTUGUESE("braz_por");
 	
 	private String name;
 	
