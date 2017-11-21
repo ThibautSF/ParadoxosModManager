@@ -70,7 +70,7 @@ public class ErrorPrint {
 		int hour = now.getHour();
 		int minute = now.getMinute();
 		int second = now.getSecond();
-		String strDate = String.format("%d-%02d-%02d %02d:%02d:%02d : TYPE %s", year, month, day, hour, minute, second, infoType);
+		String strDate = String.format("%d-%02d-%02d %02d:%02d:%02d : type %s", year, month, day, hour, minute, second, infoType);
 		writeFile(strDate);
 	}
 	

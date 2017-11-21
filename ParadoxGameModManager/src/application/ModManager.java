@@ -3,6 +3,7 @@ package application;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -36,6 +37,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 //import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -68,10 +70,6 @@ public class ModManager extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		//Clean debug log file
-		File debugFile = new File("DebugLog.txt");
-		if(debugFile.exists())
-			debugFile.delete();
 		
 		if(checkOnlineVersion()){
 			Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -113,7 +111,23 @@ public class ModManager extends Application {
 			if(!xmlDir.exists())
 				xmlDir.mkdir();
 			
-			new ListManager(PATH);
+			try{
+				new ListManager(PATH);
+			}catch (FileNotFoundException e){
+				ErrorPrint.printError(e);
+				
+				Text textError = new Text(e.getMessage());
+				textError.setWrappingWidth(400);
+				
+				Alert alertError = new Alert(AlertType.ERROR);
+				alertError.setTitle("Error Dialog");
+				alertError.setHeaderText("Critical Error");
+				alertError.getDialogPane().setContent(textError);
+
+				alertError.showAndWait();
+				
+				start(primaryStage);
+			}
 		}
 	}
 
@@ -375,6 +389,11 @@ public class ModManager extends Application {
 	}
 	
 	public static void main(String[] args) {
-	    Application.launch(args);
+		//Clean debug log file
+		File debugFile = new File("DebugLog.txt");
+		if(debugFile.exists())
+			debugFile.delete();
+		
+		Application.launch(args);
     }
 }

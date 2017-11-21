@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -80,14 +81,18 @@ public class ListManager extends Stage {
 	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	
 	/**
+	 * @throws FileNotFoundException 
 	 * @throws Exception 
 	 * 
 	 */
-	public ListManager(String path) {
+	public ListManager(String path) throws FileNotFoundException {		
 		this.userlistsXML = new MyXML();
 		gameDir = new File(path);
 		absolutePath = gameDir.getAbsolutePath();
 		
+		//Load the list of mod files
+		loadModFilesArray();
+				
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
 		window.setHgap(8);
@@ -501,22 +506,23 @@ public class ListManager extends Stage {
 	 * @return
 	 */
 	private int getModNumbers(){
-		int modNumbers;
+		//loadModFilesArray();
 		
-		loadModFilesArray();
-		
-		modNumbers = modFiles.length;
-		return modNumbers;
+		return modFiles.length;
 	}
 	
-	private void loadModFilesArray(){
+	private void loadModFilesArray() throws FileNotFoundException{
 		String sep = File.separator;
 		File modFile = new File(absolutePath+sep+"mod");
-		modFiles = modFile.list(new FilenameFilter(){
-		    @Override
-		    public boolean accept(File dir, String name) {
-		        return name.toLowerCase().endsWith(".mod");
-		    }
-		});
+		if(modFile.exists()){
+			modFiles = modFile.list(new FilenameFilter(){
+			    @Override
+			    public boolean accept(File dir, String name) {
+			        return name.toLowerCase().endsWith(".mod");
+			    }
+			});
+		} else {
+			throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
+		}
 	}
 }
