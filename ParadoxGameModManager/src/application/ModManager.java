@@ -51,7 +51,7 @@ import javafx.stage.Stage;
 public class ModManager extends Application {
 	
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static String VERSION = "0.5.1";
+	public static String VERSION = "0.5.2";
 	public static String ONLINE_VERSION;
 	public static String urlAppInfoTxt = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
