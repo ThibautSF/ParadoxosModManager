@@ -1,7 +1,9 @@
 package application;
 
 import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -80,6 +82,8 @@ public class ListCreator extends Stage {
 	private Button cancelList = new Button("Cancel");
 	private HBox saveListBox = new HBox();
 	private Button saveList = new Button("Save");
+	private HBox importCurrentListBox = new HBox();
+	private Button importCurrentList = new Button("Import from current");
 	private String lblSaveifMissings = "\tMissings mods will be cleared !";
 	private Label saveifMissings = new Label(lblSaveifMissings);
 	
@@ -128,6 +132,7 @@ public class ListCreator extends Stage {
 		window.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
+		
 		//Uncomment when editing window to see cells
 		//window.setGridLinesVisible(true);
 		
@@ -285,7 +290,7 @@ public class ListCreator extends Stage {
 		cancelListBox.setStyle("-fx-alignment: center-right;");
 		cancelListBox.getChildren().add(cancelList);
 		
-		window.add(saveListBox, 2, 4, 3, 1);
+		window.add(saveListBox, 2, 4, 1, 1);
 		saveListBox.setStyle("-fx-alignment: center-left;");
 		saveListBox.getChildren().add(saveList);
 		
@@ -335,6 +340,22 @@ public class ListCreator extends Stage {
 				stage.close();
 			}//end action
 		});
+		
+		//Import current config button
+		window.add(importCurrentListBox, 3, 4, 1, 1);
+		importCurrentListBox.setStyle("-fx-alignment: center-right;");
+		importCurrentListBox.getChildren().add(importCurrentList);
+		
+		importCurrentList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				try {
+					getModList();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}//end action
+		});
 	}
 
 	/**
@@ -357,5 +378,78 @@ public class ListCreator extends Stage {
 		listOfMods.addAll(userMods);
 		
 		mods.setItems(listOfMods);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	private void getModList() throws IOException {
+		String sep = File.separator;
+		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
+
+		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+
+		String startLineRemove = "gui";
+		String aloneLineRemove = "language";
+		String currentLine;
+		boolean startRead = false, hasEqual = false, waitEqual = false;
+
+		while ((currentLine = reader.readLine()) != null) {
+			String trimmedLine = currentLine.trim();
+			if (hasEqual && trimmedLine.contains("{")) {
+				hasEqual = false;
+			}
+			if (waitEqual && trimmedLine.contains("=")) {
+				waitEqual = false;
+				hasEqual = true;
+			}
+			if (trimmedLine.contains(startLineRemove)) {
+				startRead = true;
+				continue;
+			}
+			
+			if (!startRead) {
+				if (trimmedLine.contains(aloneLineRemove)) {
+					startLineRemove = "last_mods";
+				}
+			}
+			if (startRead && !hasEqual && !waitEqual) {
+				if (trimmedLine.contains("}")) {
+					startRead = false;
+					continue;
+				}
+				
+				String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.length()-1);
+				Mod oneMod = new Mod(oneModStr);
+				
+				if(oneMod.isMissing()){
+					if(!missingMods.contains(oneMod))
+						missingMods.add(oneMod);
+				}else{
+					if(!selectedModsList.contains(oneMod))
+						selectedModsList.add(oneMod);
+				}
+				
+			}
+		}
+		reader.close();
+		
+		refresh();
+	}
+
+	private void refresh(){
+		for (Mod mod : selectedModsList) {
+			if(!listOfMods.contains(mod))
+				listOfMods.add(mod);
+		}
+		
+		for (Mod mod : missingMods) {
+			if(!listOfMods.contains(mod))
+				listOfMods.add(mod);
+		}
+		
+		mods.refresh();
 	}
 }
