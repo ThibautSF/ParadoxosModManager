@@ -385,61 +385,85 @@ public class ListCreator extends Stage {
 	 * @return
 	 * @throws IOException
 	 */
-	private void getModList() throws IOException {
+	public void getModList() throws IOException {
 		String sep = File.separator;
+		Languages language = Languages.getLanguage(null);
 		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
 
 		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-
-		String startLineRemove = "gui";
+		
+		String startLineRemove = "last_mods";
 		String aloneLineRemove = "language";
 		String currentLine;
-		boolean startRead = false, hasEqual = false, waitEqual = false;
+		boolean startEdit = false, startRead = false, hasEqual = false, waitEqual = false;
 
 		while ((currentLine = reader.readLine()) != null) {
+			// trim newline when comparing with lineToRemove
 			String trimmedLine = currentLine.trim();
 			if (hasEqual && trimmedLine.contains("{")) {
 				hasEqual = false;
+				startEdit = true;
 			}
 			if (waitEqual && trimmedLine.contains("=")) {
 				waitEqual = false;
-				hasEqual = true;
+				if (trimmedLine.contains("{")) {
+					startEdit = true;
+				} else {
+					hasEqual = true;
+				}
 			}
 			if (trimmedLine.contains(startLineRemove)) {
+				if (trimmedLine.contains(startLineRemove + "={")) {
+					startEdit = true;
+				} else if (trimmedLine.contains(startLineRemove + "=")) {
+					hasEqual = true;
+				} else {
+					waitEqual = true;
+				}
 				startRead = true;
-				continue;
 			}
-			
-			if (!startRead) {
-				if (trimmedLine.contains(aloneLineRemove)) {
-					startLineRemove = "last_mods";
+			if (startEdit) {
+				startEdit = false;
+			} else {
+				if (!startRead) {
+					if (trimmedLine.contains(aloneLineRemove)) {
+						String languageStr = trimmedLine.substring(trimmedLine.indexOf("l_")+2, trimmedLine.length()-1);
+						language = Languages.getLanguage(languageStr);
+						startLineRemove = "last_mods";
+					}
+					
 				}
-			}
-			if (startRead && !hasEqual && !waitEqual) {
-				if (trimmedLine.contains("}")) {
-					startRead = false;
-					continue;
+				if (startRead && !hasEqual && !waitEqual) {
+					if (trimmedLine.contains("}")) {
+						startRead = false;
+					}
+					
+					while(trimmedLine.indexOf("/")>=0){
+						String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod\"")+4);
+						
+						Mod oneMod = new Mod(oneModStr);
+						
+						if(oneMod.isMissing()){
+							if(!missingMods.contains(oneMod))
+								missingMods.add(oneMod);
+						}else{
+							if(!selectedModsList.contains(oneMod))
+								selectedModsList.add(oneMod);
+						}
+						
+						trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod\"")+5, trimmedLine.length());
+					}
 				}
-				
-				String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.length()-1);
-				Mod oneMod = new Mod(oneModStr);
-				
-				if(oneMod.isMissing()){
-					if(!missingMods.contains(oneMod))
-						missingMods.add(oneMod);
-				}else{
-					if(!selectedModsList.contains(oneMod))
-						selectedModsList.add(oneMod);
-				}
-				
 			}
 		}
 		reader.close();
 		
-		refresh();
+		refresh(language);
 	}
 
-	private void refresh(){
+	private void refresh(Languages language){
+		cbListLang.setValue(language);
+		
 		for (Mod mod : selectedModsList) {
 			if(!listOfMods.contains(mod))
 				listOfMods.add(mod);
