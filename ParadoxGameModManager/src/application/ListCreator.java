@@ -385,7 +385,7 @@ public class ListCreator extends Stage {
 	 * @return
 	 * @throws IOException
 	 */
-	public void getModList() throws IOException {
+	private void getModList() throws IOException {
 		String sep = File.separator;
 		Languages language = Languages.getLanguage(null);
 		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
