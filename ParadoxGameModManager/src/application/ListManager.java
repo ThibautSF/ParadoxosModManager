@@ -107,7 +107,7 @@ public class ListManager extends Stage {
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
 		//Uncomment when editing window to see cells
-		window.setGridLinesVisible(true);
+		//window.setGridLinesVisible(true);
 		
 		RowConstraints row1 = new RowConstraints();
 	    row1.setPercentHeight(15);
