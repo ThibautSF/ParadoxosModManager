@@ -423,6 +423,11 @@ public class ListCreator extends Stage {
 				startRead = true;
 			}
 			if (startEdit) {
+				if (startLineRemove.equals("gui")) {
+					startLineRemove = "last_mods";
+				} else {
+					readMods(trimmedLine);
+				}
 				startEdit = false;
 			} else {
 				if (!startRead) {
@@ -438,27 +443,31 @@ public class ListCreator extends Stage {
 						startRead = false;
 					}
 					
-					while(trimmedLine.indexOf("/")>=0){
-						String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod\"")+4);
-						
-						Mod oneMod = new Mod(oneModStr);
-						
-						if(oneMod.isMissing()){
-							if(!missingMods.contains(oneMod))
-								missingMods.add(oneMod);
-						}else{
-							if(!selectedModsList.contains(oneMod))
-								selectedModsList.add(oneMod);
-						}
-						
-						trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod\"")+5, trimmedLine.length());
-					}
+					readMods(trimmedLine);
 				}
 			}
 		}
 		reader.close();
 		
 		refresh(language);
+	}
+	
+	private void readMods(String trimmedLine){
+		while(trimmedLine.indexOf("/")>=0){
+			String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod\"")+4);
+			
+			Mod oneMod = new Mod(oneModStr);
+			
+			if(oneMod.isMissing()){
+				if(!missingMods.contains(oneMod))
+					missingMods.add(oneMod);
+			}else{
+				if(!selectedModsList.contains(oneMod))
+					selectedModsList.add(oneMod);
+			}
+			
+			trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod\"")+5, trimmedLine.length());
+		}
 	}
 
 	private void refresh(Languages language){
