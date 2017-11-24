@@ -23,6 +23,8 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -56,6 +58,10 @@ public class ListManager extends Stage {
 	private String nbModstr = "Mod(s) found : %d";
 	private Label nbModLbl = new Label(nbModstr);
 	
+	private HBox actionsBox = new HBox(8);
+	private Button buttonRefresh = new Button("↺");
+	private Button buttonBack = new Button("←");
+	
 	private VBox yrListsBox = new VBox();
 	private String lblYrLists = "Your lists (%d found)";
 	private Label yourLists = new Label(lblYrLists);
@@ -63,12 +69,12 @@ public class ListManager extends Stage {
 	private VBox content = new VBox();
 	private ListView<String> lists = new ListView<String>();
 	
-	private HBox buttons = new HBox();
+	private HBox buttons = new HBox(8);
 	private Button newList = new Button("New");
 	private Button modifyList = new Button("Modify");
 	private Button delList = new Button("Delete");
 	private Button applyList = new Button("Apply");
-	private HBox buttons2 = new HBox();
+	private HBox buttons2 = new HBox(8);
 	private Button exportList = new Button("Export");
 	private Button importList = new Button("Import");
 	
@@ -101,7 +107,7 @@ public class ListManager extends Stage {
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
 		//Uncomment when editing window to see cells
-		//window.setGridLinesVisible(true);
+		window.setGridLinesVisible(true);
 		
 		RowConstraints row1 = new RowConstraints();
 	    row1.setPercentHeight(15);
@@ -136,6 +142,32 @@ public class ListManager extends Stage {
 		menu.getChildren().addAll(pthModLbl,nbModLbl);
 		pthModLbl.setText(String.format(pthModstr,absolutePath));
 		nbModLbl.setText(String.format(nbModstr, getModNumbers()));
+		
+		window.add(actionsBox, 4, 0);
+		actionsBox.setAlignment(Pos.CENTER_RIGHT);
+		actionsBox.getChildren().addAll(buttonRefresh,buttonBack);
+		
+		buttonRefresh.setOnAction(new EventHandler<ActionEvent>() {
+	        @Override
+	        public void handle(ActionEvent t) {
+	        	try {
+					loadModFilesArray();
+					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
+				} catch (FileNotFoundException e) {
+					ErrorPrint.printError(e);
+				}
+	        }//end action
+	    });
+		
+		buttonBack.setOnAction(new EventHandler<ActionEvent>() {
+	        @Override
+	        public void handle(ActionEvent t) {
+	        	Node  source = (Node)  t.getSource(); 
+				Stage stage  = (Stage) source.getScene().getWindow();
+				stage.close();
+				new ModManager(true);
+	        }//end action
+	    });
 		
 		//ModList "Your mods" field
 		window.add(yrListsBox, 1, 1, 4, 1);
@@ -184,7 +216,6 @@ public class ListManager extends Stage {
 		//Buttons line 1
 		window.add(buttons, 1, 3, 4, 1);
 		buttons.setStyle("-fx-alignment: bottom-center;");
-		buttons.setSpacing(8);
 		buttons.getChildren().addAll(newList,modifyList,delList,applyList);
 		modifyList.setDisable(true);
 		delList.setDisable(true);
@@ -193,7 +224,6 @@ public class ListManager extends Stage {
 		//Buttons line 2
 		window.add(buttons2, 1, 4, 4, 1);
 		buttons2.setStyle("-fx-alignment: top-center;");
-		buttons2.setSpacing(8);
 		buttons2.getChildren().addAll(importList,exportList);
 		exportList.setDisable(true);
 		

@@ -62,8 +62,47 @@ public class ModManager extends Application {
 	public static Integer STEAM_ID;
 	public static File xmlDir;
 	public static HashMap<String, String> APP_PARAMS;
-	private MyXML settingsXML;
+	private static MyXML settingsXML;
 	private String fileXML = "settings.xml";
+	
+	public ModManager() {
+		super();
+	}
+	
+	public ModManager(Boolean restart) {
+		if(restart){
+			if(initApp()){
+				try {
+					settingsXML.modifyGameSettings(STEAM_ID, "docfolderpath", PATH);
+				} catch (Exception e) {
+					ErrorPrint.printError(e);
+				}
+				
+				//Create a dir to save lists of the selected game
+				xmlDir = new File(GAME);
+				if(!xmlDir.exists())
+					xmlDir.mkdir();
+				
+				try{
+					new ListManager(PATH);
+				}catch (FileNotFoundException e){
+					ErrorPrint.printError(e);
+					
+					Text textError = new Text(e.getMessage());
+					textError.setWrappingWidth(400);
+					
+					Alert alertError = new Alert(AlertType.ERROR);
+					alertError.setTitle("Error Dialog");
+					alertError.setHeaderText("Critical Error");
+					alertError.getDialogPane().setContent(textError);
+	
+					alertError.showAndWait();
+					
+					new ModManager(restart);
+				}
+			}
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
@@ -100,7 +139,7 @@ public class ModManager extends Application {
 			    
 			}
 		}
-		this.settingsXML = new MyXML();
+		settingsXML = new MyXML();
 		settingsXML.readSettingFile(fileXML);
 		
 		if(initApp()){

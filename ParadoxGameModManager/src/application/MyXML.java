@@ -42,9 +42,11 @@ public class MyXML {
 	
 	/**
 	 * @param file
+	 * @throws IOException 
+	 * @throws JDOMException 
 	 * @throws Exception
 	 */
-	public void readFile(String file) throws Exception{
+	public void readFile(String file) throws JDOMException, IOException {
 		SAXBuilder sxb = new SAXBuilder();
 		File xml = new File(file);
 		if(xml.exists()){
