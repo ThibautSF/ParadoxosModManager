@@ -395,7 +395,7 @@ public class ListCreator extends Stage {
 		String startLineRemove = "last_mods";
 		String aloneLineRemove = "language";
 		String currentLine;
-		boolean startEdit = false, startRead = false, hasEqual = false, waitEqual = false;
+		boolean startEdit = false, startRead = false, hasEqual = false, waitEqual = false, languageFound = false;
 
 		while ((currentLine = reader.readLine()) != null) {
 			// trim newline when comparing with lineToRemove
@@ -431,9 +431,10 @@ public class ListCreator extends Stage {
 				startEdit = false;
 			} else {
 				if (!startRead) {
-					if (trimmedLine.contains(aloneLineRemove)) {
-						String languageStr = trimmedLine.substring(trimmedLine.indexOf("l_")+2, trimmedLine.length()-1);
-						language = Languages.getLanguage(languageStr);
+					if (!languageFound && trimmedLine.contains(aloneLineRemove)) {
+						String languageStr = trimmedLine.substring(trimmedLine.indexOf("l_")+2);
+						language = Languages.getLanguage(languageStr.replace("\"", ""));
+						languageFound = true;
 						startLineRemove = "last_mods";
 					}
 					
