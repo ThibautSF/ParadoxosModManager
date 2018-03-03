@@ -44,10 +44,6 @@ public class OnlineVersionChecker {
 	private static String VERSION = "0.5.2";
 	
 	private String lastestOnlineVersionNumber;
-	/*
-	private int lastestOnlineMajorVersionNumber;
-	private int lastestOnlineMinorVersionNumber;
-	*/
 
 	public OnlineVersionChecker(){
 		String changelogOrNothing = newVersionOnline();
@@ -173,9 +169,6 @@ public class OnlineVersionChecker {
 		alert.setHeaderText("A new version is available !");
 		
 		Text contentText = new Text(String.format("A new version of %s is available online !\nLocal : %s\nOnline : %s\n", ModManager.APP_NAME, VERSION, lastestOnlineVersionNumber));
-		//contentText.wrappingWidthProperty().bind(alert.widthProperty());
-		
-		
 
 		GridPane expContent = new GridPane();
 		expContent.setMaxWidth(Double.MAX_VALUE);
