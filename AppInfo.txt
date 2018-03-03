@@ -4,3 +4,49 @@ AppVersion=0.5.2
 
 AppVersion=0.5.1
 - Correct a bug for HoI4 where mod names were not read (file encoding)
+
+AppVersion=0.5.0
+- Add saved parameters (stored in settings.xml) : the last path used for a game is now saved
+- Add more debugs
+- Add “Local version” and “Online version” infos in the “New version online” window
+
+AppVersion=0.4.2
+- Fix a bug causing mod name to not correspond
+
+AppVersion=0.4.1
+- Correct some typos
+- Fix a bug causing the doc picker button to not open a file chooser window
+- Fix a major bug when the doc path don’t ended with the system file separator, causing mods to occurs as “missing”
+
+AppVersion=0.4.0
+- Welcome to Mouchi in the developpement (https://github.com/NicolasGrosjean)
+- Add option to set game language for a list of mods, all list are set in English as default
+- Add online check for new version, when app is launch it make a request online and print a dialog window if a new version is found
+- Now it should be impossible to modify/apply/delete/export when there is no list selected (to reduce error logs)
+- Fix a bug where mods were missing in the settings.txt after apply
+
+AppVersion=0.3.0
+- Add system file browser to select document’s path of a game
+- Mod load order aborted because no way to force it.
+- Add Import/Export options
+- More errors traced in the debug txt file
+- Fix the LaunchWindows.cmd
+- Fix some very minor bugs
+
+AppVersion=0.2.0
+- Add option to change the document’s path of a game
+- Make base support of load order (read the doc)
+- Add mod name in the xml save file when mod lists are saved
+
+AppVersion=0.1.2
+- Public launch
+- Add confirm dialog when user delete a list (to avoid miss click)
+- Write documentation (https://drive.google.com/open?id=1wThmbZIEGWzDO3rp8-zzJumebXDBE4-q6L6GnzVKmAY and PDF in the zip)
+
+AppVersion=0.1.1
+- Some minor bugs corrected
+- Add option to launch game through steam with the app
+- Release to some people
+
+AppVersion=0.1.0
+- First stable version (private)
