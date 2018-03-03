@@ -1,5 +1,9 @@
-package application;
+package mod;
 
+/**
+ * @author GROSJEAN Nicolas (alias Mouchi)
+ *
+ */
 public enum Languages {
 	ENGLISH ("english"),
 	FRENCH ("french"),

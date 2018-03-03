@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import debug.ErrorPrint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -37,6 +38,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import mod.Languages;
+import mod.Mod;
+import mod.ModList;
+import settings.MyXML;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)

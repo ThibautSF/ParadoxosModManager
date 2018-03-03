@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 
+import debug.ErrorPrint;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -39,6 +40,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import mod.Mod;
+import mod.ModList;
+import settings.MyXML;
 import javafx.stage.FileChooser;
 
 /**
@@ -46,6 +50,8 @@ import javafx.stage.FileChooser;
  *
  */
 public class ListManager extends Stage {
+	private static MyXML userlistsXML = new MyXML();
+	private static String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	
 	//Window Var
 	private static int WINDOW_WIDTH = 600;
@@ -83,16 +89,13 @@ public class ListManager extends Stage {
 	private String absolutePath;
 	private String[] modFiles;
 	private ArrayList<ModList> userListArray = new ArrayList<ModList>();
-	private MyXML userlistsXML;
-	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	
 	/**
 	 * @throws FileNotFoundException 
 	 * @throws Exception 
 	 * 
 	 */
-	public ListManager(String path) throws FileNotFoundException {		
-		this.userlistsXML = new MyXML();
+	public ListManager(String path) throws FileNotFoundException {
 		gameDir = new File(path);
 		absolutePath = gameDir.getAbsolutePath();
 		
@@ -154,7 +157,7 @@ public class ListManager extends Stage {
 					loadModFilesArray();
 					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
 				} catch (FileNotFoundException e) {
-					ErrorPrint.printError(e);
+					ErrorPrint.printError(e, "Refresh");
 				}
 	        }//end action
 	    });
@@ -165,7 +168,11 @@ public class ListManager extends Stage {
 	        	Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
-				new ModManager(true);
+				try {
+					new ModManager(true);
+				} catch (Exception e) {
+					ErrorPrint.printError(e, "Reload Game");
+				}
 	        }//end action
 	    });
 		

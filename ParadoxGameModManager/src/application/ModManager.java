@@ -1,14 +1,7 @@
 package application;
 
-import java.awt.Desktop;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +10,7 @@ import java.util.regex.Matcher;
 
 import org.jdom2.DataConversionException;
 
+import debug.ErrorPrint;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -39,8 +33,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
-//import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import settings.MyXML;
+import versioning.OnlineVersionChecker;
 
 /**
  * Main class for Paradoxos Mod Manager
@@ -51,8 +47,6 @@ import javafx.stage.Stage;
 public class ModManager extends Application {
 	
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static String VERSION = "0.5.2";
-	public static String ONLINE_VERSION;
 	public static String urlAppInfoTxt = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
 	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(									  281990,				   236850, 				203770, 			 394360);
@@ -62,46 +56,16 @@ public class ModManager extends Application {
 	public static Integer STEAM_ID;
 	public static File xmlDir;
 	public static HashMap<String, String> APP_PARAMS;
-	private static MyXML settingsXML;
-	private String fileXML = "settings.xml";
+	
+	private static MyXML settingsXML = new MyXML();
+	private static String SETTINGS_FILE_XML = "settings.xml";
 	
 	public ModManager() {
 		super();
 	}
 	
-	public ModManager(Boolean restart) {
-		if(restart){
-			if(initApp()){
-				try {
-					settingsXML.modifyGameSettings(STEAM_ID, "docfolderpath", PATH);
-				} catch (Exception e) {
-					ErrorPrint.printError(e);
-				}
-				
-				//Create a dir to save lists of the selected game
-				xmlDir = new File(GAME);
-				if(!xmlDir.exists())
-					xmlDir.mkdir();
-				
-				try{
-					new ListManager(PATH);
-				}catch (FileNotFoundException e){
-					ErrorPrint.printError(e);
-					
-					Text textError = new Text(e.getMessage());
-					textError.setWrappingWidth(400);
-					
-					Alert alertError = new Alert(AlertType.ERROR);
-					alertError.setTitle("Error Dialog");
-					alertError.setHeaderText("Critical Error");
-					alertError.getDialogPane().setContent(textError);
-	
-					alertError.showAndWait();
-					
-					new ModManager(restart);
-				}
-			}
-		}
+	public ModManager(boolean restart) throws Exception {
+		start(null,restart);
 	}
 	
 	/* (non-Javadoc)
@@ -109,38 +73,15 @@ public class ModManager extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		start(primaryStage, false);
+	}
+	
+	public void start(Stage primaryStage, boolean reload) throws Exception {
 		
-		if(checkOnlineVersion()){
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.setTitle(APP_NAME);
-			alert.setHeaderText("A new version is available !");
-			alert.setContentText(String.format("A new version of %s is\n available online !\nLocal : %s\nOnline : %s", APP_NAME, VERSION, ONLINE_VERSION));
-
-			ButtonType buttonWeb = new ButtonType("Get Update");
-			ButtonType buttonCancel = new ButtonType("Continue", ButtonData.CANCEL_CLOSE);
-
-			alert.getButtonTypes().setAll(buttonWeb, buttonCancel);
-
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.get() == buttonWeb){
-				if(Desktop.isDesktopSupported()){
-        			new Thread(() -> {
-        		           try {
-        		        	   URI uri = new URI("https://drive.google.com/open?id=0B2162Wd9vePmRXdieVc2QzdraFU");
-        		               Desktop.getDesktop().browse(uri);
-        		               System.exit(0);
-        		           } catch (IOException | URISyntaxException e) {
-        		        	   ErrorPrint.printError(e);
-        		               e.printStackTrace();
-        		           }
-        		    }).start();
-				}
-			} else {
-			    
-			}
-		}
-		settingsXML = new MyXML();
-		settingsXML.readSettingFile(fileXML);
+		if(!reload)
+			new OnlineVersionChecker();
+		
+		settingsXML.readSettingFile(SETTINGS_FILE_XML);
 		
 		if(initApp()){
 			settingsXML.modifyGameSettings(STEAM_ID, "docfolderpath", PATH);
@@ -388,40 +329,6 @@ public class ModManager extends Application {
 					if(file.equals("settings.txt")) return true;
 				}
 			}
-		}
-		
-		return false;
-	}
-	
-	private boolean checkOnlineVersion(){
-		try{
-			URL appInfoTxt = new URL(urlAppInfoTxt);
-			BufferedReader in = new BufferedReader(new InputStreamReader(appInfoTxt.openStream()));
-			String inputLine;
-			while ((inputLine = in.readLine()) != null){
-				if(inputLine.contains("AppVersion=")){
-					String onlineVersion = inputLine.substring(inputLine.indexOf("=") + 1, inputLine.length());
-					String[] aOnlineV = onlineVersion.split("\\.");
-					String[] aLocalV = VERSION.split("\\.");
-					
-					ONLINE_VERSION = onlineVersion;
-					
-					if(Integer.parseInt(aOnlineV[0]) > Integer.parseInt(aLocalV[0])) {
-						return true;
-					} else if(Integer.parseInt(aOnlineV[0]) == Integer.parseInt(aLocalV[0])) {
-						if(Integer.parseInt(aOnlineV[1]) > Integer.parseInt(aLocalV[1])) {
-							return true;
-						} else if(Integer.parseInt(aOnlineV[1]) == Integer.parseInt(aLocalV[1])){
-							if(Integer.parseInt(aOnlineV[2]) > Integer.parseInt(aLocalV[2])) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-	        in.close();
-		} catch (Exception e) {
-			ErrorPrint.printError(e, "Unable to check online version");
 		}
 		
 		return false;

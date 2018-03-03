@@ -1,4 +1,4 @@
-package application;
+package mod;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import application.ModManager;
+import debug.ErrorPrint;
 import javafx.beans.property.SimpleStringProperty;
 
 /**

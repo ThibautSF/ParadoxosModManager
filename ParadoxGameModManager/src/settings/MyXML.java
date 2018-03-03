@@ -1,4 +1,4 @@
-package application;
+package settings;
 
 import java.io.*;
 import java.util.List;
@@ -8,6 +8,11 @@ import java.util.Iterator;
 import org.jdom2.*;
 import org.jdom2.input.*;
 import org.jdom2.output.*;
+
+import application.ModManager;
+import mod.Languages;
+import mod.Mod;
+import mod.ModList;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
