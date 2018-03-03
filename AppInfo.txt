@@ -1,1 +1,6 @@
 AppVersion=0.5.2
+- Add test and error window if mod/ directory is missing in the game's document folder
+- Add support for following language : spanish, polish, italian, swedish, czech, hungarian, dutch, russian, finnish and brazilian portuguese (Remember that only english, french, german and spanish are officially supported by Paradox)
+
+AppVersion=0.5.1
+- Correct a bug for HoI4 where mod names were not read (file encoding)
