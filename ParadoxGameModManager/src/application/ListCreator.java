@@ -10,7 +10,10 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
+import debug.BasicDialog;
 import debug.ErrorPrint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +25,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -29,6 +33,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -83,6 +88,9 @@ public class ListCreator extends Stage {
     ObservableList<Mod> listOfMods = FXCollections.observableArrayList();
     ObservableList<Mod> selectedModsList = FXCollections.observableArrayList();
     ObservableList<Mod> missingMods = FXCollections.observableArrayList();
+
+	private HBox clearListBox = new HBox();
+	private Button clearList = new Button("Clear");
 	private HBox cancelListBox = new HBox();
 	private Button cancelList = new Button("Cancel");
 	private HBox saveListBox = new HBox();
@@ -156,32 +164,34 @@ public class ListCreator extends Stage {
 	    ColumnConstraints col1 = new ColumnConstraints();
 	    col1.setPercentWidth(0);
 	    ColumnConstraints col2 = new ColumnConstraints();
-	    col2.setPercentWidth(50);
+	    col2.setPercentWidth(25);
 	    ColumnConstraints col3 = new ColumnConstraints();
 	    col3.setPercentWidth(25);
 	    ColumnConstraints col4 = new ColumnConstraints();
 	    col4.setPercentWidth(25);
 	    ColumnConstraints col5 = new ColumnConstraints();
-	    col5.setPercentWidth(0);
-	    window.getColumnConstraints().addAll(col1,col2,col3,col4,col5);
+	    col5.setPercentWidth(25);
+	    ColumnConstraints col6 = new ColumnConstraints();
+	    col6.setPercentWidth(0);
+	    window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
 		
 		
 		//ModList title fields
-		window.add(titleBox, 1, 0);
+		window.add(titleBox, 1, 0, 2, 1);
 		titleBox.getChildren().add(lblListName);
 		titleBox.getChildren().add(fieldListName);
 		titleBox.setStyle("-fx-alignment: center-left;");
 		fieldListName.setText(list.getName());
 		
 		//ModList Lang fields
-		window.add(langBox, 2, 0, 1, 1);
+		window.add(langBox, 3, 0, 1, 1);
 		langBox.getChildren().add(lblListLang);
 		langBox.getChildren().add(cbListLang);
 		langBox.setStyle("-fx-alignment: center-left;");
 		cbListLang.setValue(list.getLanguage());
 		
 		//ModList help/info fields
-		window.add(helpBox, 3, 0, 1, 1);
+		window.add(helpBox, 4, 0, 1, 1);
 		buttonHelp.setTooltip(tooltipHelp);
 		helpBox.getChildren().add(buttonHelp);
 		helpBox.setAlignment(Pos.TOP_RIGHT);
@@ -204,21 +214,21 @@ public class ListCreator extends Stage {
 		});
 		
 		//ModList Descr fields
-		window.add(descrBox, 1, 1, 3, 1);
+		window.add(descrBox, 1, 1, 4, 1);
 		descrBox.getChildren().add(lblListDesc);
 		descrBox.getChildren().add(fieldListDesc);
 		descrBox.setStyle("-fx-alignment: center-left;");
 		fieldListDesc.setText(list.getDescription());
 		
 		//ModList "Your mods" field
-		window.add(yrModsBox, 1, 2, 3, 1);
+		window.add(yrModsBox, 1, 2, 4, 1);
 		yrModsBox.getChildren().add(yourMods);
 		yrModsBox.setStyle("-fx-alignment: center;");
 		yourMods.setText(String.format(lblYrMods,modFiles.length));
 		yourMods.setStyle("-fx-font: bold 20 serif;");
 		
-		//ModList list of mods
-		window.add(listBox, 1, 3, 3, 1);
+		//ModList list of mods (start)
+		window.add(listBox, 1, 3, 4, 1);
 		listBox.getChildren().add(mods);
 		modNameCol.setSortable(false);
 		fileNameCol.setSortable(false);
@@ -289,13 +299,29 @@ public class ListCreator extends Stage {
 	    });
 		
 		printModList();
-			
-		//Buttons Cancel & Apply
-		window.add(cancelListBox, 1, 4);
+		//ModList list of mods (end)
+		
+		//Clear list button (start)
+		window.add(clearListBox, 1, 4, 1, 1);
+		clearListBox.setStyle("-fx-alignment: center-left;");
+		clearListBox.getChildren().add(clearList);
+		
+		clearList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				selectedModsList.clear();
+				missingMods.clear();
+				mods.refresh();
+			}//end action
+		});
+		//Clear list button (end)
+		
+		//Buttons Cancel & Apply (start)
+		window.add(cancelListBox, 2, 4, 1, 1);
 		cancelListBox.setStyle("-fx-alignment: center-right;");
 		cancelListBox.getChildren().add(cancelList);
 		
-		window.add(saveListBox, 2, 4, 1, 1);
+		window.add(saveListBox, 3, 4, 1, 1);
 		saveListBox.setStyle("-fx-alignment: center-left;");
 		saveListBox.getChildren().add(saveList);
 		
@@ -303,24 +329,19 @@ public class ListCreator extends Stage {
 			saveifMissings.setStyle("-fx-text-fill: red;");
 			saveListBox.getChildren().add(saveifMissings);
 		}
-		
-		Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
-		this.setScene(sc);
-		this.setMinHeight(WINDOW_HEIGHT);
-		this.setMinWidth(WINDOW_WIDTH);
-		this.show();
 		   
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-				public void handle(ActionEvent t) {
-					Node  source = (Node)  t.getSource(); 
-					Stage stage  = (Stage) source.getScene().getWindow();
-					stage.close();
-				}//end action
-			});
+			public void handle(ActionEvent t) {
+				Node  source = (Node)  t.getSource(); 
+				Stage stage  = (Stage) source.getScene().getWindow();
+				stage.close();
+			}//end action
+		});
 		saveList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
+				//TODO check if list is named !
 				String listOldName = list.getName();
 				list.setName(fieldListName.getText());
 				list.setDescription(fieldListDesc.getText());
@@ -345,22 +366,51 @@ public class ListCreator extends Stage {
 				stage.close();
 			}//end action
 		});
+		//Buttons Cancel & Apply (end)
 		
-		//Import current config button
-		window.add(importCurrentListBox, 3, 4, 1, 1);
+		//Import current config button (start)
+		window.add(importCurrentListBox, 4, 4, 1, 1);
 		importCurrentListBox.setStyle("-fx-alignment: center-right;");
 		importCurrentListBox.getChildren().add(importCurrentList);
 		
 		importCurrentList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				try {
-					getModList();
-				} catch (IOException e) {
-					e.printStackTrace();
+				String title = "Import current mod config";
+				String header = "What do you want to do ?";
+				String message = "- Append the mod from the game configuration to the list\n- Replace all the mods selected with the game config";
+				
+				List<ButtonType> buttons = new ArrayList<ButtonType>();
+				
+				ButtonType buttonAppend = new ButtonType("Append");
+				ButtonType buttonReplace = new ButtonType("Replace");
+				
+				buttons.add(buttonAppend);
+				buttons.add(buttonReplace);
+				
+				Optional<ButtonType> choice = BasicDialog.showGenericConfirm(title, header, message, buttons, true);
+				
+				if(choice.get().getButtonData()!=ButtonData.CANCEL_CLOSE){
+					try {
+						if(choice.get() == buttonReplace){
+							selectedModsList.clear();
+							missingMods.clear();
+						}
+						getModList();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}//end action
 		});
+		//Import current config button (end)
+		
+		//Print the scene
+		Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+		this.setScene(sc);
+		this.setMinHeight(WINDOW_HEIGHT);
+		this.setMinWidth(WINDOW_WIDTH);
+		this.show();
 	}
 
 	/**
