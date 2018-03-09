@@ -26,6 +26,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 
 /**
+ * An online checker implementation
  * 
  * @author SIMON-FINE Thibaut (alias Bisougai), and GROSJEAN Nicolas (alias Mouchi)
  *
@@ -112,16 +113,26 @@ public class OnlineVersionChecker {
 		return changelog.toString();
 	}
 	
+	/**
+	 * Compare local version to online.
+	 * Both arrays must have the same number of values (raise IllegalArguementException if local.length!=online.length)
+	 * 
+	 * @param local an array of string which contains integer and represent the local version of the app (ex; for "1.0" input should be ["1","0"])
+	 * @param online an array of string which contains integer and represent the online version of the app
+	 * @return
+	 */
 	private boolean checkIsNewerVersion(String[] local, String[] online){
-		if(Integer.parseInt(online[0]) > Integer.parseInt(local[0])) {
-			return true;
-		} else if(Integer.parseInt(online[0]) == Integer.parseInt(local[0])) {
-			if(Integer.parseInt(online[1]) > Integer.parseInt(local[1])) {
+		if(local.length!=online.length)
+			throw new IllegalArgumentException("The local and online array must have the same length");
+		
+		int i = 0;
+		while (i<local.length) {
+			if(Integer.parseInt(online[i]) > Integer.parseInt(local[i])) {
 				return true;
-			} else if(Integer.parseInt(online[1]) == Integer.parseInt(local[1])){
-				if(Integer.parseInt(online[2]) > Integer.parseInt(local[2])) {
-					return true;
-				}
+			} else if(Integer.parseInt(online[i]) == Integer.parseInt(local[i])) {
+				i++;
+			} else {
+				break;
 			}
 		}
 		
@@ -134,8 +145,7 @@ public class OnlineVersionChecker {
 	 * 
 	 * @return string of the url to download the last version of the software
 	 */
-	private String getGithHubDownloadUrl()
-	{
+	private String getGithHubDownloadUrl(){
 		//Paradoxos Example : https://github.com/ThibautSF/ParadoxosModManager/releases/download/0.5.2/ParadoxosModManager0.5.2.zip
 		
 		StringBuilder builder = new StringBuilder();
@@ -152,10 +162,9 @@ public class OnlineVersionChecker {
 	 * Get the download GitHub release tag page URL.
 	 * EX : https://github.com/ThibautSF/ParadoxosModManager/releases/tag/0.5.2
 	 * 
-	 * @return string of the url to download the last version of the software
+	 * @return string of the url to see infos about the last version of the software (on GitHub)
 	 */
-	private String getGithHubReleaseUrl()
-	{	
+	private String getGithHubReleaseUrl(){	
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("https://github.com/ThibautSF/ParadoxosModManager/releases/tag/");
@@ -163,6 +172,11 @@ public class OnlineVersionChecker {
 		return builder.toString();
 	}
 	
+	/**
+	 * Generate a javafx alert and confirmation window to inform about a new version (and ask what he want to do)
+	 * 
+	 * @param changelog the content of the scrollable textarea
+	 */
 	private void showUpdateWindow(String changelog){
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle(ModManager.APP_NAME);
@@ -193,22 +207,28 @@ public class OnlineVersionChecker {
 		alert.getDialogPane().setContent(expContent);
 		
 		ButtonType buttonWebAll = new ButtonType("All versions\n(with source)");
-		ButtonType buttonWebRelease = new ButtonType("See "+lastestOnlineVersionNumber+"\n(with source)");
+		//ButtonType buttonWebRelease = new ButtonType("See "+lastestOnlineVersionNumber+"\n(with source)");
 		ButtonType buttonWebDownload = new ButtonType("Get Update\n(zip archive)");
 		ButtonType buttonCancel = new ButtonType("Continue\n(Stay "+VERSION+")", ButtonData.CANCEL_CLOSE);
 
-		alert.getButtonTypes().setAll(buttonWebAll, buttonWebRelease, buttonWebDownload, buttonCancel);
+		alert.getButtonTypes().setAll(buttonWebAll, buttonWebDownload, buttonCancel);
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == buttonWebAll){
 			goURL(URL_APP_RELEASES);
-		} else if (result.get() == buttonWebRelease) {
-			goURL(getGithHubReleaseUrl());
+		//} else if (result.get() == buttonWebRelease) {
+		//	goURL(getGithHubReleaseUrl());
 		} else if (result.get() == buttonWebDownload) {
 			goURL(getGithHubDownloadUrl());
 		}
 	}
 	
+	/** 
+	 * Open the web browser with the target url
+	 * If not available copy url to clipboard
+	 * 
+	 * @param url
+	 */
 	private void goURL(String url){
 		if(Desktop.isDesktopSupported()){
 			new Thread(() -> {
