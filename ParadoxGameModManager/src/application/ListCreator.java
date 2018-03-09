@@ -33,6 +33,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
@@ -329,7 +330,7 @@ public class ListCreator extends Stage {
 			saveifMissings.setStyle("-fx-text-fill: red;");
 			saveListBox.getChildren().add(saveifMissings);
 		}
-		   
+		
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
@@ -342,28 +343,32 @@ public class ListCreator extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				//TODO check if list is named !
-				String listOldName = list.getName();
-				list.setName(fieldListName.getText());
-				list.setDescription(fieldListDesc.getText());
-				list.setLanguage(cbListLang.getValue());
-				ArrayList<Mod> saveSelectedMods = new ArrayList<Mod>();
-				for (Mod mod : selectedModsList) {
-					saveSelectedMods.add(mod);
+				if (fieldListName.getText()!=null && !fieldListName.getText().equals("")) {
+					String listOldName = list.getName();
+					list.setName(fieldListName.getText());
+					list.setDescription(fieldListDesc.getText());
+					list.setLanguage(cbListLang.getValue());
+					ArrayList<Mod> saveSelectedMods = new ArrayList<Mod>();
+					for (Mod mod : selectedModsList) {
+						saveSelectedMods.add(mod);
+					}
+					list.setModlist(saveSelectedMods);
+					try {
+						userlistsXML.readFile(fileXML);
+						if(listOldName!=null)
+							userlistsXML.modifyList(list,listOldName);
+						else
+							userlistsXML.modifyList(list);
+					} catch (Exception e) {
+						ErrorPrint.printError(e,"When save list in mod");
+						e.printStackTrace();
+					}
+					Node  source = (Node)  t.getSource(); 
+					Stage stage  = (Stage) source.getScene().getWindow();
+					stage.close();
+				} else {
+					BasicDialog.showGenericDialog("No list name !", "You need to give a name to the list", AlertType.WARNING);
 				}
-				list.setModlist(saveSelectedMods);
-				try {
-					userlistsXML.readFile(fileXML);
-					if(listOldName!=null)
-						userlistsXML.modifyList(list,listOldName);
-					else
-						userlistsXML.modifyList(list);
-				} catch (Exception e) {
-					ErrorPrint.printError(e,"When save list in mod");
-					e.printStackTrace();
-				}
-				Node  source = (Node)  t.getSource(); 
-				Stage stage  = (Stage) source.getScene().getWindow();
-				stage.close();
 			}//end action
 		});
 		//Buttons Cancel & Apply (end)

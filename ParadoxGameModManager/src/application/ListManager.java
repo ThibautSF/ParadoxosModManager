@@ -14,14 +14,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
-
-import debug.ErrorPrint;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,19 +30,24 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 import mod.Mod;
 import mod.ModList;
 import settings.MyXML;
-import javafx.stage.FileChooser;
+import debug.ErrorPrint;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
@@ -73,7 +77,16 @@ public class ListManager extends Stage {
 	private Label yourLists = new Label(lblYrLists);
 	
 	private VBox content = new VBox();
-	private ListView<String> lists = new ListView<String>();
+	//private ListView<String> lists = new ListView<String>();
+	
+	private TableView<ModList> lists = new TableView<ModList>();
+	private TableColumn<ModList,String> listNameCol = new TableColumn<ModList,String>("List Name");
+	//private TableColumn<ModList,String> listDescrCol = new TableColumn<ModList,String>("Description");
+	private TableColumn<ModList,String> languageCol = new TableColumn<ModList,String>("Language");
+	private TableColumn<ModList,Integer> nbModCol = new TableColumn<ModList,Integer>("NB");
+	
+	private ObservableList<ModList> listOfLists = FXCollections.observableArrayList();
+	//private ObservableList<ModList> selectedListsList = FXCollections.observableArrayList();
 	
 	private HBox buttons = new HBox(8);
 	private Button newList = new Button("New");
@@ -156,7 +169,8 @@ public class ListManager extends Stage {
 				try {
 					loadModFilesArray();
 					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
-				} catch (FileNotFoundException e) {
+					updateList();
+				} catch (Exception e) {
 					ErrorPrint.printError(e, "Refresh");
 				}
 			}//end action
@@ -187,30 +201,70 @@ public class ListManager extends Stage {
 		window.add(content, 1, 2, 4, 1);
 		content.getChildren().add(lists);
 		content.setStyle("-fx-alignment: center;");
+		
+		listNameCol.setSortable(false);
+		languageCol.setSortable(false);
+		nbModCol.setSortable(false);
+		lists.getColumns().add(listNameCol);
+		lists.getColumns().add(languageCol);
+		lists.getColumns().add(nbModCol);
+		
+		listNameCol.setCellValueFactory(
+			new PropertyValueFactory<ModList,String>("name")
+		);
+		
+		languageCol.setCellValueFactory(
+			cell -> new SimpleStringProperty(cell.getValue().getLanguageName().toUpperCase(Locale.ENGLISH))
+		);
+		
+		nbModCol.setCellValueFactory(
+			cell -> new SimpleIntegerProperty(cell.getValue().getModlist().size()).asObject()
+		);
+		
+		lists.setRowFactory(tv -> {
+			TableRow<ModList> row = new TableRow<ModList>() {
+				/* *
+				@Override
+				protected void updateItem(ModList item, boolean empty) {
+					super.updateItem(item, empty) ;
+					if (item == null)
+						setStyle("");
+					else if (selectedListsList.contains(item))
+						setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
+					else
+						setStyle("");
+				}
+				/* */
+			};
+			
+			row.setOnMouseClicked(event -> {
+				int pos = row.getIndex();
+				
+				//Enable/Disable buttons which need a selected list
+				if (!row.isEmpty() && event.getButton()==MouseButton.PRIMARY){
+					if(pos>=0){
+						modifyList.setDisable(false);
+						delList.setDisable(false);
+						applyList.setDisable(false);
+						exportList.setDisable(false);
+					} else {
+						modifyList.setDisable(true);
+						delList.setDisable(true);
+						applyList.setDisable(true);
+						exportList.setDisable(true);
+					}
+				}
+			});
+			
+			return row;
+		});
+		
 		try {
 			updateList();
 		} catch (Exception eCreate) {
 			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
 			eCreate.printStackTrace();
 		}
-		//Enable/Disable buttons which need a selected list
-		lists.setOnMouseClicked(new EventHandler<Event>() {
-			@Override
-			public void handle(Event event) {
-				int pos = lists.getSelectionModel().getSelectedIndex();
-				if(pos>=0){
-					modifyList.setDisable(false);
-					delList.setDisable(false);
-					applyList.setDisable(false);
-					exportList.setDisable(false);
-				} else {
-					modifyList.setDisable(true);
-					delList.setDisable(true);
-					applyList.setDisable(true);
-					exportList.setDisable(true);
-				}
-			}
-		});
 		
 		//fixed width for buttons
 		newList.setPrefWidth(75);
@@ -269,8 +323,8 @@ public class ListManager extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				int pos = lists.getSelectionModel().getSelectedIndex();
+				ModList toModify = lists.getSelectionModel().getSelectedItem();
 				try{
-					ModList toModify = userListArray.get(pos);
 					new ListCreator(path, modFiles, toModify);
 				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to enter in list modification without selecting a list");
@@ -288,7 +342,7 @@ public class ListManager extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				int pos = lists.getSelectionModel().getSelectedIndex();
-				ModList toDelete = userListArray.get(pos);
+				ModList toDelete = lists.getSelectionModel().getSelectedItem();
 				alertConfirm.setContentText("Are you ok to delete '"+toDelete.getName()+"' ?");
 				
 				Optional<ButtonType> result = alertConfirm.showAndWait();
@@ -309,13 +363,13 @@ public class ListManager extends Stage {
 		applyList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				int pos = lists.getSelectionModel().getSelectedIndex();
-				alertConfirm.setContentText("Are you ok to apply '"+userListArray.get(pos).getName()+"' ?");
+				ModList toApply = lists.getSelectionModel().getSelectedItem();
+				alertConfirm.setContentText("Are you ok to apply '"+toApply.getName()+"' ?");
 				
 				Optional<ButtonType> result = alertConfirm.showAndWait();
 				if (result.get() == ButtonType.OK){
 					try {
-						if(applyModList(pos)){
+						if(applyOneModList(toApply)){
 							Alert alertInfo = new Alert(AlertType.CONFIRMATION);
 							alertInfo.setTitle("Success");
 							alertInfo.setHeaderText(null);
@@ -368,6 +422,7 @@ public class ListManager extends Stage {
 				if (file!=null && !file.isDirectory()){
 					try {
 						String strResult = userlistsXML.importList(file.getAbsolutePath());
+						updateList();
 						
 						Alert alert = new Alert(AlertType.INFORMATION);
 						alert.setTitle("Import result");
@@ -387,8 +442,9 @@ public class ListManager extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				int pos = lists.getSelectionModel().getSelectedIndex();
+				ModList toExport = lists.getSelectionModel().getSelectedItem();
 				try{
-					userlistsXML.exportList(userListArray.get(pos).getName());
+					userlistsXML.exportList(toExport.getName());
 					
 					Alert a = new Alert(AlertType.INFORMATION);
 					a.setTitle("Import result");
@@ -408,30 +464,30 @@ public class ListManager extends Stage {
 	/**
 	 * @throws Exception
 	 */
-	public void updateList() throws Exception{
+	private void updateList() throws Exception{
 		userlistsXML.readFile(fileXML);
 		userListArray = userlistsXML.getSavedList();
 		yourLists.setText(String.format(lblYrLists, userListArray.size()));
 		
-		ArrayList<String> userListArrayStr = new ArrayList<String>();
+		listOfLists.clear();
+		listOfLists.addAll(userListArray);
 		
-		for (ModList oneModList : userListArray) {
-			userListArrayStr.add(oneModList.getName()+" ("+oneModList.getModlist().size()+" mods)"+
-					" : "+oneModList.getLanguageName().toUpperCase(Locale.ENGLISH));
-		}
+		lists.setItems(listOfLists);
+		lists.refresh();
 		
-		ObservableList<String> items = FXCollections.observableList(userListArrayStr);
-		
-		lists.setItems(items);
+		//Loose selection after refresh
+		modifyList.setDisable(true);
+		delList.setDisable(true);
+		applyList.setDisable(true);
+		exportList.setDisable(true);
 	}
-
+	
 	/**
 	 * @param selected
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean applyModList(int selected) throws IOException {
-		ModList applyList = userListArray.get(selected);
+	private boolean applyOneModList(ModList applyList) throws IOException {
 		ArrayList<Mod> applyMods = applyList.getModlist();
 		
 		String sep = File.separator;
@@ -543,8 +599,6 @@ public class ListManager extends Stage {
 	 * @return
 	 */
 	private int getModNumbers(){
-		//loadModFilesArray();
-		
 		return modFiles.length;
 	}
 	

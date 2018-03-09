@@ -2,6 +2,8 @@ package mod;
 
 import java.util.ArrayList;
 
+import javafx.beans.property.SimpleStringProperty;
+
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
  *
@@ -10,8 +12,8 @@ public class ModList {
 	//
 	//Fields and Constructors
 	//
-	private String name;
-	private String description;
+	private SimpleStringProperty name;
+	private SimpleStringProperty description;
 	private Languages language;
 	private ArrayList<Mod> modlist;
 
@@ -21,8 +23,8 @@ public class ModList {
 	 * @param modlist
 	 */
 	public ModList(String name, String description, Languages language, ArrayList<Mod> modlist) {
-		this.name=name;
-		this.description=description;
+		this.name=new SimpleStringProperty(name);
+		this.description=new SimpleStringProperty(description);
 		this.language=language;
 		this.modlist=modlist;
 	}
@@ -34,28 +36,28 @@ public class ModList {
 	 * @return
 	 */
 	public String getName() {
-		return name;
+		return name.get();
 	}
 
 	/**
 	 * @param name
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = new SimpleStringProperty(name);
 	}
 
 	/**
 	 * @return
 	 */
 	public String getDescription() {
-		return description;
+		return description.get();
 	}
 	
 	/**
 	 * @param description
 	 */
 	public void setDescription(String description){
-		this.description=description;
+		this.description = new SimpleStringProperty(description);
 	}
 	
 	public Languages getLanguage() {
@@ -87,6 +89,7 @@ public class ModList {
 	public void setModlist(ArrayList<Mod> modList) {
 		this.modlist=modList;
 	}
+	
 	//
 	//Methods
 	//
