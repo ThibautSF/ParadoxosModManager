@@ -113,30 +113,30 @@ public class ListManager extends Stage {
 		//window.setGridLinesVisible(true);
 		
 		RowConstraints row1 = new RowConstraints();
-	    row1.setPercentHeight(15);
-	    RowConstraints row2 = new RowConstraints();
-	    row2.setPercentHeight(10);
-	    RowConstraints row3 = new RowConstraints();
-	    row3.setPercentHeight(55);
-	    RowConstraints row4 = new RowConstraints();
-	    row4.setPercentHeight(15);
-	    RowConstraints row5 = new RowConstraints();
-	    row5.setPercentHeight(15);
-	    window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
-	    
-	    ColumnConstraints col1 = new ColumnConstraints();
-	    col1.setPercentWidth(0);
-	    ColumnConstraints col2 = new ColumnConstraints();
-	    col2.setPercentWidth(25);
-	    ColumnConstraints col3 = new ColumnConstraints();
-	    col3.setPercentWidth(25);
-	    ColumnConstraints col4 = new ColumnConstraints();
-	    col4.setPercentWidth(25);
-	    ColumnConstraints col5 = new ColumnConstraints();
-	    col5.setPercentWidth(25);
-	    ColumnConstraints col6 = new ColumnConstraints();
-	    col6.setPercentWidth(0);
-	    window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
+		row1.setPercentHeight(15);
+		RowConstraints row2 = new RowConstraints();
+		row2.setPercentHeight(10);
+		RowConstraints row3 = new RowConstraints();
+		row3.setPercentHeight(55);
+		RowConstraints row4 = new RowConstraints();
+		row4.setPercentHeight(15);
+		RowConstraints row5 = new RowConstraints();
+		row5.setPercentHeight(15);
+		window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
+		
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(0);
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(25);
+		ColumnConstraints col3 = new ColumnConstraints();
+		col3.setPercentWidth(25);
+		ColumnConstraints col4 = new ColumnConstraints();
+		col4.setPercentWidth(25);
+		ColumnConstraints col5 = new ColumnConstraints();
+		col5.setPercentWidth(25);
+		ColumnConstraints col6 = new ColumnConstraints();
+		col6.setPercentWidth(0);
+		window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
 		
 		
 		//ListManager Top
@@ -151,21 +151,21 @@ public class ListManager extends Stage {
 		actionsBox.getChildren().addAll(buttonRefresh,buttonBack);
 		
 		buttonRefresh.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	try {
+			@Override
+			public void handle(ActionEvent t) {
+				try {
 					loadModFilesArray();
 					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
 				} catch (FileNotFoundException e) {
 					ErrorPrint.printError(e, "Refresh");
 				}
-	        }//end action
-	    });
+			}//end action
+		});
 		
 		buttonBack.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	Node  source = (Node)  t.getSource(); 
+			@Override
+			public void handle(ActionEvent t) {
+				Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
 				try {
@@ -173,8 +173,8 @@ public class ListManager extends Stage {
 				} catch (Exception e) {
 					ErrorPrint.printError(e, "Reload Game");
 				}
-	        }//end action
-	    });
+			}//end action
+		});
 		
 		//ModList "Your mods" field
 		window.add(yrListsBox, 1, 1, 4, 1);
@@ -234,110 +234,110 @@ public class ListManager extends Stage {
 		buttons2.getChildren().addAll(importList,exportList);
 		exportList.setDisable(true);
 		
-	    Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+		Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 		this.setScene(sc);
 		this.setMinHeight(WINDOW_HEIGHT);
 		this.setMinWidth(WINDOW_WIDTH);
-	    this.show();
-	    
-	    Stage stage = (Stage) window.getScene().getWindow();
-	    stage.focusedProperty().addListener(new ChangeListener<Boolean>(){
-	    	@Override
-	    	public void changed(ObservableValue<? extends Boolean> ov, Boolean oldB, Boolean newB){
-	    		if (newB.booleanValue()) {
-	    			//Window focus
-	    			try {
-	    				updateList();
-	    			} catch (Exception e) {
-	  					ErrorPrint.printError(e,"When update ListView of ModLists on window focus");
-	  					e.printStackTrace();
-	  				}
-	    		} else {
-	    			//Window unfocus
-                }
-	    	}
-	    });
-	    
-	    newList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	            new ListCreator(path,modFiles);
-	        }//end action
-	    });
-	    
-	    modifyList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	int pos = lists.getSelectionModel().getSelectedIndex();
-	        	try{
-	        		ModList toModify = userListArray.get(pos);
-	        		new ListCreator(path, modFiles, toModify);
-	        	} catch (Exception e) {
+		this.show();
+		
+		Stage stage = (Stage) window.getScene().getWindow();
+		stage.focusedProperty().addListener(new ChangeListener<Boolean>(){
+			@Override
+			public void changed(ObservableValue<? extends Boolean> ov, Boolean oldB, Boolean newB){
+				if (newB.booleanValue()) {
+					//Window focus
+					try {
+						updateList();
+					} catch (Exception e) {
+						ErrorPrint.printError(e,"When update ListView of ModLists on window focus");
+						e.printStackTrace();
+					}
+				} else {
+					//Window unfocus
+				}
+			}
+		});
+		
+		newList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				new ListCreator(path,modFiles);
+			}//end action
+		});
+		
+		modifyList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				int pos = lists.getSelectionModel().getSelectedIndex();
+				try{
+					ModList toModify = userListArray.get(pos);
+					new ListCreator(path, modFiles, toModify);
+				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to enter in list modification without selecting a list");
 					else ErrorPrint.printError(e,"When enter in modification of a list");
 					e.printStackTrace();
 				}
-	        }//end action
-	    });
-	    
-	    Alert alertConfirm = new Alert(AlertType.CONFIRMATION);
-    	alertConfirm.setTitle("Confirmation");
-    	alertConfirm.setHeaderText("Confirm !");
-	    
-	    delList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	int pos = lists.getSelectionModel().getSelectedIndex();
-	        	ModList toDelete = userListArray.get(pos);
-	        	alertConfirm.setContentText("Are you ok to delete '"+toDelete.getName()+"' ?");
-
-	        	Optional<ButtonType> result = alertConfirm.showAndWait();
-	        	if (result.get() == ButtonType.OK){
-	        		try {
-	        			userlistsXML.readFile(fileXML);
-	        			userlistsXML.removeList(toDelete.getName());
-	        			updateList();
-	        		} catch (Exception e) {
-	        			if(pos==-1) ErrorPrint.printError(e,"User try to delete a list without selecting a list");
-	        			else ErrorPrint.printError(e,"When trying to delete a list");
-	        			e.printStackTrace();
-	        		}
-	        	}
-	        }//end action
-	    });
-	    
-	    applyList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	int pos = lists.getSelectionModel().getSelectedIndex();
-	        	alertConfirm.setContentText("Are you ok to apply '"+userListArray.get(pos).getName()+"' ?");
-
-	        	Optional<ButtonType> result = alertConfirm.showAndWait();
-	        	if (result.get() == ButtonType.OK){
-		        	try {
+			}//end action
+		});
+		
+		Alert alertConfirm = new Alert(AlertType.CONFIRMATION);
+		alertConfirm.setTitle("Confirmation");
+		alertConfirm.setHeaderText("Confirm !");
+		
+		delList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				int pos = lists.getSelectionModel().getSelectedIndex();
+				ModList toDelete = userListArray.get(pos);
+				alertConfirm.setContentText("Are you ok to delete '"+toDelete.getName()+"' ?");
+				
+				Optional<ButtonType> result = alertConfirm.showAndWait();
+				if (result.get() == ButtonType.OK){
+					try {
+						userlistsXML.readFile(fileXML);
+						userlistsXML.removeList(toDelete.getName());
+						updateList();
+					} catch (Exception e) {
+						if(pos==-1) ErrorPrint.printError(e,"User try to delete a list without selecting a list");
+						else ErrorPrint.printError(e,"When trying to delete a list");
+						e.printStackTrace();
+					}
+				}
+			}//end action
+		});
+		
+		applyList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				int pos = lists.getSelectionModel().getSelectedIndex();
+				alertConfirm.setContentText("Are you ok to apply '"+userListArray.get(pos).getName()+"' ?");
+				
+				Optional<ButtonType> result = alertConfirm.showAndWait();
+				if (result.get() == ButtonType.OK){
+					try {
 						if(applyModList(pos)){
 							Alert alertInfo = new Alert(AlertType.CONFIRMATION);
 							alertInfo.setTitle("Success");
 							alertInfo.setHeaderText(null);
 							alertInfo.setContentText("The list was successfully applied !");
-
+							
 							ButtonType buttonTypeLaunchGame = new ButtonType("Launch Game");
 							ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-
+							
 							alertInfo.getButtonTypes().setAll(buttonTypeLaunchGame, buttonTypeCancel);
-
+							
 							Optional<ButtonType> resultInfo = alertInfo.showAndWait();
 							if (resultInfo.get() == buttonTypeLaunchGame){
 								if(Desktop.isDesktopSupported()){
-				        			new Thread(() -> {
-				        		           try {
-				        		        	   URI uri = new URI("steam://run/"+ModManager.STEAM_ID);
-				        		               Desktop.getDesktop().browse(uri);
-				        		           } catch (IOException | URISyntaxException e) {
-				        		        	   ErrorPrint.printError(e);
-				        		               e.printStackTrace();
-				        		           }
-				        		    }).start();
+									new Thread(() -> {
+										try {
+											URI uri = new URI("steam://run/"+ModManager.STEAM_ID);
+											Desktop.getDesktop().browse(uri);
+										} catch (IOException | URISyntaxException e) {
+											ErrorPrint.printError(e);
+											e.printStackTrace();
+										}
+									}).start();
 								}
 							}
 						}else{
@@ -345,26 +345,26 @@ public class ListManager extends Stage {
 							alertError.setTitle("Error");
 							alertError.setHeaderText("Ooops, there was an error !");
 							alertError.setContentText("Sorry but the list apply failed :(\nA debug file should be generated :)");
-
+							
 							alertError.showAndWait();
 						}
 					} catch (IOException e) {
 						ErrorPrint.printError(e,"When list application");
 						e.printStackTrace();
 					}
-	        	}
-	        }//end action
-	    });
-	    
-	    importList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	FileChooser importChooser = new FileChooser();
-	        	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
-	        	importChooser.setTitle("Choose an exported list xml file for "+ModManager.GAME);
-	        	importChooser.setInitialDirectory(new File(File.separator));
-	        	importChooser.getExtensionFilters().add(extFilter);
-	        	File file = importChooser.showOpenDialog(stage.getOwner());
+				}
+			}//end action
+		});
+		
+		importList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				FileChooser importChooser = new FileChooser();
+				FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+				importChooser.setTitle("Choose an exported list xml file for "+ModManager.GAME);
+				importChooser.setInitialDirectory(new File(File.separator));
+				importChooser.getExtensionFilters().add(extFilter);
+				File file = importChooser.showOpenDialog(stage.getOwner());
 				if (file!=null && !file.isDirectory()){
 					try {
 						String strResult = userlistsXML.importList(file.getAbsolutePath());
@@ -373,36 +373,36 @@ public class ListManager extends Stage {
 						alert.setTitle("Import result");
 						alert.setHeaderText(null);
 						alert.setContentText(strResult);
-
+						
 						alert.showAndWait();
 					} catch (Exception e) {
 						ErrorPrint.printError(e, "When import list");
 						e.printStackTrace();
 					}
 				}
-	        }//end action
-	    });
-	    
-	    exportList.setOnAction(new EventHandler<ActionEvent>() {
-	        @Override
-	        public void handle(ActionEvent t) {
-	        	int pos = lists.getSelectionModel().getSelectedIndex();
-	        	try{
-	        		userlistsXML.exportList(userListArray.get(pos).getName());
-	        		
-	        		Alert a = new Alert(AlertType.INFORMATION);
+			}//end action
+		});
+		
+		exportList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				int pos = lists.getSelectionModel().getSelectedIndex();
+				try{
+					userlistsXML.exportList(userListArray.get(pos).getName());
+					
+					Alert a = new Alert(AlertType.INFORMATION);
 					a.setTitle("Import result");
 					a.setHeaderText(null);
 					a.setContentText("List exported");
-
+					
 					a.showAndWait();
-	        	} catch (Exception e) {
+				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to export a list without selecting a list");
 					else ErrorPrint.printError(e,"When export a list");
 					e.printStackTrace();
 				}
-	        }//end action
-	    });
+			}//end action
+		});
 	}
 	
 	/**
@@ -529,7 +529,7 @@ public class ListManager extends Stage {
 	 */
 	private void modPrint(ArrayList<Mod> applyMods, BufferedWriter writer) throws IOException{
 		for (Mod mod : applyMods) {
-    		String addLine="\t\"mod/"+mod.getFileName()+"\"";
+			String addLine="\t\"mod/"+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));
 		}
 	}
@@ -553,10 +553,10 @@ public class ListManager extends Stage {
 		File modFile = new File(absolutePath+sep+"mod");
 		if(modFile.exists()){
 			modFiles = modFile.list(new FilenameFilter(){
-			    @Override
-			    public boolean accept(File dir, String name) {
-			        return name.toLowerCase().endsWith(".mod");
-			    }
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.toLowerCase().endsWith(".mod");
+				}
 			});
 		} else {
 			throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");

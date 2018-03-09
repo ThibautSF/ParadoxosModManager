@@ -99,7 +99,7 @@ public class OnlineVersionChecker {
 					}
 				}
 			}
-	        in.close();
+			in.close();
 		} catch (Exception e) {
 			ErrorPrint.printError(e, "Check Online Version");
 			
@@ -232,21 +232,21 @@ public class OnlineVersionChecker {
 	private void goURL(String url){
 		if(Desktop.isDesktopSupported()){
 			new Thread(() -> {
-		           try {
-		        	   URI uri = new URI(url);
-		               Desktop.getDesktop().browse(uri);
-		               System.exit(0);
-		           } catch (IOException | URISyntaxException e) {
-		        	   ErrorPrint.printError(e,"Open URL ( "+url+" )");
-		               e.printStackTrace();
-		           }
-		    }).start();
+				try {
+					URI uri = new URI(url);
+					Desktop.getDesktop().browse(uri);
+					System.exit(0);
+				} catch (IOException | URISyntaxException e) {
+					ErrorPrint.printError(e,"Open URL ( "+url+" )");
+					e.printStackTrace();
+				}
+			}).start();
 		} else {
 			StringSelection selection = new StringSelection(getGithHubDownloadUrl());
-		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		    clipboard.setContents(selection, selection);
-		    
-		    BasicDialog.showGenericDialog("Unable to open Web Browser", "Url was copied in your clipboard.", AlertType.ERROR);
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(selection, selection);
+			
+			BasicDialog.showGenericDialog("Unable to open Web Browser", "Url was copied in your clipboard.", AlertType.ERROR);
 		}
 	}
 }

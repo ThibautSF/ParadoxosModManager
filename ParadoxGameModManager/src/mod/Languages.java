@@ -21,7 +21,6 @@ public enum Languages {
 	
 	private String name;
 	
-
 	private Languages(String name) {
 		this.name = name;
 	}
@@ -29,7 +28,7 @@ public enum Languages {
 	public String getCode() {
 		return "l_" + name;
 	}
-
+	
 	public String getName() {
 		return name;
 	}

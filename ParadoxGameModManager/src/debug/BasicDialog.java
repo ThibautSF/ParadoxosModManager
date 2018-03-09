@@ -87,7 +87,7 @@ public class BasicDialog {
 		
 		if(cancel)
 			buttons.add(new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
-
+		
 		alert.getButtonTypes().setAll(buttons);
 		
 		return alert.showAndWait();

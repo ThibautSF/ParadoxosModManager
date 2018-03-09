@@ -103,14 +103,14 @@ public class ModManager extends Application {
 				alertError.setTitle("Error Dialog");
 				alertError.setHeaderText("Critical Error");
 				alertError.getDialogPane().setContent(textError);
-
+				
 				alertError.showAndWait();
 				
 				start(primaryStage);
 			}
 		}
 	}
-
+	
 	/**
 	 * @param path
 	 */
@@ -121,11 +121,11 @@ public class ModManager extends Application {
 	public static boolean isWindows() {
 		return (OS.indexOf("win") >= 0);
 	}
-
+	
 	public static boolean isMac() {
 		return (OS.indexOf("mac") >= 0);
 	}
-
+	
 	public static boolean isUnix() {
 		return (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0 );
 	}
@@ -159,16 +159,16 @@ public class ModManager extends Application {
 		Dialog<List<String>> dialog = new Dialog<>();
 		dialog.setTitle(APP_NAME);
 		dialog.setHeaderText("Choose a game");
-
+		
 		// Set the button types.
 		ButtonType okButtonType = new ButtonType("OK", ButtonData.OK_DONE);
 		dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
-
+		
 		GridPane grid = new GridPane();
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setPadding(new Insets(20, 10, 10, 10));
-
+		
 		ChoiceBox<String> game = new ChoiceBox<String>(SUPPORTED_GAMES);
 		
 		TextField docPath = new TextField();
@@ -279,10 +279,10 @@ public class ModManager extends Application {
 		Platform.runLater(() -> game.requestFocus());
 		
 		dialog.setResultConverter(dialogButton -> {
-		    if (dialogButton == okButtonType) {
-		        return Arrays.asList(game.getSelectionModel().getSelectedItem(), docPath.getText(), gamePath.getText());
-		    }
-		    return null;
+			if (dialogButton == okButtonType) {
+				return Arrays.asList(game.getSelectionModel().getSelectedItem(), docPath.getText(), gamePath.getText());
+			}
+			return null;
 		});
 
 		Optional<List<String>> result = dialog.showAndWait();
@@ -341,5 +341,5 @@ public class ModManager extends Application {
 			debugFile.delete();
 		
 		Application.launch(args);
-    }
+	}
 }

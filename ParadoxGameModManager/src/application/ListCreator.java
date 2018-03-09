@@ -79,15 +79,15 @@ public class ListCreator extends Stage {
 	private Label yourMods = new Label(lblYrMods);
 	
 	private VBox listBox = new VBox();
-	TableView<Mod> mods = new TableView<Mod>();
-	TableColumn<Mod,String> modNameCol = new TableColumn<Mod,String>("Mod Name");
-	TableColumn<Mod,String> fileNameCol = new TableColumn<Mod,String>("File");
-    TableColumn<Mod,String> versionCol = new TableColumn<Mod,String>("Version");
-    TableColumn<Mod,String> steamPath = new TableColumn<Mod,String>("Workshop");
+	private TableView<Mod> mods = new TableView<Mod>();
+	private TableColumn<Mod,String> modNameCol = new TableColumn<Mod,String>("Mod Name");
+	private TableColumn<Mod,String> fileNameCol = new TableColumn<Mod,String>("File");
+	private TableColumn<Mod,String> versionCol = new TableColumn<Mod,String>("Version");
+	private TableColumn<Mod,String> steamPath = new TableColumn<Mod,String>("Workshop");
 	
-    ObservableList<Mod> listOfMods = FXCollections.observableArrayList();
-    ObservableList<Mod> selectedModsList = FXCollections.observableArrayList();
-    ObservableList<Mod> missingMods = FXCollections.observableArrayList();
+	private ObservableList<Mod> listOfMods = FXCollections.observableArrayList();
+	private ObservableList<Mod> selectedModsList = FXCollections.observableArrayList();
+	private ObservableList<Mod> missingMods = FXCollections.observableArrayList();
 
 	private HBox clearListBox = new HBox();
 	private Button clearList = new Button("Clear");
@@ -129,10 +129,10 @@ public class ListCreator extends Stage {
 			userMods.add(m);
 		}
 		Collections.sort(userMods, new Comparator<Mod>() {
-		    @Override
-		    public int compare(Mod m1, Mod m2) {
-		        return m1.getName().compareTo(m2.getName());
-		    }
+			@Override
+			public int compare(Mod m1, Mod m2) {
+				return m1.getName().compareTo(m2.getName());
+			}
 		});
 		
 		//stelDir = new File(path);
@@ -150,30 +150,30 @@ public class ListCreator extends Stage {
 		//window.setGridLinesVisible(true);
 		
 		RowConstraints row1 = new RowConstraints();
-	    row1.setPercentHeight(10);
-	    RowConstraints row2 = new RowConstraints();
-	    row2.setPercentHeight(10);
-	    RowConstraints row3 = new RowConstraints();
-	    row3.setPercentHeight(5);
-	    RowConstraints row4 = new RowConstraints();
-	    row4.setPercentHeight(70);
-	    RowConstraints row5 = new RowConstraints();
-	    row5.setPercentHeight(5);
-	    window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
-	    
-	    ColumnConstraints col1 = new ColumnConstraints();
-	    col1.setPercentWidth(0);
-	    ColumnConstraints col2 = new ColumnConstraints();
-	    col2.setPercentWidth(25);
-	    ColumnConstraints col3 = new ColumnConstraints();
-	    col3.setPercentWidth(25);
-	    ColumnConstraints col4 = new ColumnConstraints();
-	    col4.setPercentWidth(25);
-	    ColumnConstraints col5 = new ColumnConstraints();
-	    col5.setPercentWidth(25);
-	    ColumnConstraints col6 = new ColumnConstraints();
-	    col6.setPercentWidth(0);
-	    window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
+		row1.setPercentHeight(10);
+		RowConstraints row2 = new RowConstraints();
+		row2.setPercentHeight(10);
+		RowConstraints row3 = new RowConstraints();
+		row3.setPercentHeight(5);
+		RowConstraints row4 = new RowConstraints();
+		row4.setPercentHeight(70);
+		RowConstraints row5 = new RowConstraints();
+		row5.setPercentHeight(5);
+		window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
+		
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(0);
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(25);
+		ColumnConstraints col3 = new ColumnConstraints();
+		col3.setPercentWidth(25);
+		ColumnConstraints col4 = new ColumnConstraints();
+		col4.setPercentWidth(25);
+		ColumnConstraints col5 = new ColumnConstraints();
+		col5.setPercentWidth(25);
+		ColumnConstraints col6 = new ColumnConstraints();
+		col6.setPercentWidth(0);
+		window.getColumnConstraints().addAll(col1,col2,col3,col4,col5,col6);
 		
 		
 		//ModList title fields
@@ -199,18 +199,18 @@ public class ListCreator extends Stage {
 		//Remove delay to show tooltip when mouse over button
 		buttonHelp.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			@Override
-		    public void handle(MouseEvent event) {
-		        Point2D p = buttonHelp.localToScreen(buttonHelp.getLayoutBounds().getMaxX(), buttonHelp.getLayoutBounds().getMaxY());
-		        tooltipHelp.show(buttonHelp, p.getX(), p.getY());
-		    }
+			public void handle(MouseEvent event) {
+				Point2D p = buttonHelp.localToScreen(buttonHelp.getLayoutBounds().getMaxX(), buttonHelp.getLayoutBounds().getMaxY());
+				tooltipHelp.show(buttonHelp, p.getX(), p.getY());
+			}
 		});
 		//Hide the tooltip when mouse leave button
 		buttonHelp.setOnMouseExited(new EventHandler<MouseEvent>() {
 		 
-		    @Override
-		    public void handle(MouseEvent event) {
-		    	tooltipHelp.hide();
-		    }
+			@Override
+			public void handle(MouseEvent event) {
+				tooltipHelp.hide();
+			}
 		});
 		
 		//ModList Descr fields
@@ -233,45 +233,45 @@ public class ListCreator extends Stage {
 		modNameCol.setSortable(false);
 		fileNameCol.setSortable(false);
 		versionCol.setSortable(false);
-        mods.getColumns().add(modNameCol);
-        mods.getColumns().add(fileNameCol);
-        mods.getColumns().add(versionCol);
-        mods.getColumns().add(steamPath);
-        
-        modNameCol.setCellValueFactory(
-        	new PropertyValueFactory<Mod,String>("name")
-        );
-        fileNameCol.setCellValueFactory(
-        	new PropertyValueFactory<Mod,String>("fileName")
-        );
-        versionCol.setCellValueFactory(
-        	new PropertyValueFactory<Mod,String>("versionCompatible")
-        );
-        steamPath.setCellValueFactory(
-            new PropertyValueFactory<Mod,String>("steamPath")
-        );
+		mods.getColumns().add(modNameCol);
+		mods.getColumns().add(fileNameCol);
+		mods.getColumns().add(versionCol);
+		mods.getColumns().add(steamPath);
+		
+		modNameCol.setCellValueFactory(
+			new PropertyValueFactory<Mod,String>("name")
+		);
+		fileNameCol.setCellValueFactory(
+			new PropertyValueFactory<Mod,String>("fileName")
+		);
+		versionCol.setCellValueFactory(
+			new PropertyValueFactory<Mod,String>("versionCompatible")
+		);
+		steamPath.setCellValueFactory(
+			new PropertyValueFactory<Mod,String>("steamPath")
+		);
 		
 		mods.setRowFactory(tv -> {
-	        TableRow<Mod> row = new TableRow<Mod>() {
-	        	@Override
-	            protected void updateItem(Mod item, boolean empty) {
-	        		super.updateItem(item, empty) ;
-			        if (item == null)
-			            setStyle("");
-			        else if (selectedModsList.contains(item))
-			            setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
-			        else if (missingMods.contains(item))
-			        	setStyle("-fx-background-color: red; -fx-font-weight: bold;");
-			        else
-			            setStyle("");
-	            }
-	        };
-	        
-	        row.setOnMouseClicked(event -> {
-	        	Mod mod = row.getItem();
-        		mods.getSelectionModel().clearSelection();
-	        	if (!row.isEmpty() && event.getButton()==MouseButton.PRIMARY){
-	        		if(!mod.isMissing()){
+			TableRow<Mod> row = new TableRow<Mod>() {
+				@Override
+				protected void updateItem(Mod item, boolean empty) {
+					super.updateItem(item, empty) ;
+					if (item == null)
+						setStyle("");
+					else if (selectedModsList.contains(item))
+						setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
+					else if (missingMods.contains(item))
+						setStyle("-fx-background-color: red; -fx-font-weight: bold;");
+					else
+						setStyle("");
+				}
+			};
+			
+			row.setOnMouseClicked(event -> {
+				Mod mod = row.getItem();
+				mods.getSelectionModel().clearSelection();
+				if (!row.isEmpty() && event.getButton()==MouseButton.PRIMARY){
+					if(!mod.isMissing()){
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
 							row.setStyle("");
@@ -280,23 +280,23 @@ public class ListCreator extends Stage {
 							row.setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
 						}
 					}
-	        	}else if(event.getButton()==MouseButton.SECONDARY){
-	        		if(Desktop.isDesktopSupported()){
-	        			new Thread(() -> {
-	        		           try {
-	        		        	   URI uri = new URI(mod.getSteamPath());
-	        		               Desktop.getDesktop().browse(uri);
-	        		           } catch (IOException | URISyntaxException e) {
-	        		        	   ErrorPrint.printError(e);
-	        		               e.printStackTrace();
-	        		           }
-	        		    }).start();
+				}else if(event.getButton()==MouseButton.SECONDARY){
+					if(Desktop.isDesktopSupported()){
+						new Thread(() -> {
+							try {
+								URI uri = new URI(mod.getSteamPath());
+								Desktop.getDesktop().browse(uri);
+							} catch (IOException | URISyntaxException e) {
+								ErrorPrint.printError(e);
+								e.printStackTrace();
+							}
+						}).start();
 					}
-	        	}
+				}
 			});
-	        
-	        return row;
-	    });
+			
+			return row;
+		});
 		
 		printModList();
 		//ModList list of mods (end)
