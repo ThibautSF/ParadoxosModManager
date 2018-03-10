@@ -342,7 +342,6 @@ public class ListCreator extends Stage {
 		saveList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				//TODO check if list is named !
 				if (fieldListName.getText()!=null && !fieldListName.getText().equals("")) {
 					String listOldName = list.getName();
 					list.setName(fieldListName.getText());

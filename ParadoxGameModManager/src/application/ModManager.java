@@ -47,7 +47,10 @@ import versioning.OnlineVersionChecker;
 public class ModManager extends Application {
 	
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static String urlAppInfoTxt = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
+	
+	public static String UPDATE_ZIP_NAME = "update.zip";
+	public static String UPDATER_NAME = "Updater.jar";
+	
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
 	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(									  281990,				   236850, 				203770, 			 394360);
 	public static String APP_NAME = "Paradoxos Mod Manager";
@@ -78,8 +81,16 @@ public class ModManager extends Application {
 	
 	public void start(Stage primaryStage, boolean reload) throws Exception {
 		
-		if(!reload)
+		if(!reload){
+			File zip = new File(UPDATE_ZIP_NAME);
+			zip.delete();
+			
+			File new_updater = new File("new_"+UPDATER_NAME);
+			File old_updater = new File(UPDATER_NAME);
+			new_updater.renameTo(old_updater);
+			
 			new OnlineVersionChecker();
+		}
 		
 		settingsXML.readSettingFile(SETTINGS_FILE_XML);
 		
