@@ -33,7 +33,7 @@ public class TestMod {
 	@BeforeClass
 	public static void setUp()
 	{
-		ModManager.PATH = System.getProperty("user.dir") + "/Hearts of Iron IV/";
+		ModManager.PATH = System.getProperty("user.dir") + "/testRessources/";
 	}
 
 	@Test
