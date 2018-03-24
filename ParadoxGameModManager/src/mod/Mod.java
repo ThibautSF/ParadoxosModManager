@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -24,8 +25,9 @@ public class Mod {
 	private SimpleStringProperty versionCompatible;
 	private SimpleStringProperty remoteFileID;
 	private SimpleStringProperty steamPath;
+	private SimpleStringProperty dirPath;
 	private boolean missing;
-	private Set<String> modifiedFiles;
+	private Set<String> modifiedFiles = new HashSet<>();
 	
 	/**
 	 * @param filename
@@ -60,6 +62,7 @@ public class Mod {
 		try {
 			readFileMod();
 			this.missing = false;
+			setModifiedFiles();
 		} catch (IOException e) {
 			this.missing = true;
 			this.name = new SimpleStringProperty("MOD MISSING");
@@ -85,6 +88,11 @@ public class Mod {
 				m = p.matcher(line);
 				if(m.find())
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
+			}else if (line.matches("\\s*path\\s*=.*") || lineWFirstChar.matches("\\s*path\\s*=.*") ||
+					line.matches("\\s*archive\\s*=.*") || lineWFirstChar.matches("\\s*archive\\s*=.*")) {
+				m = p.matcher(line);
+				if(m.find())
+				    dirPath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
 			}else if (line.matches("\\s*supported_version\\s*=.*") || lineWFirstChar.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
@@ -99,6 +107,47 @@ public class Mod {
 		}
 		
 	}
+	
+	private void setModifiedFiles()
+	{
+		if ((dirPath == null) || dirPath.length().get() < 2)
+		{
+			return;
+		}
+		if (dirPath.get().charAt(1) != ':')
+		{
+			// The path is relataive
+			dirPath.set(ModManager.PATH + dirPath.get());
+		}
+		if (dirPath.get().endsWith(".zip"))
+		{
+			// TODO
+		}
+		else
+		{
+			addModifiedFiles(new File(dirPath.get()), "");
+		}
+	}
+	
+	private void addModifiedFiles(File directory, String relativeDirPath)
+	{
+		File[] files = directory.listFiles();
+		for (File file: files)
+		{
+			if (file.isDirectory())
+			{
+				String newRelativeDirPath = "".equals(relativeDirPath) ? file.getName() :
+					relativeDirPath + File.separator + file.getName();
+				addModifiedFiles(file, newRelativeDirPath);
+			}
+			else if (!file.getPath().endsWith(".mod"))
+			{
+				modifiedFiles.add(relativeDirPath + File.separator + file.getName());
+			}
+		}
+	}
+	
+	
 	
 	//
 	// Getters and Setters
