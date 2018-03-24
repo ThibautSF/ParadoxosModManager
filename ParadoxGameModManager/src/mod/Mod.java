@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,7 @@ public class Mod {
 	private SimpleStringProperty remoteFileID;
 	private SimpleStringProperty steamPath;
 	private boolean missing;
+	private Set<String> modifiedFiles;
 	
 	/**
 	 * @param filename
@@ -157,5 +159,9 @@ public class Mod {
 	 */
 	public boolean isMissing(){
 		return missing;
+	}
+
+	public Set<String> getModifiedFiles() {
+		return modifiedFiles;
 	}
 }
