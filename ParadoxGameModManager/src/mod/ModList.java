@@ -1,6 +1,8 @@
 package mod;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javafx.beans.property.SimpleStringProperty;
 
@@ -15,18 +17,20 @@ public class ModList {
 	private SimpleStringProperty name;
 	private SimpleStringProperty description;
 	private Languages language;
-	private ArrayList<Mod> modlist;
+	private List<Mod> modlist;
+	private List<ModConflict> modConflicts;
 
 	/**
 	 * @param name
 	 * @param description
 	 * @param modlist
 	 */
-	public ModList(String name, String description, Languages language, ArrayList<Mod> modlist) {
+	public ModList(String name, String description, Languages language, List<Mod> modlist) {
 		this.name=new SimpleStringProperty(name);
 		this.description=new SimpleStringProperty(description);
 		this.language=language;
 		this.modlist=modlist;
+		computeConflicts(modlist);
 	}
 	
 	//
@@ -79,17 +83,22 @@ public class ModList {
 	/**
 	 * @return
 	 */
-	public ArrayList<Mod> getModlist() {
+	public List<Mod> getModlist() {
 		return modlist;
 	}
 	
 	/**
 	 * @param modList
 	 */
-	public void setModlist(ArrayList<Mod> modList) {
+	public void setModlist(List<Mod> modList) {
 		this.modlist=modList;
+		computeConflicts(modList);
 	}
 	
+	public List<ModConflict> getModConflicts() {
+		return modConflicts;
+	}
+
 	//
 	//Methods
 	//
@@ -113,6 +122,7 @@ public class ModList {
 	public boolean addMod(Mod mod){
 		if(isModInList(mod)==0){
 			modlist.add(mod);
+			addConflicts(mod);
 			return true;
 		}
 		return false;
@@ -121,7 +131,7 @@ public class ModList {
 	/**
 	 * @param mods
 	 */
-	public void addAllMod(ArrayList<Mod> mods){
+	public void addAllMod(List<Mod> mods){
 		for (Mod one_mod : mods) {
 			this.addMod(one_mod);
 		}
@@ -135,7 +145,24 @@ public class ModList {
 		int index = isModInList(mod);
 		if(index!=0){
 			modlist.remove(index);
+			removeConflicts(mod);
 		}
 		return false;
+	}
+	
+	private void computeConflicts(List<Mod> modList)
+	{
+		this.modConflicts = new ArrayList<>();
+		// TODO
+	}
+	
+	private void addConflicts(Mod newMod)
+	{
+		// TODO
+	}
+	
+	private void removeConflicts(Mod removedMod)
+	{
+		// TODO
 	}
 }

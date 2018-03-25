@@ -180,7 +180,7 @@ public class MyXML {
 	 */
 	public void modifyList(ModList list, String listName) throws Exception{
 		Element oneListElement,listDescrElement,listLangElement,listModElement;
-		ArrayList<Mod> listMods;
+		List<Mod> listMods;
 		if(listName!=null){
 			List<Element> modLists = root.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();

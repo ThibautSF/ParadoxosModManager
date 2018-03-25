@@ -14,8 +14,14 @@ import org.junit.runners.Parameterized.Parameters;
 
 import application.ModManager;
 import mod.Mod;
-
-// DOC about Parameterized test : https://github.com/junit-team/junit4/wiki/parameterized-tests
+ 
+/**
+ * Test the Mod class
+ * 
+ * @see about Parameterized test : https://github.com/junit-team/junit4/wiki/parameterized-tests
+ * @author GROSJEAN Nicolas (alias Mouchi)
+ *
+ */
 @RunWith(Parameterized.class)
 public class TestMod {
 

@@ -12,8 +12,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import debug.ErrorPrint;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -30,24 +33,23 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseButton;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import mod.Mod;
 import mod.ModList;
 import settings.MyXML;
-import debug.ErrorPrint;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
@@ -488,7 +490,7 @@ public class ListManager extends Stage {
 	 * @throws IOException
 	 */
 	private boolean applyOneModList(ModList applyList) throws IOException {
-		ArrayList<Mod> applyMods = applyList.getModlist();
+		List<Mod> applyMods = applyList.getModlist();
 		
 		String sep = File.separator;
 		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
@@ -583,7 +585,7 @@ public class ListManager extends Stage {
 	 * @param writer
 	 * @throws IOException
 	 */
-	private void modPrint(ArrayList<Mod> applyMods, BufferedWriter writer) throws IOException{
+	private void modPrint(List<Mod> applyMods, BufferedWriter writer) throws IOException{
 		for (Mod mod : applyMods) {
 			String addLine="\t\"mod/"+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));

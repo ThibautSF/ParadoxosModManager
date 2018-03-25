@@ -421,7 +421,7 @@ public class ListCreator extends Stage {
 	 * 
 	 */
 	private void printModList() {
-		ArrayList<Mod> modsFromList = list.getModlist();
+		List<Mod> modsFromList = list.getModlist();
 		
 		for (Mod oneMod : userMods) {
 			if(modsFromList.contains(oneMod))
