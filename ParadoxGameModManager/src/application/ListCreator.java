@@ -105,6 +105,7 @@ public class ListCreator extends Stage {
 	private MyXML userlistsXML;
 	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	private ModList list;
+	private List<Mod> oldModList;
 	private ArrayList<Mod> userMods = new ArrayList<Mod>();
 	
 	/**
@@ -123,6 +124,7 @@ public class ListCreator extends Stage {
 	 */
 	public ListCreator(String path, String[] modFiles, ModList list) {
 		this.userlistsXML = new MyXML();
+		this.oldModList = list.getModlist();
 		this.list = list;
 		
 		for (String oneModFiles : modFiles) {
@@ -275,9 +277,11 @@ public class ListCreator extends Stage {
 					if(!mod.isMissing()){
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
+							list.removeMod(mod);
 							row.setStyle("");
 						}else{
 							selectedModsList.add(mod);
+							list.addMod(mod);
 							row.setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
 						}
 					}
@@ -311,6 +315,7 @@ public class ListCreator extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				selectedModsList.clear();
+				list.setModlist(new ArrayList<>());
 				missingMods.clear();
 				mods.refresh();
 			}//end action
@@ -334,6 +339,7 @@ public class ListCreator extends Stage {
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
+				list.setModlist(oldModList);
 				Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
@@ -347,11 +353,6 @@ public class ListCreator extends Stage {
 					list.setName(fieldListName.getText());
 					list.setDescription(fieldListDesc.getText());
 					list.setLanguage(cbListLang.getValue());
-					ArrayList<Mod> saveSelectedMods = new ArrayList<Mod>();
-					for (Mod mod : selectedModsList) {
-						saveSelectedMods.add(mod);
-					}
-					list.setModlist(saveSelectedMods);
 					try {
 						userlistsXML.readFile(fileXML);
 						if(listOldName!=null)
@@ -398,6 +399,7 @@ public class ListCreator extends Stage {
 					try {
 						if(choice.get() == buttonReplace){
 							selectedModsList.clear();
+							list.setModlist(new ArrayList<>());
 							missingMods.clear();
 						}
 						getModList();
@@ -424,8 +426,9 @@ public class ListCreator extends Stage {
 		List<Mod> modsFromList = list.getModlist();
 		
 		for (Mod oneMod : userMods) {
-			if(modsFromList.contains(oneMod))
+			if(modsFromList.contains(oneMod)) {
 				selectedModsList.add(oneMod);
+			}
 		}
 		
 		for (Mod onemod : modsFromList) {
@@ -522,8 +525,10 @@ public class ListCreator extends Stage {
 				if(!missingMods.contains(oneMod))
 					missingMods.add(oneMod);
 			}else{
-				if(!selectedModsList.contains(oneMod))
+				if(!selectedModsList.contains(oneMod)) {
 					selectedModsList.add(oneMod);
+					list.addMod(oneMod);
+				}
 			}
 			
 			trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod\"")+5, trimmedLine.length());
