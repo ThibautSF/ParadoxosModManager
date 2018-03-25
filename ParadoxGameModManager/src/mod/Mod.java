@@ -5,15 +5,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import application.ModManager;
 import debug.ErrorPrint;
 import javafx.beans.property.SimpleStringProperty;
+import sun.security.x509.IssuingDistributionPointExtension;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
@@ -26,6 +30,7 @@ public class Mod {
 	private SimpleStringProperty remoteFileID;
 	private SimpleStringProperty steamPath;
 	private SimpleStringProperty dirPath;
+	private SimpleStringProperty archivePath;
 	private boolean missing;
 	private Set<String> modifiedFiles = new HashSet<>();
 	
@@ -88,11 +93,15 @@ public class Mod {
 				m = p.matcher(line);
 				if(m.find())
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-			}else if (line.matches("\\s*path\\s*=.*") || lineWFirstChar.matches("\\s*path\\s*=.*") ||
-					line.matches("\\s*archive\\s*=.*") || lineWFirstChar.matches("\\s*archive\\s*=.*")) {
+			}else if (line.matches("\\s*path\\s*=.*") || lineWFirstChar.matches("\\s*path\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
 				    dirPath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
+			}else if (line.matches("\\s*archive\\s*=.*") || lineWFirstChar.matches("\\s*archive\\s*=.*"))
+			{
+				m = p.matcher(line);
+				if(m.find())
+				    archivePath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
 			}else if (line.matches("\\s*supported_version\\s*=.*") || lineWFirstChar.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
@@ -110,28 +119,40 @@ public class Mod {
 	
 	private void setModifiedFiles()
 	{
-		if ((dirPath == null) || dirPath.length().get() < 2)
+		String dirOrArchivePath = (dirPath != null) ? dirPath.get() :
+			((archivePath != null) ? archivePath.get() : null);
+		if ((dirOrArchivePath == null) || dirOrArchivePath.length() < 2)
 		{
+			ErrorPrint.printError("Unable to find mod files");
 			return;
 		}
-		if (dirPath.get().charAt(1) != ':')
+		if (dirOrArchivePath.charAt(1) != ':')
 		{
-			// The path is relataive
-			dirPath.set(ModManager.PATH + dirPath.get());
+			// The path was relative
+			dirOrArchivePath = ModManager.PATH + dirOrArchivePath;
 		}
-		if (dirPath.get().endsWith(".zip"))
+		if (dirOrArchivePath.endsWith(".zip"))
 		{
-			// TODO
+			try {
+				addModifiedFiles(new ZipFile(dirOrArchivePath));
+			} catch (IOException e) {
+				ErrorPrint.printError("Unable to unzip " + dirOrArchivePath);
+			}
 		}
 		else
 		{
-			addModifiedFiles(new File(dirPath.get()), "");
+			addModifiedFiles(new File(dirOrArchivePath), "");
 		}
 	}
 	
 	private void addModifiedFiles(File directory, String relativeDirPath)
 	{
 		File[] files = directory.listFiles();
+		if (files == null)
+		{
+			ErrorPrint.printError("Unable to find mod files from the archive");
+			return;
+		}
 		for (File file: files)
 		{
 			if (file.isDirectory())
@@ -140,9 +161,28 @@ public class Mod {
 					relativeDirPath + File.separator + file.getName();
 				addModifiedFiles(file, newRelativeDirPath);
 			}
-			else if (!file.getPath().endsWith(".mod"))
+			else if (!file.getName().endsWith(".mod"))
 			{
 				modifiedFiles.add(relativeDirPath + File.separator + file.getName());
+			}
+		}
+	}
+	
+	private void addModifiedFiles(ZipFile zipDirectory)
+	{
+		Enumeration<? extends ZipEntry> entries = zipDirectory.entries();
+		while (entries.hasMoreElements())
+		{
+			ZipEntry entry = entries.nextElement();
+			if (entry.isDirectory())
+			{
+				continue;
+			}
+			String fileRelativePath = entry.getName();
+			fileRelativePath = fileRelativePath.substring(fileRelativePath.indexOf('/') + 1);
+			if (!fileRelativePath.endsWith(".mod"))
+			{
+				modifiedFiles.add(fileRelativePath.replace('/', '\\'));
 			}
 		}
 	}

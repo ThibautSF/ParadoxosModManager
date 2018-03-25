@@ -1,5 +1,5 @@
 ﻿name="FakeMode"
-archive="FakeMod.zip"
+archive="mod\\FakeMod.zip"
 tags={
 	"Graphics"
 }
