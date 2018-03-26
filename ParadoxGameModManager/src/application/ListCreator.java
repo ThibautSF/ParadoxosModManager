@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import debug.BasicDialog;
@@ -24,6 +26,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -35,6 +38,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -43,6 +47,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -582,7 +587,14 @@ public class ListCreator extends Stage {
 
 				@Override
 				public void handle(ActionEvent t) {
-					System.err.println("COUCOU");
+					Mod mod = (Mod) getTableRow().getItem();
+					Map<Mod, List<String>> conflicts = list.getMappedConflicts(mod);
+					if (conflicts.isEmpty()) {
+						BasicDialog.showGenericDialog("No conflicts", "Only highlighted items in orange have conflicts",
+								AlertType.ERROR);
+					} else {
+						displayConflicts(mod, conflicts);
+					}
 				}
 			});
 		}
@@ -595,6 +607,44 @@ public class ListCreator extends Stage {
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(paddedButton);
 			}
+		}
+		
+		// Inspired from : http://code.makery.ch/blog/javafx-dialogs-official/
+		private void displayConflicts(Mod mod, Map<Mod, List<String>> conflicts) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Conflicts");
+			alert.setHeaderText("Conflicts of the mod " + mod.getName());
+			alert.setContentText("Conflicts with other selected mods");
+
+			StringBuilder conflictText = new StringBuilder();
+			for (Entry<Mod, List<String>> entry : conflicts.entrySet()) {
+				conflictText.append(entry.getKey().getName());
+				conflictText.append(" :\n");
+				for (String conflictFile : entry.getValue()) {
+					conflictText.append('\t');
+					conflictText.append(conflictFile);
+					conflictText.append('\n');
+				}
+				conflictText.append('\n');
+			}
+
+			TextArea textArea = new TextArea(conflictText.toString());
+			textArea.setEditable(false);
+			textArea.setWrapText(true);
+
+			textArea.setMaxWidth(Double.MAX_VALUE);
+			textArea.setMaxHeight(Double.MAX_VALUE);
+			GridPane.setVgrow(textArea, Priority.ALWAYS);
+			GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+			GridPane expContent = new GridPane();
+			expContent.setMaxWidth(Double.MAX_VALUE);
+			expContent.add(textArea, 0, 0);
+
+			// Set expandable Exception into the dialog pane.
+			alert.getDialogPane().setExpandableContent(expContent);
+
+			alert.showAndWait();
 		}
 	}
 }

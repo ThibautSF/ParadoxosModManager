@@ -1,10 +1,10 @@
 package mod;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javafx.beans.property.SimpleStringProperty;
 
@@ -166,6 +166,30 @@ public class ModList {
 			}
 		}
 		return false;
+	}
+	
+	public Map<Mod, List<String>> getMappedConflicts(Mod mod)
+	{
+		Map<Mod, List<String>> res = new HashMap<>();
+		for (ModConflict conflict : modConflicts) {
+			if (conflict.getMod1().equals(mod)) {
+				mapConflicts(res, conflict.getMod2(), conflict.getConflictFiles());
+			}
+			if (conflict.getMod2().equals(mod)) {
+				mapConflicts(res, conflict.getMod1(), conflict.getConflictFiles());
+			}
+		}
+		return res;
+	}
+	
+	private static void mapConflicts(Map<Mod, List<String>> map, Mod mod, List<String> conflicts)
+	{
+		List<String> mappedConflicts = map.get(mod);
+		if (mappedConflicts == null) {
+			mappedConflicts = new ArrayList<>();
+			map.put(mod, mappedConflicts);
+		}
+		mappedConflicts.addAll(conflicts);
 	}
 	
 	private void computeConflicts(List<Mod> modList) {
