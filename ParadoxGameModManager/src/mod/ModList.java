@@ -1,9 +1,10 @@
 package mod;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javafx.beans.property.SimpleStringProperty;
 
@@ -149,6 +150,20 @@ public class ModList {
 		if(index!=MOD_NOT_IN_LIST){
 			modlist.remove(index);
 			removeConflicts(mod);
+		}
+		return false;
+	}
+	
+	public boolean hasConflict(Mod mod) {
+		if (isModInList(mod) == MOD_NOT_IN_LIST) {
+			// Conflicts only concern mods in the list
+			return false;
+		}
+		for (ModConflict conflict : modConflicts) {
+			if (conflict.getMod1().equals(mod) ||
+					conflict.getMod2().equals(mod)) {
+				return true;
+			}
 		}
 		return false;
 	}

@@ -24,17 +24,19 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -42,8 +44,10 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import mod.Languages;
 import mod.Mod;
 import mod.ModList;
@@ -81,6 +85,7 @@ public class ListCreator extends Stage {
 	
 	private VBox listBox = new VBox();
 	private TableView<Mod> mods = new TableView<Mod>();
+	private TableColumn<Mod, Boolean> conflictCol = new TableColumn<Mod, Boolean>("Conflict");
 	private TableColumn<Mod,String> modNameCol = new TableColumn<Mod,String>("Mod Name");
 	private TableColumn<Mod,String> fileNameCol = new TableColumn<Mod,String>("File");
 	private TableColumn<Mod,String> versionCol = new TableColumn<Mod,String>("Version");
@@ -233,14 +238,19 @@ public class ListCreator extends Stage {
 		//ModList list of mods (start)
 		window.add(listBox, 1, 3, 4, 1);
 		listBox.getChildren().add(mods);
+		conflictCol.setSortable(false);
 		modNameCol.setSortable(false);
 		fileNameCol.setSortable(false);
 		versionCol.setSortable(false);
+		mods.getColumns().add(conflictCol);
 		mods.getColumns().add(modNameCol);
 		mods.getColumns().add(fileNameCol);
 		mods.getColumns().add(versionCol);
 		mods.getColumns().add(steamPath);
 		
+		conflictCol.setCellValueFactory(
+				new PropertyValueFactory<Mod, Boolean>("hasConflict")
+		);
 		modNameCol.setCellValueFactory(
 			new PropertyValueFactory<Mod,String>("name")
 		);
@@ -254,6 +264,12 @@ public class ListCreator extends Stage {
 			new PropertyValueFactory<Mod,String>("steamPath")
 		);
 		
+		conflictCol.setCellFactory(new Callback<TableColumn<Mod, Boolean>, TableCell<Mod, Boolean>>() {
+		      @Override public TableCell<Mod, Boolean> call(TableColumn<Mod, Boolean> personBooleanTableColumn) {
+		        return new ButtonCell();
+		      }
+		});
+		
 		mods.setRowFactory(tv -> {
 			TableRow<Mod> row = new TableRow<Mod>() {
 				@Override
@@ -261,6 +277,8 @@ public class ListCreator extends Stage {
 					super.updateItem(item, empty) ;
 					if (item == null)
 						setStyle("");
+					else if  (list.hasConflict(item))
+						setStyle("-fx-text-fill: white; -fx-background-color: #D28201;");
 					else if (selectedModsList.contains(item))
 						setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
 					else if (missingMods.contains(item))
@@ -282,7 +300,7 @@ public class ListCreator extends Stage {
 						}else{
 							selectedModsList.add(mod);
 							list.addMod(mod);
-							row.setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50;");
+							mods.refresh();
 						}
 					}
 				}else if(event.getButton()==MouseButton.SECONDARY){
@@ -549,5 +567,34 @@ public class ListCreator extends Stage {
 		}
 		
 		mods.refresh();
+	}
+	
+	// Define the button cell
+	private class ButtonCell extends TableCell<Mod, Boolean> {
+		final Button cellButton = new Button("...");
+		final StackPane paddedButton = new StackPane();
+
+		ButtonCell() {
+			paddedButton.setPadding(new Insets(-5, 5, -5, 0));
+			paddedButton.getChildren().add(cellButton);
+			cellButton.setScaleY(0.5);
+			cellButton.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent t) {
+					System.err.println("COUCOU");
+				}
+			});
+		}
+
+		// Display button if the row is not empty
+		@Override
+		protected void updateItem(Boolean t, boolean empty) {
+			super.updateItem(t, empty);
+			if (!empty) {
+				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+				setGraphic(paddedButton);
+			}
+		}
 	}
 }
