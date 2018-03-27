@@ -1,23 +1,23 @@
 package mod;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import application.ModManager;
 import debug.ErrorPrint;
 import javafx.beans.property.SimpleStringProperty;
-import sun.security.x509.IssuingDistributionPointExtension;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
@@ -131,14 +131,10 @@ public class Mod {
 			// The path was relative
 			dirOrArchivePath = ModManager.PATH + dirOrArchivePath;
 		}
-		if (dirOrArchivePath.endsWith(".zip"))
+		if (dirOrArchivePath.endsWith(".zip")) 
 		{
-			try {
-				addModifiedFiles(new ZipFile(dirOrArchivePath));
-			} catch (IOException e) {
-				ErrorPrint.printError("Unable to unzip " + dirOrArchivePath);
-			}
-		}
+			addModifiedFiles(dirOrArchivePath);
+		} 
 		else
 		{
 			addModifiedFiles(new File(dirOrArchivePath), "");
@@ -168,26 +164,35 @@ public class Mod {
 		}
 	}
 	
-	private void addModifiedFiles(ZipFile zipDirectory)
+	private void addModifiedFiles(String dirOrArchivePath)
 	{
-		Enumeration<? extends ZipEntry> entries = zipDirectory.entries();
-		while (entries.hasMoreElements())
-		{
-			ZipEntry entry = entries.nextElement();
-			if (entry.isDirectory())
-			{
-				continue;
+		FileInputStream fis = null;
+		ZipInputStream zipIs = null;
+		try {
+			fis = new FileInputStream(dirOrArchivePath);
+			zipIs = new ZipInputStream(new BufferedInputStream(fis));
+			ZipEntry zEntry = null;
+			while ((zEntry = zipIs.getNextEntry()) != null) {
+				if (zEntry.isDirectory()) {
+					continue;
+				}
+				String fileRelativePath = zEntry.getName();
+				fileRelativePath = fileRelativePath.substring(fileRelativePath.indexOf('/') + 1);
+				if (!fileRelativePath.endsWith(".mod")) {
+					modifiedFiles.add(fileRelativePath.replace('/', '\\'));
+				}
 			}
-			String fileRelativePath = entry.getName();
-			fileRelativePath = fileRelativePath.substring(fileRelativePath.indexOf('/') + 1);
-			if (!fileRelativePath.endsWith(".mod"))
-			{
-				modifiedFiles.add(fileRelativePath.replace('/', '\\'));
-			}
+		} catch (IOException e) {
+			ErrorPrint.printError("Unable to unzip " + dirOrArchivePath);
+		} finally {
+			try {
+				zipIs.close();
+			} catch (IOException e1) {}
+			try {
+				fis.close();
+			} catch (IOException e1) {}
 		}
 	}
-	
-	
 	
 	//
 	// Getters and Setters
