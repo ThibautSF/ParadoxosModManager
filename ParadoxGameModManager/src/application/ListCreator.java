@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -117,14 +116,15 @@ public class ListCreator extends Stage {
 	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	private ModList list;
 	private List<Mod> oldModList;
+	private Map<String, Mod> availableMods;
 	private List<Mod> userMods;
 	
 	/**
 	 * @param path
 	 * @param modFiles
 	 */
-	public ListCreator(String path, Collection<Mod> userMods) {
-		this(path,userMods,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
+	public ListCreator(String path, Map<String, Mod> availableMods) {
+		this(path,availableMods,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
 	}
 
 
@@ -133,12 +133,13 @@ public class ListCreator extends Stage {
 	 * @param modFiles
 	 * @param list
 	 */
-	public ListCreator(String path, Collection<Mod> userMods, ModList list) {
+	public ListCreator(String path, Map<String, Mod> availableMods, ModList list) {
 		this.userlistsXML = new MyXML();
 		this.oldModList = list.getModlist();
 		this.list = list;
 		
-		this.userMods = new ArrayList<>(userMods);
+		this.availableMods = availableMods;
+		this.userMods = new ArrayList<>(availableMods.values());
 		Collections.sort(this.userMods, new Comparator<Mod>() {
 			@Override
 			public int compare(Mod m1, Mod m2) {
@@ -540,7 +541,7 @@ public class ListCreator extends Stage {
 		while(trimmedLine.indexOf("/")>=0){
 			String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod\"")+4);
 			
-			Mod oneMod = new Mod(oneModStr);
+			Mod oneMod = availableMods.get(oneModStr);
 			
 			if(oneMod.isMissing()){
 				if(!missingMods.contains(oneMod))

@@ -319,7 +319,7 @@ public class ListManager extends Stage {
 		newList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				new ListCreator(path, availableMods.values());
+				new ListCreator(path, availableMods);
 			}//end action
 		});
 		
@@ -329,7 +329,7 @@ public class ListManager extends Stage {
 				int pos = lists.getSelectionModel().getSelectedIndex();
 				ModList toModify = lists.getSelectionModel().getSelectedItem();
 				try{
-					new ListCreator(path, availableMods.values(), toModify);
+					new ListCreator(path, availableMods, toModify);
 				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to enter in list modification without selecting a list");
 					else ErrorPrint.printError(e,"When enter in modification of a list");
