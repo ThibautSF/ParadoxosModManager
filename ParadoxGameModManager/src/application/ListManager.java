@@ -102,7 +102,7 @@ public class ListManager extends Stage {
 	//Local Var
 	private File gameDir;
 	private String absolutePath;
-	private String[] modFiles;
+	private List<Mod> mods = new ArrayList<>();
 	private ArrayList<ModList> userListArray = new ArrayList<ModList>();
 	
 	/**
@@ -196,7 +196,7 @@ public class ListManager extends Stage {
 		window.add(yrListsBox, 1, 1, 4, 1);
 		yrListsBox.getChildren().add(yourLists);
 		yrListsBox.setStyle("-fx-alignment: center;");
-		yourLists.setText(String.format(lblYrLists,modFiles.length));
+		yourLists.setText(String.format(lblYrLists, getModNumbers()));
 		yourLists.setStyle("-fx-font: bold 20 serif;");
 		
 		//Center
@@ -317,7 +317,7 @@ public class ListManager extends Stage {
 		newList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				new ListCreator(path,modFiles);
+				new ListCreator(path, mods);
 			}//end action
 		});
 		
@@ -327,7 +327,7 @@ public class ListManager extends Stage {
 				int pos = lists.getSelectionModel().getSelectedIndex();
 				ModList toModify = lists.getSelectionModel().getSelectedItem();
 				try{
-					new ListCreator(path, modFiles, toModify);
+					new ListCreator(path, mods, toModify);
 				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to enter in list modification without selecting a list");
 					else ErrorPrint.printError(e,"When enter in modification of a list");
@@ -601,19 +601,22 @@ public class ListManager extends Stage {
 	 * @return
 	 */
 	private int getModNumbers(){
-		return modFiles.length;
+		return mods.size();
 	}
 	
 	private void loadModFilesArray() throws FileNotFoundException{
 		String sep = File.separator;
 		File modFile = new File(absolutePath+sep+"mod");
 		if(modFile.exists()){
-			modFiles = modFile.list(new FilenameFilter(){
+			String[] modFiles = modFile.list(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
 					return name.toLowerCase().endsWith(".mod");
 				}
 			});
+			for (String modDir: modFiles) {
+				mods.add(new Mod(modDir));
+			}
 		} else {
 			throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
 		}

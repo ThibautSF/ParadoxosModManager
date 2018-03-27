@@ -116,14 +116,14 @@ public class ListCreator extends Stage {
 	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	private ModList list;
 	private List<Mod> oldModList;
-	private ArrayList<Mod> userMods = new ArrayList<Mod>();
+	private List<Mod> userMods;
 	
 	/**
 	 * @param path
 	 * @param modFiles
 	 */
-	public ListCreator(String path, String[] modFiles) {
-		this(path,modFiles,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
+	public ListCreator(String path, List<Mod> userMods) {
+		this(path,userMods,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
 	}
 
 
@@ -132,15 +132,12 @@ public class ListCreator extends Stage {
 	 * @param modFiles
 	 * @param list
 	 */
-	public ListCreator(String path, String[] modFiles, ModList list) {
+	public ListCreator(String path, List<Mod> userMods, ModList list) {
 		this.userlistsXML = new MyXML();
 		this.oldModList = list.getModlist();
 		this.list = list;
 		
-		for (String oneModFiles : modFiles) {
-			Mod m = new Mod(oneModFiles);
-			userMods.add(m);
-		}
+		this.userMods = userMods;
 		Collections.sort(userMods, new Comparator<Mod>() {
 			@Override
 			public int compare(Mod m1, Mod m2) {
@@ -237,7 +234,7 @@ public class ListCreator extends Stage {
 		window.add(yrModsBox, 1, 2, 4, 1);
 		yrModsBox.getChildren().add(yourMods);
 		yrModsBox.setStyle("-fx-alignment: center;");
-		yourMods.setText(String.format(lblYrMods,modFiles.length));
+		yourMods.setText(String.format(lblYrMods,userMods.size()));
 		yourMods.setStyle("-fx-font: bold 20 serif;");
 		
 		//ModList list of mods (start)
