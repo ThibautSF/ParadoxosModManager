@@ -300,12 +300,11 @@ public class ListCreator extends Stage {
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
 							list.removeMod(mod);
-							row.setStyle("");
 						}else{
 							selectedModsList.add(mod);
 							list.addMod(mod);
-							mods.refresh();
 						}
+						mods.refresh();
 					}
 				}else if(event.getButton()==MouseButton.SECONDARY){
 					if(Desktop.isDesktopSupported()){
@@ -640,8 +639,8 @@ public class ListCreator extends Stage {
 			expContent.setMaxWidth(Double.MAX_VALUE);
 			expContent.add(textArea, 0, 0);
 
-			// Set expandable Exception into the dialog pane.
-			alert.getDialogPane().setExpandableContent(expContent);
+			// Set content into the dialog pane.
+			alert.getDialogPane().setContent(expContent);
 
 			alert.showAndWait();
 		}
