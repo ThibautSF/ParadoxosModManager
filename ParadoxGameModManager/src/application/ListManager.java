@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import debug.ErrorPrint;
@@ -102,7 +104,7 @@ public class ListManager extends Stage {
 	//Local Var
 	private File gameDir;
 	private String absolutePath;
-	private List<Mod> mods = new ArrayList<>();
+	private Map<String, Mod> availableMods = new HashMap<>();
 	private ArrayList<ModList> userListArray = new ArrayList<ModList>();
 	
 	/**
@@ -317,7 +319,7 @@ public class ListManager extends Stage {
 		newList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				new ListCreator(path, mods);
+				new ListCreator(path, availableMods.values());
 			}//end action
 		});
 		
@@ -327,7 +329,7 @@ public class ListManager extends Stage {
 				int pos = lists.getSelectionModel().getSelectedIndex();
 				ModList toModify = lists.getSelectionModel().getSelectedItem();
 				try{
-					new ListCreator(path, mods, toModify);
+					new ListCreator(path, availableMods.values(), toModify);
 				} catch (Exception e) {
 					if(pos==-1) ErrorPrint.printError(e,"User try to enter in list modification without selecting a list");
 					else ErrorPrint.printError(e,"When enter in modification of a list");
@@ -423,7 +425,7 @@ public class ListManager extends Stage {
 				File file = importChooser.showOpenDialog(stage.getOwner());
 				if (file!=null && !file.isDirectory()){
 					try {
-						String strResult = userlistsXML.importList(file.getAbsolutePath());
+						String strResult = userlistsXML.importList(file.getAbsolutePath(), availableMods);
 						updateList();
 						
 						Alert alert = new Alert(AlertType.INFORMATION);
@@ -468,7 +470,7 @@ public class ListManager extends Stage {
 	 */
 	private void updateList() throws Exception{
 		userlistsXML.readFile(fileXML);
-		userListArray = userlistsXML.getSavedList();
+		userListArray = userlistsXML.getSavedList(availableMods);
 		yourLists.setText(String.format(lblYrLists, userListArray.size()));
 		
 		listOfLists.clear();
@@ -601,7 +603,7 @@ public class ListManager extends Stage {
 	 * @return
 	 */
 	private int getModNumbers(){
-		return mods.size();
+		return availableMods.size();
 	}
 	
 	private void loadModFilesArray() throws FileNotFoundException{
@@ -615,7 +617,7 @@ public class ListManager extends Stage {
 				}
 			});
 			for (String modDir: modFiles) {
-				mods.add(new Mod(modDir));
+				availableMods.put(modDir, new Mod(modDir));
 			}
 		} else {
 			throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");

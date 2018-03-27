@@ -1,13 +1,22 @@
 package settings;
 
-import java.io.*;
-import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.jdom2.*;
-import org.jdom2.input.*;
-import org.jdom2.output.*;
+import java.util.List;
+import java.util.Map;
+
+import org.jdom2.Attribute;
+import org.jdom2.DataConversionException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import application.ModManager;
 import mod.Languages;
@@ -102,7 +111,7 @@ public class MyXML {
 	/**
 	 * @return
 	 */
-	public ArrayList<ModList> getSavedList(){
+	public ArrayList<ModList> getSavedList(Map<String, Mod> availableMods){
 		ArrayList<ModList> userLists = new ArrayList<ModList>();
 		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> i = modLists.iterator();
@@ -138,7 +147,7 @@ public class MyXML {
 					}
 				}
 					
-				Mod oneMod = new Mod(fileName, remoteFileId);
+				Mod oneMod = availableMods.get(fileName);
 				listMods.add(oneMod);
 			}
 			
@@ -260,12 +269,7 @@ public class MyXML {
 		}
 	}
 	
-	/**
-	 * @param xml
-	 * @return
-	 * @throws Exception
-	 */
-	public String importList(String xml) throws Exception{
+	public String importList(String xml, Map<String, Mod> availableMods) throws Exception{
 		SAXBuilder sxb = new SAXBuilder();
 		Document importDocument = sxb.build(xml);
 		Element importRoot = importDocument.getRootElement();
@@ -299,7 +303,7 @@ public class MyXML {
 						}
 					}
 						
-					Mod oneMod = new Mod(fileName, remoteFileId);
+					Mod oneMod = availableMods.get(fileName);
 					listMods.add(oneMod);
 				}
 				

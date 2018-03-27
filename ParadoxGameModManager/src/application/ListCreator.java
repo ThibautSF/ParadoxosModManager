@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -122,7 +123,7 @@ public class ListCreator extends Stage {
 	 * @param path
 	 * @param modFiles
 	 */
-	public ListCreator(String path, List<Mod> userMods) {
+	public ListCreator(String path, Collection<Mod> userMods) {
 		this(path,userMods,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
 	}
 
@@ -132,13 +133,13 @@ public class ListCreator extends Stage {
 	 * @param modFiles
 	 * @param list
 	 */
-	public ListCreator(String path, List<Mod> userMods, ModList list) {
+	public ListCreator(String path, Collection<Mod> userMods, ModList list) {
 		this.userlistsXML = new MyXML();
 		this.oldModList = list.getModlist();
 		this.list = list;
 		
-		this.userMods = userMods;
-		Collections.sort(userMods, new Comparator<Mod>() {
+		this.userMods = new ArrayList<>(userMods);
+		Collections.sort(this.userMods, new Comparator<Mod>() {
 			@Override
 			public int compare(Mod m1, Mod m2) {
 				return m1.getName().compareTo(m2.getName());
