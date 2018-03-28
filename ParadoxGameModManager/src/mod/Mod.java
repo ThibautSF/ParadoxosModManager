@@ -147,7 +147,7 @@ public class Mod {
 		File[] files = directory.listFiles();
 		if (files == null)
 		{
-			ErrorPrint.printError("Unable to find mod files from the archive");
+			ErrorPrint.printError("Unable to find mod files from the directory");
 			return;
 		}
 		for (File file: files)
@@ -187,7 +187,6 @@ public class Mod {
 					continue;
 				}
 				String fileRelativePath = zEntry.getName();
-				fileRelativePath = fileRelativePath.substring(fileRelativePath.indexOf('/') + 1);
 				if (!fileRelativePath.endsWith(".mod")) {
 					modifiedFiles.add(fileRelativePath.replace('/', '\\'));
 				}
