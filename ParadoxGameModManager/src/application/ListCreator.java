@@ -618,6 +618,7 @@ public class ListCreator extends Stage {
 			for (Entry<Mod, List<String>> entry : conflicts.entrySet()) {
 				conflictText.append(entry.getKey().getName());
 				conflictText.append(" :\n");
+				entry.getValue().sort(null);
 				for (String conflictFile : entry.getValue()) {
 					conflictText.append('\t');
 					conflictText.append(conflictFile);
