@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import application.ModManager;
@@ -171,8 +172,17 @@ public class Mod {
 		try {
 			fis = new FileInputStream(dirOrArchivePath);
 			zipIs = new ZipInputStream(new BufferedInputStream(fis));
-			ZipEntry zEntry = null;
-			while ((zEntry = zipIs.getNextEntry()) != null) {
+			while (true) {
+				ZipEntry zEntry = null;
+				try {
+					zEntry = zipIs.getNextEntry();
+				} catch (ZipException e) {
+					ErrorPrint.printError("Unable to unzip some files of " + dirOrArchivePath);
+					break;
+				}
+				if (zEntry == null) {
+					break;
+				}
 				if (zEntry.isDirectory()) {
 					continue;
 				}
