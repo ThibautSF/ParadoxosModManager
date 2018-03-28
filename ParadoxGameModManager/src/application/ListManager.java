@@ -160,6 +160,8 @@ public class ListManager extends Stage {
 		menu.getChildren().addAll(pthModLbl,nbModLbl);
 		pthModLbl.setText(String.format(pthModstr,absolutePath));
 		
+		refreshTexts();
+		
 		window.add(actionsBox, 4, 0);
 		actionsBox.setAlignment(Pos.CENTER_RIGHT);
 		actionsBox.getChildren().addAll(buttonRefresh,buttonBack);

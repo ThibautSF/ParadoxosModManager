@@ -52,6 +52,9 @@ public class WorkIndicatorDialog<P> {
 	public WorkIndicatorDialog(Window owner, String label) {
 		dialog.initModality(Modality.WINDOW_MODAL);
 		dialog.initOwner(owner);
+		
+		dialog.setWidth(owner.getScene().getWidth());
+		dialog.setHeight(owner.getScene().getHeight());
 		dialog.setResizable(false);
 		this.label.setText(label);
 	}
@@ -82,9 +85,12 @@ public class WorkIndicatorDialog<P> {
 		root.getChildren().add(mainPane);
 		vbox.setSpacing(5);
 		vbox.setAlignment(Pos.CENTER);
-		vbox.setMinSize(330, 120);
+		vbox.setMinSize(dialog.getWidth(), dialog.getHeight());
 		vbox.getChildren().addAll(label,progressIndicator);
 		mainPane.setTop(vbox);
+		
+		dialog.setOpacity(0.8);
+		
 		dialog.setScene(scene);
 		
 		dialog.setOnHiding(event -> { /* Gets notified when task ended, but BEFORE 
@@ -133,7 +139,7 @@ public class WorkIndicatorDialog<P> {
 		
 		new Thread(animationWorker).start();
 	}
- 
+	
 	/**
 	 *
 	 */
@@ -145,7 +151,7 @@ public class WorkIndicatorDialog<P> {
 				return func.applyAsInt(parameter);
 			}
 		};
- 
+		
 		EventHandler<WorkerStateEvent> eh = event -> {
 			animationWorker.cancel(true);
 			progressIndicator.progressProperty().unbind();
@@ -158,18 +164,18 @@ public class WorkIndicatorDialog<P> {
 				throw new RuntimeException(e);
 			}
 		};
- 
+		
 		taskWorker.setOnSucceeded(eh);
 		taskWorker.setOnFailed(eh);
- 
+		
 		new Thread(taskWorker).start();
 	}
- 
+	
 	/**
 	 * For those that like beans :)
 	 */
 	public Integer getResultValue() {
 		return resultValue;
 	}
- 
+	
 }
