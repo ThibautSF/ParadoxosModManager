@@ -116,9 +116,6 @@ public class ListManager extends Stage {
 		gameDir = new File(path);
 		absolutePath = gameDir.getAbsolutePath();
 		
-		//Load the list of mod files
-		loadModFilesArray();
-				
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
 		window.setHgap(8);
@@ -171,7 +168,9 @@ public class ListManager extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				try {
-					loadModFilesArray();
+					//TODO work on loading popup, if unstable change comments
+					newloadModFilesArray();
+					//loadModFilesArray();
 					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
 					updateList();
 				} catch (Exception e) {
@@ -198,6 +197,7 @@ public class ListManager extends Stage {
 		window.add(yrListsBox, 1, 1, 4, 1);
 		yrListsBox.getChildren().add(yourLists);
 		yrListsBox.setStyle("-fx-alignment: center;");
+		//TODO Strange
 		yourLists.setText(String.format(lblYrLists, getModNumbers()));
 		yourLists.setStyle("-fx-font: bold 20 serif;");
 		
@@ -263,13 +263,6 @@ public class ListManager extends Stage {
 			return row;
 		});
 		
-		try {
-			updateList();
-		} catch (Exception eCreate) {
-			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
-			eCreate.printStackTrace();
-		}
-		
 		//fixed width for buttons
 		newList.setPrefWidth(75);
 		modifyList.setPrefWidth(75);
@@ -297,6 +290,21 @@ public class ListManager extends Stage {
 		this.setMinHeight(WINDOW_HEIGHT);
 		this.setMinWidth(WINDOW_WIDTH);
 		this.show();
+		
+		//TODO work on loading popup, if unstable change comments
+		//Load the list of mod files
+		newloadModFilesArray();
+		//loadModFilesArray();
+		
+		//TODO clear some useless call and refactor calls (like an 'updateWindowText()' method)
+		nbModLbl.setText(String.format(nbModstr, getModNumbers()));
+		
+		try {
+			updateList();
+		} catch (Exception eCreate) {
+			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
+			eCreate.printStackTrace();
+		}
 		
 		Stage stage = (Stage) window.getScene().getWindow();
 		stage.focusedProperty().addListener(new ChangeListener<Boolean>(){
@@ -604,6 +612,37 @@ public class ListManager extends Stage {
 	 */
 	private int getModNumbers(){
 		return availableMods.size();
+	}
+	
+	private WorkIndicatorDialog<String> wd=null;
+	
+	void newloadModFilesArray() {
+		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), "Loading Mod Files...");
+		
+		wd.addTaskEndNotification(result -> {
+			System.out.println(result);
+			wd=null; // don't keep the object, cleanup
+		});
+		
+		wd.exec("123", inputParam -> {
+			String sep = File.separator;
+			File modFile = new File(absolutePath+sep+"mod");
+			if(modFile.exists()){
+				String[] modFiles = modFile.list(new FilenameFilter(){
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase().endsWith(".mod");
+					}
+				});
+				for (String modDir: modFiles) {
+					availableMods.put(modDir, new Mod(modDir));
+				}
+			} else {
+				//throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
+			}
+			
+			return new Integer(1);
+		});
 	}
 	
 	private void loadModFilesArray() throws FileNotFoundException{
