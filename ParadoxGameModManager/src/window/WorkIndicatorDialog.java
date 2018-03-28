@@ -43,8 +43,8 @@ public class WorkIndicatorDialog<P> {
 	public ObservableList<Integer> resultNotificationList=FXCollections.observableArrayList();
 	
 	public Integer resultValue;
-	public volatile int currentProgress=-1;
-	public volatile int maxProgress=0;
+	public volatile float currentProgress=-1;
+	public volatile float maxProgress=0;
 	
 	/**
 	 *
