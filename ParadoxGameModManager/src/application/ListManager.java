@@ -52,6 +52,7 @@ import javafx.stage.Stage;
 import mod.Mod;
 import mod.ModList;
 import settings.MyXML;
+import window.WorkIndicatorDialog;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
@@ -158,7 +159,6 @@ public class ListManager extends Stage {
 		menu.setStyle("-fx-background-color: #EAE795;");
 		menu.getChildren().addAll(pthModLbl,nbModLbl);
 		pthModLbl.setText(String.format(pthModstr,absolutePath));
-		nbModLbl.setText(String.format(nbModstr, getModNumbers()));
 		
 		window.add(actionsBox, 4, 0);
 		actionsBox.setAlignment(Pos.CENTER_RIGHT);
@@ -170,9 +170,11 @@ public class ListManager extends Stage {
 				try {
 					//TODO work on loading popup, if unstable change comments
 					newloadModFilesArray();
-					//loadModFilesArray();
-					nbModLbl.setText(String.format(nbModstr, getModNumbers()));
+					/*
+					loadModFilesArray();
 					updateList();
+					refreshTexts();
+					*/
 				} catch (Exception e) {
 					ErrorPrint.printError(e, "Refresh");
 				}
@@ -197,8 +199,6 @@ public class ListManager extends Stage {
 		window.add(yrListsBox, 1, 1, 4, 1);
 		yrListsBox.getChildren().add(yourLists);
 		yrListsBox.setStyle("-fx-alignment: center;");
-		//TODO Strange
-		yourLists.setText(String.format(lblYrLists, getModNumbers()));
 		yourLists.setStyle("-fx-font: bold 20 serif;");
 		
 		//Center
@@ -296,15 +296,16 @@ public class ListManager extends Stage {
 		newloadModFilesArray();
 		//loadModFilesArray();
 		
-		//TODO clear some useless call and refactor calls (like an 'updateWindowText()' method)
-		nbModLbl.setText(String.format(nbModstr, getModNumbers()));
-		
+		/*
 		try {
 			updateList();
 		} catch (Exception eCreate) {
 			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
 			eCreate.printStackTrace();
 		}
+		
+		refreshTexts();
+		*/
 		
 		Stage stage = (Stage) window.getScene().getWindow();
 		stage.focusedProperty().addListener(new ChangeListener<Boolean>(){
@@ -314,6 +315,7 @@ public class ListManager extends Stage {
 					//Window focus
 					try {
 						updateList();
+						refreshTexts();
 					} catch (Exception e) {
 						ErrorPrint.printError(e,"When update ListView of ModLists on window focus");
 						e.printStackTrace();
@@ -363,6 +365,7 @@ public class ListManager extends Stage {
 						userlistsXML.readFile(fileXML);
 						userlistsXML.removeList(toDelete.getName());
 						updateList();
+						refreshTexts();
 					} catch (Exception e) {
 						if(pos==-1) ErrorPrint.printError(e,"User try to delete a list without selecting a list");
 						else ErrorPrint.printError(e,"When trying to delete a list");
@@ -435,6 +438,7 @@ public class ListManager extends Stage {
 					try {
 						String strResult = userlistsXML.importList(file.getAbsolutePath(), availableMods);
 						updateList();
+						refreshTexts();
 						
 						Alert alert = new Alert(AlertType.INFORMATION);
 						alert.setTitle("Import result");
@@ -479,7 +483,7 @@ public class ListManager extends Stage {
 	private void updateList() throws Exception{
 		userlistsXML.readFile(fileXML);
 		userListArray = userlistsXML.getSavedList(availableMods);
-		yourLists.setText(String.format(lblYrLists, userListArray.size()));
+		
 		
 		listOfLists.clear();
 		listOfLists.addAll(userListArray);
@@ -492,6 +496,11 @@ public class ListManager extends Stage {
 		delList.setDisable(true);
 		applyList.setDisable(true);
 		exportList.setDisable(true);
+	}
+	
+	private void refreshTexts(){
+		nbModLbl.setText(String.format(nbModstr, getModNumber()));
+		yourLists.setText(String.format(lblYrLists, getListNumber()));
 	}
 	
 	/**
@@ -610,21 +619,36 @@ public class ListManager extends Stage {
 	/**
 	 * @return
 	 */
-	private int getModNumbers(){
+	private int getModNumber(){
 		return availableMods.size();
+	}
+	
+	/**
+	 * @return
+	 */
+	private int getListNumber(){
+		return userListArray.size();
 	}
 	
 	private WorkIndicatorDialog<String> wd=null;
 	
 	void newloadModFilesArray() {
-		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), "Loading Mod Files...");
+		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), "Generate conflicts...");
 		
 		wd.addTaskEndNotification(result -> {
-			System.out.println(result);
+			try {
+				updateList();
+			} catch (Exception eCreate) {
+				ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
+				eCreate.printStackTrace();
+			}
+			
+			refreshTexts();
+			
 			wd=null; // don't keep the object, cleanup
 		});
 		
-		wd.exec("123", inputParam -> {
+		wd.exec("LoadMods", inputParam -> {
 			String sep = File.separator;
 			File modFile = new File(absolutePath+sep+"mod");
 			if(modFile.exists()){
@@ -634,8 +658,12 @@ public class ListManager extends Stage {
 						return name.toLowerCase().endsWith(".mod");
 					}
 				});
+				wd.maxProgress = modFiles.length;
+				int i = 0;
 				for (String modDir: modFiles) {
 					availableMods.put(modDir, new Mod(modDir));
+					i++;
+					wd.currentProgress = i;
 				}
 			} else {
 				//throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");

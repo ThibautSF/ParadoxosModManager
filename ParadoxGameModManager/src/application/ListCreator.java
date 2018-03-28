@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import debug.BasicDialog;
 import debug.ErrorPrint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -57,6 +56,7 @@ import mod.Languages;
 import mod.Mod;
 import mod.ModList;
 import settings.MyXML;
+import window.BasicDialog;
 
 /**
  * @author SIMON-FINE Thibaut (alias Bisougai)
