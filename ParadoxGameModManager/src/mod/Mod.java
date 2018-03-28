@@ -186,10 +186,12 @@ public class Mod {
 			ErrorPrint.printError("Unable to unzip " + dirOrArchivePath);
 		} finally {
 			try {
-				zipIs.close();
+				if (zipIs != null)
+					zipIs.close();
 			} catch (IOException e1) {}
 			try {
-				fis.close();
+				if (fis != null)
+					fis.close();
 			} catch (IOException e1) {}
 		}
 	}
