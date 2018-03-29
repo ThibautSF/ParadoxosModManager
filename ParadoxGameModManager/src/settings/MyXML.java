@@ -150,8 +150,16 @@ public class MyXML {
 				}
 					
 				Mod oneMod = availableMods.get(fileName);
-				if (oneMod == null) {
-					oneMod = new Mod(modName, fileName, remoteFileId);
+				if (oneMod==null) {
+					if (remoteFileId!=null){
+						for (Mod mod : availableMods.values()) {
+							if (mod.getRemoteFileID().equals(remoteFileId)) {
+								oneMod = mod;
+							}
+						}
+					} else {
+						oneMod = new Mod(modName, fileName, remoteFileId);
+					}
 				}
 				listMods.add(oneMod);
 			}
@@ -292,14 +300,16 @@ public class MyXML {
 				List<Element> modsElements = oneListElement.getChildren(MOD);
 				for (Element modElement : modsElements) {
 					List<Attribute> modElementAttr = modElement.getAttributes();
-					String fileName="",remoteFileId=null;
+					String fileName="",modName="",remoteFileId=null;
 					for (Attribute attribute : modElementAttr) {
 						switch (attribute.getName()) {
 						case ID:
 						case FILE_NAME:
 							fileName = attribute.getValue();
 							break;
-						
+						case MOD_NAME:
+							modName = attribute.getValue();
+							break;
 						case REMOTE_ID:
 							remoteFileId = attribute.getValue();
 							break;
@@ -310,6 +320,17 @@ public class MyXML {
 					}
 						
 					Mod oneMod = availableMods.get(fileName);
+					if (oneMod==null) {
+						if (remoteFileId!=null){
+							for (Mod mod : availableMods.values()) {
+								if (mod.getRemoteFileID().equals(remoteFileId)) {
+									oneMod = mod;
+								}
+							}
+						} else {
+							oneMod = new Mod(modName, fileName, remoteFileId);
+						}
+					}
 					listMods.add(oneMod);
 				}
 				
