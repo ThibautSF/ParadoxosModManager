@@ -106,6 +106,7 @@ public class ListManager extends Stage {
 	private String absolutePath;
 	private Map<String, Mod> availableMods = new HashMap<>();
 	private ArrayList<ModList> userListArray = new ArrayList<ModList>();
+	private WorkIndicatorDialog<String> wd=null;
 	
 	/**
 	 * @throws FileNotFoundException 
@@ -168,13 +169,7 @@ public class ListManager extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				try {
-					//TODO work on loading popup, if unstable change comments
-					newloadModFilesArray();
-					/*
 					loadModFilesArray();
-					updateList();
-					refreshTexts();
-					*/
 				} catch (Exception e) {
 					ErrorPrint.printError(e, "Refresh");
 				}
@@ -292,21 +287,8 @@ public class ListManager extends Stage {
 		this.setMinWidth(WINDOW_WIDTH);
 		this.show();
 		
-		//TODO work on loading popup, if unstable change comments
 		//Load the list of mod files
-		newloadModFilesArray();
-		//loadModFilesArray();
-		
-		/*
-		try {
-			updateList();
-		} catch (Exception eCreate) {
-			ErrorPrint.printError(eCreate,"When update ListView of ModLists on window creation");
-			eCreate.printStackTrace();
-		}
-		
-		refreshTexts();
-		*/
+		loadModFilesArray();
 		
 		Stage stage = (Stage) window.getScene().getWindow();
 		stage.focusedProperty().addListener(new ChangeListener<Boolean>(){
@@ -631,9 +613,7 @@ public class ListManager extends Stage {
 		return userListArray.size();
 	}
 	
-	private WorkIndicatorDialog<String> wd=null;
-	
-	void newloadModFilesArray() {
+	private void loadModFilesArray() {
 		String workLabel = ModManager.isConflictComputed() ? "Generate mods and conflicts..." : "Generate mods...";
 
 		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), workLabel);
