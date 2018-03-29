@@ -11,31 +11,24 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Optional;
-import application.ModManager;
-import debug.ErrorPrint;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.Cursor;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import application.ModManager;
 import window.BasicDialog;
+import window.WorkIndicatorDialog;
+import debug.ErrorPrint;
 
 /**
  * An online checker implementation
@@ -58,11 +51,9 @@ public class OnlineVersionChecker {
 	
 	private String lastestOnlineVersionNumber;
 	
-	private Button download;
-	private Button applyUpdate;
-	private Text status;
-	private Scene scene;
-
+	private Stage dialog;
+	private WorkIndicatorDialog<String> wd=null;
+	
 	public OnlineVersionChecker(){
 		String changelogOrNothing = newVersionOnline();
 		if (changelogOrNothing.length() > 0)
@@ -119,8 +110,8 @@ public class OnlineVersionChecker {
 			in.close();
 		} catch (Exception e) {
 			ErrorPrint.printError(e, "Check Online Version");
-			
-			BasicDialog.showGenericDialog("Version checking error", "Unable to check online version", AlertType.ERROR);
+			changelog = new StringBuilder();
+			//BasicDialog.showGenericDialog("Version checking error", "Unable to check online version", AlertType.ERROR);
 		}
 		
 		//We reach end of file (case final line was an AppVersion)
@@ -181,7 +172,6 @@ public class OnlineVersionChecker {
 	 * 
 	 * @return string of the url to see infos about the last version of the software (on GitHub)
 	 */
-	@SuppressWarnings("unused")
 	private String getGithHubReleaseUrl(){	
 		StringBuilder builder = new StringBuilder();
 		
@@ -196,16 +186,46 @@ public class OnlineVersionChecker {
 	 * @param changelog the content of the scrollable textarea
 	 */
 	private void showUpdateWindow(String changelog){
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle(ModManager.APP_NAME);
-		alert.setHeaderText("A new version is available !");
+		dialog = new Stage();
+		dialog.setTitle("Paradoxos Mod Manager - Update Available");
+		dialog.setResizable(false);
+		
+		GridPane expContent = new GridPane();
+		Scene scene = new Scene(expContent,575, 420);
 		
 		Text contentText = new Text(String.format("A new version of %s is available online !\nLocal : %s\nOnline : %s\n", ModManager.APP_NAME, VERSION, lastestOnlineVersionNumber));
-
-		GridPane expContent = new GridPane();
+		
+		RowConstraints row1 = new RowConstraints();
+		row1.setPercentHeight(0);
+		RowConstraints row2 = new RowConstraints();
+		row2.setPrefHeight(scene.getHeight()-80);
+		RowConstraints row3 = new RowConstraints();
+		row3.setMinHeight(50);
+		row3.setPrefHeight(50);
+		row3.setMaxHeight(50);
+		RowConstraints row4 = new RowConstraints();
+		row4.setPercentHeight(0);
+		expContent.getRowConstraints().addAll(row1,row2,row3,row4);
+		expContent.setVgap(10);
+		
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(0);
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(100);
+		ColumnConstraints col3 = new ColumnConstraints();
+		col3.setPercentWidth(0);
+		expContent.getColumnConstraints().addAll(col1,col2,col3);
+		expContent.setHgap(10);
+		
+		//expContent.setGridLinesVisible(true);
+		
 		expContent.setMaxWidth(Double.MAX_VALUE);
 		expContent.autosize();
-		expContent.add(contentText, 0, 0);
+		
+		VBox content = new VBox();
+		
+		expContent.add(content, 1, 1);
+		content.getChildren().add(contentText);
 		
 		if(changelog.length() > 0 && !changelog.equals("No changelog available")){
 			Label label = new Label("CHANGELOG:");
@@ -216,83 +236,85 @@ public class OnlineVersionChecker {
 	
 			textArea.setMaxWidth(Double.MAX_VALUE);
 			textArea.setMaxHeight(Double.MAX_VALUE);
-			GridPane.setVgrow(textArea, Priority.ALWAYS);
-			GridPane.setHgrow(textArea, Priority.ALWAYS);
-			expContent.add(label, 0, 1);
-			expContent.add(textArea, 0, 2);
+			VBox.setVgrow(textArea, Priority.ALWAYS);
+			
+			content.getChildren().addAll(label, textArea);
 		}
 		
-		alert.getDialogPane().setContent(expContent);
+		HBox buttons = new HBox(10);
+		Button buttonWebAll = new Button("All versions\n(with source)");
+		Button buttonWebDownload = new Button("Get Update\n(autoinstall)");
+		Button buttonCancel = new Button("Continue\n(Stay "+VERSION+")");
 		
-		ButtonType buttonWebAll = new ButtonType("All versions\n(with source)");
-		//ButtonType buttonWebRelease = new ButtonType("See "+lastestOnlineVersionNumber+"\n(with source)");
-		ButtonType buttonWebDownload = new ButtonType("Get Update\n(zip archive)");
-		ButtonType buttonCancel = new ButtonType("Continue\n(Stay "+VERSION+")", ButtonData.CANCEL_CLOSE);
-
-		alert.getButtonTypes().setAll(buttonWebAll, buttonWebDownload, buttonCancel);
-
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == buttonWebAll){
+		buttonWebAll.setOnAction((e)-> {
 			goURL(URL_APP_RELEASES);
-		//} else if (result.get() == buttonWebRelease) {
-		//	goURL(getGithHubReleaseUrl());
-		} else if (result.get() == buttonWebDownload) {
-			String url = getGithHubDownloadUrl();
-			String filedownload = ModManager.UPDATE_ZIP_NAME;
-			
-			Stage s = new Stage();
-			
-			status = new Text();
-			status.setText("Ready to start download !");
-			
-			download = new Button("Start Download");
-				
-			download.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent t) {
-					try {
-						download(url, filedownload);
-					} catch (IOException e) {
-						goURL(url);
-					}
-				}//end action
-			});
-			
-			applyUpdate = new Button("Apply Update");
-			
-			applyUpdate.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent t) {
-					String[] run = {"java","-jar",ModManager.UPDATER_NAME};
-					try {
-						Runtime.getRuntime().exec(run);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					System.exit(0);
-				}//end action
-			});
-			
-			applyUpdate.setDisable(true);
-			
-			GridPane grid = new GridPane();
-			grid.setHgap(10);
-			grid.setVgap(10);
-			grid.setPadding(new Insets(20, 10, 10, 10));
-			
-			grid.add(status, 0, 0, 2, 1);
-			grid.add(download, 0, 1, 1, 1);
-			grid.add(applyUpdate, 1, 1, 1, 1);
-			
-			scene = new Scene(grid, 275, 75);
-			
-			s.setTitle("Download&Update Process");
-			s.setScene(scene);
-			s.showAndWait();
-			System.exit(0);
-		}
+		});
+		buttonWebDownload.setOnAction((e)-> {
+			startDownload(dialog);
+		});
+		buttonCancel.setOnAction((e)-> {
+			dialog.close();
+		});
+		
+		buttons.getChildren().addAll(buttonWebAll, buttonWebDownload, buttonCancel);
+		buttons.setAlignment(Pos.BOTTOM_RIGHT);
+		
+		expContent.add(buttons, 1, 2);
+		dialog.setScene(scene);
+		dialog.showAndWait();
 	}
 	
+	private void startDownload(Stage stage) {
+		wd = new WorkIndicatorDialog<String>(stage.getScene().getWindow(), "Paradoxos is downloading...");
+		
+		String urlStr = getGithHubDownloadUrl();
+		
+		wd.addTaskEndNotification(result -> {
+			if(result==1){
+				//OK
+				String[] run = {"java","-jar",ModManager.UPDATER_NAME};
+				try {
+					Runtime.getRuntime().exec(run);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				System.exit(0);
+			} else {
+				//KO
+				BasicDialog.showGenericDialog("Error during download", "Download page will be opened in your navigator.", AlertType.ERROR);
+				goURL(getGithHubReleaseUrl());
+			}
+			
+			wd=null; // don't keep the object, cleanup
+		});
+		
+		wd.exec("Download", inputParam -> {
+			try {
+				URL url = new URL(urlStr);
+				
+				Download d = new Download(url);
+				
+				wd.maxProgress = 100;
+				while (d.getStatus()==Download.DOWNLOADING) {
+					wd.currentProgress = d.getProgress();
+				}
+				
+				if (d.getStatus() == Download.COMPLETE) {
+					File oldName = new File(d.getLocalFileName());
+					File newName = new File(ModManager.UPDATE_ZIP_NAME);
+					oldName.renameTo(newName);
+					
+					return new Integer(1);
+				}
+				
+			} catch (IOException e) {
+				return new Integer(0);
+			}
+			
+			return new Integer(0);
+		});
+	}
+
 	/** 
 	 * Open the web browser with the target url
 	 * If not available copy url to clipboard
@@ -317,64 +339,7 @@ public class OnlineVersionChecker {
 			clipboard.setContents(selection, selection);
 			
 			BasicDialog.showGenericDialog("Unable to open Web Browser", "Url was copied in your clipboard.", AlertType.ERROR);
+			dialog.close();
 		}
-	}
-	
-	/**
-	 * @param urlStr
-	 * @param file
-	 * @throws IOException
-	 */
-	private void download(String urlStr, String file) throws IOException {
-		final Cursor oldCursor = scene.getCursor();
-		scene.setCursor(Cursor.WAIT);
-		status.setText("Paradoxos is downloading...");
-		download.setDisable(true);
-		
-		final Service<Void> calculateService = new Service<Void>() {
-			@Override
-			protected Task<Void> createTask() {
-				return new Task<Void>() {
-					@Override
-					protected Void call() throws Exception {
-						
-						URL url = new URL(urlStr);
-						
-						Download d = new Download(url);
-						
-						while (d.getStatus()==Download.DOWNLOADING) {
-							status.setText(String.format("Paradoxos is downloading... %.2f",d.getProgress())+"%");
-							
-							Thread.sleep(10);
-						}
-						
-						File oldName = new File(d.getLocalFileName());
-						File newName = new File(ModManager.UPDATE_ZIP_NAME);
-						oldName.renameTo(newName);
-						
-						return null;
-					}
-				};
-			}
-		};
-		calculateService.stateProperty().addListener(new ChangeListener<Worker.State>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldValue, Worker.State newValue) {
-				switch (newValue) {
-					case FAILED:
-					case CANCELLED:
-					case SUCCEEDED:
-						scene.setCursor(oldCursor);
-						status.setText("Download completed, ready to update !");
-						applyUpdate.setDisable(false);
-						break;
-					default:
-						
-				}
-			}
-		});
-		
-		calculateService.start();
 	}
 }

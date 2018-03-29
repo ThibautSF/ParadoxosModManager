@@ -28,7 +28,7 @@ import java.util.function.ToIntFunction;
  * (cc) @imifos
  */
 public class WorkIndicatorDialog<P> {
-	private Task animationWorker;
+	private Task<Object> animationWorker;
 	private Task<Integer> taskWorker;
 	
 	private final ProgressIndicator progressIndicator = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
@@ -72,7 +72,7 @@ public class WorkIndicatorDialog<P> {
 	/**
 	 *
 	 */
-	public void exec(P parameter, ToIntFunction func) {
+	public void exec(P parameter, ToIntFunction<Object> func) {
 		setupDialog();
 		setupAnimationThread();
 		setupWorkerThread(parameter, func);
@@ -105,7 +105,7 @@ public class WorkIndicatorDialog<P> {
 	 */
 	private void setupAnimationThread() {
 		
-		animationWorker = new Task() {
+		animationWorker = new Task<Object>() {
 			@Override
 			protected Object call() throws Exception {
 				/*
@@ -143,7 +143,7 @@ public class WorkIndicatorDialog<P> {
 	/**
 	 *
 	 */
-	private void setupWorkerThread(P parameter, ToIntFunction<P> func) {
+	private void setupWorkerThread(P parameter, ToIntFunction<Object> func) {
  
 		taskWorker = new Task<Integer>() {
 			@Override
