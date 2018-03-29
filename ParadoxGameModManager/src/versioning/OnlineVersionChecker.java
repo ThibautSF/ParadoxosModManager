@@ -11,6 +11,9 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import application.ModManager;
+import debug.ErrorPrint;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
@@ -25,10 +28,8 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import application.ModManager;
 import window.BasicDialog;
 import window.WorkIndicatorDialog;
-import debug.ErrorPrint;
 
 /**
  * An online checker implementation

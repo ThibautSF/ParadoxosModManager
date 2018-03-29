@@ -151,17 +151,18 @@ public class MyXML {
 					
 				Mod oneMod = availableMods.get(fileName);
 				if (oneMod==null) {
-					if (remoteFileId!=null){
+					oneMod = new Mod(modName, fileName, remoteFileId);
+					if (remoteFileId!=null && !"".equals(remoteFileId)){
 						for (Mod mod : availableMods.values()) {
 							if (mod.getRemoteFileID().equals(remoteFileId)) {
 								oneMod = mod;
 							}
 						}
-					} else {
-						oneMod = new Mod(modName, fileName, remoteFileId);
 					}
 				}
-				listMods.add(oneMod);
+				if (!listMods.contains(oneMod)) {
+					listMods.add(oneMod);
+				}
 			}
 			
 			ModList oneList = new ModList(listName, listDescr,
@@ -194,71 +195,63 @@ public class MyXML {
 	 * @throws Exception
 	 */
 	public void modifyList(ModList list) throws Exception { modifyList(list, null); }
-			
+	
 	/**
 	 * @param list
 	 * @param listName
 	 * @throws Exception
 	 */
 	public void modifyList(ModList list, String listName) throws Exception{
-		Element oneListElement,listDescrElement,listLangElement,listModElement;
+		Element oneListElement=null,listDescrElement,listLangElement,listModElement;
 		List<Mod> listMods;
-		if(listName!=null){
+		
+		boolean isNew = (listName!=null) ? false : true;
+		
+		if(!isNew){
 			List<Element> modLists = root.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
 			while(i.hasNext()){
-				oneListElement = (Element) i.next();
-				String listElementName = oneListElement.getAttribute(NAME).getValue();
+				Element oneListElementIterated = (Element) i.next();
+				String listElementName = oneListElementIterated.getAttribute(NAME).getValue();
 				if(listElementName.equals(listName)){
-					oneListElement.setAttribute(NAME, list.getName());
-					
-					listDescrElement = oneListElement.getChild(DESCR);
-					listDescrElement.setText(list.getDescription());
-					
-					
-					listLangElement = oneListElement.getChild(LANG);
-					if (listLangElement != null) {
-						listLangElement.setText(list.getLanguageName());
-					} else {
-						listLangElement = new Element(LANG);
-						listLangElement.setText(list.getLanguageName());
-						oneListElement.addContent(listLangElement);
-					}
-					
-					oneListElement.removeChildren(MOD);
-					listMods = list.getModlist();
-					for (Mod mod : listMods) {
-						listModElement = new Element(MOD);
-						listModElement.setAttribute(MOD_NAME, mod.getName());
-						listModElement.setAttribute(FILE_NAME, mod.getFileName());
-						listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
-						oneListElement.addContent(listModElement);
-					}
+					oneListElement = oneListElementIterated;
 					break;
 				}
 			}
 		}
-		else{
+		
+		if(isNew || oneListElement==null){
 			oneListElement = new Element(LIST);
-			oneListElement.setAttribute(NAME, list.getName());
 			root.addContent(oneListElement);
-			
 			listDescrElement = new Element(DESCR);
-			listDescrElement.setText(list.getDescription());
 			oneListElement.addContent(listDescrElement);
-			
+			listLangElement = new Element(LANG);
+			oneListElement.addContent(listLangElement);
+		} else {
+			oneListElement.removeChildren(MOD);
+			listDescrElement = oneListElement.getChild(DESCR);
+			listLangElement = oneListElement.getChild(LANG);
+		}
+		
+		oneListElement.setAttribute(NAME, list.getName());
+		
+		listDescrElement.setText(list.getDescription());
+		
+		if (listLangElement != null) {
+			listLangElement.setText(list.getLanguageName());
+		} else {
 			listLangElement = new Element(LANG);
 			listLangElement.setText(list.getLanguageName());
 			oneListElement.addContent(listLangElement);
-			
-			listMods = list.getModlist();
-			for (Mod mod : listMods) {
-				listModElement = new Element(MOD);
-				listModElement.setAttribute(MOD_NAME, mod.getName());
-				listModElement.setAttribute(FILE_NAME, mod.getFileName());
-				listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
-				oneListElement.addContent(listModElement);
-			}
+		}
+		
+		listMods = list.getModlist();
+		for (Mod mod : listMods) {
+			listModElement = new Element(MOD);
+			listModElement.setAttribute(MOD_NAME, mod.getName());
+			listModElement.setAttribute(FILE_NAME, mod.getFileName());
+			listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
+			oneListElement.addContent(listModElement);
 		}
 		this.saveFile();
 	}
@@ -318,23 +311,25 @@ public class MyXML {
 							break;
 						}
 					}
-						
+					
 					Mod oneMod = availableMods.get(fileName);
 					if (oneMod==null) {
-						if (remoteFileId!=null){
+						oneMod = new Mod(modName, fileName, remoteFileId);
+						if (remoteFileId!=null && !"".equals(remoteFileId)){
 							for (Mod mod : availableMods.values()) {
 								if (mod.getRemoteFileID().equals(remoteFileId)) {
 									oneMod = mod;
 								}
 							}
-						} else {
-							oneMod = new Mod(modName, fileName, remoteFileId);
 						}
 					}
-					listMods.add(oneMod);
+					if (!listMods.contains(oneMod)) {
+						listMods.add(oneMod);
+					}
 				}
 				
-				ModList oneList = new ModList("[Imported]"+listName, listDescr,
+				
+				ModList oneList = new ModList("[Imported]"+listName+"_"+System.currentTimeMillis(), listDescr,
 						Languages.getLanguage(listLang), listMods);
 				modifyList(oneList);
 			}

@@ -1,5 +1,8 @@
 package window;
 
+import java.util.function.Consumer;
+import java.util.function.ToIntFunction;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -18,9 +21,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-
-import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
 
 /**
  * Public domain. Use as you like. No warranties.

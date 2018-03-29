@@ -45,6 +45,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -63,8 +64,8 @@ public class ListManager extends Stage {
 	private static String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	
 	//Window Var
-	private static int WINDOW_WIDTH = 600;
-	private static int WINDOW_HEIGHT = 350;
+	private static int WINDOW_WIDTH = 800;
+	private static int WINDOW_HEIGHT = 600;
 	private GridPane window = new GridPane();
 	
 	private VBox menu = new VBox();
@@ -82,8 +83,6 @@ public class ListManager extends Stage {
 	private Label yourLists = new Label(lblYrLists);
 	
 	private VBox content = new VBox();
-	//private ListView<String> lists = new ListView<String>();
-	
 	private TableView<ModList> lists = new TableView<ModList>();
 	private TableColumn<ModList,String> listNameCol = new TableColumn<ModList,String>("List Name");
 	//private TableColumn<ModList,String> listDescrCol = new TableColumn<ModList,String>("Description");
@@ -121,22 +120,21 @@ public class ListManager extends Stage {
 		
 		window.setHgap(8);
 		window.setVgap(8);
-		window.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
+		
 		//Uncomment when editing window to see cells
 		//window.setGridLinesVisible(true);
 		
-		RowConstraints row1 = new RowConstraints();
-		row1.setPercentHeight(15);
-		RowConstraints row2 = new RowConstraints();
-		row2.setPercentHeight(10);
+		RowConstraints row1 = new RowConstraints(40, 40, 40);
+		RowConstraints row2 = new RowConstraints(25, 25, 25);
 		RowConstraints row3 = new RowConstraints();
-		row3.setPercentHeight(55);
-		RowConstraints row4 = new RowConstraints();
-		row4.setPercentHeight(15);
-		RowConstraints row5 = new RowConstraints();
-		row5.setPercentHeight(15);
+		row3.setMaxHeight(Double.MAX_VALUE);
+		row3.setVgrow(Priority.ALWAYS);
+		content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		VBox.setVgrow(lists, Priority.ALWAYS);
+		RowConstraints row4 = new RowConstraints(30, 30, 30);
+		RowConstraints row5 = new RowConstraints(30, 30, 30);
 		window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
 		
 		ColumnConstraints col1 = new ColumnConstraints();
@@ -218,6 +216,7 @@ public class ListManager extends Stage {
 		listNameCol.setCellValueFactory(
 			new PropertyValueFactory<ModList,String>("name")
 		);
+		listNameCol.setMinWidth(300);
 		
 		languageCol.setCellValueFactory(
 			cell -> new SimpleStringProperty(cell.getValue().getLanguageName().toUpperCase(Locale.ENGLISH))
@@ -676,6 +675,4 @@ public class ListManager extends Stage {
 			return new Integer(1);
 		});
 	}
-	
-	
 }

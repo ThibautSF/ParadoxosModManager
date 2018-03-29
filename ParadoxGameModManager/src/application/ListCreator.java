@@ -64,8 +64,8 @@ import window.BasicDialog;
  */
 public class ListCreator extends Stage {
 	//Window Var
-	private static int WINDOW_WIDTH = 700;
-	private static int WINDOW_HEIGHT = 500;
+	private static int WINDOW_WIDTH = 800;
+	private static int WINDOW_HEIGHT = 600;
 	private GridPane window = new GridPane();
 	
 	private VBox titleBox = new VBox();	
@@ -99,7 +99,7 @@ public class ListCreator extends Stage {
 	private ObservableList<Mod> listOfMods = FXCollections.observableArrayList();
 	private ObservableList<Mod> selectedModsList = FXCollections.observableArrayList();
 	private ObservableList<Mod> missingMods = FXCollections.observableArrayList();
-
+	
 	private HBox clearListBox = new HBox();
 	private Button clearList = new Button("Clear");
 	private HBox cancelListBox = new HBox();
@@ -108,14 +108,13 @@ public class ListCreator extends Stage {
 	private Button saveList = new Button("Save");
 	private HBox importCurrentListBox = new HBox();
 	private Button importCurrentList = new Button("Import from current");
-	private String lblSaveifMissings = "\tMissings mods will be cleared !";
+	private String lblSaveifMissings = "Missings mods will be cleared !";
 	private Label saveifMissings = new Label(lblSaveifMissings);
 	
 	//Local Var
 	private MyXML userlistsXML;
 	private String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 	private ModList list;
-	private List<Mod> oldModList;
 	private Map<String, Mod> availableMods;
 	private List<Mod> userMods;
 	
@@ -126,8 +125,7 @@ public class ListCreator extends Stage {
 	public ListCreator(String path, Map<String, Mod> availableMods) {
 		this(path,availableMods,new ModList(null,null,Languages.ENGLISH,new ArrayList<Mod>()));
 	}
-
-
+	
 	/**
 	 * @param path
 	 * @param modFiles
@@ -135,7 +133,6 @@ public class ListCreator extends Stage {
 	 */
 	public ListCreator(String path, Map<String, Mod> availableMods, ModList list) {
 		this.userlistsXML = new MyXML();
-		this.oldModList = list.getModlist();
 		this.list = list;
 		
 		this.availableMods = availableMods;
@@ -147,31 +144,27 @@ public class ListCreator extends Stage {
 			}
 		});
 		
-		//stelDir = new File(path);
-		//absolutePath = stelDir.getAbsolutePath();
-		
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
 		window.setHgap(8);
 		window.setVgap(8);
-		window.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		window.setPadding(new Insets(0, 0, 5, 0));
 		
 		//Uncomment when editing window to see cells
 		//window.setGridLinesVisible(true);
 		
-		RowConstraints row1 = new RowConstraints();
-		row1.setPercentHeight(10);
-		RowConstraints row2 = new RowConstraints();
-		row2.setPercentHeight(10);
-		RowConstraints row3 = new RowConstraints();
-		row3.setPercentHeight(5);
+		RowConstraints row1 = new RowConstraints(50, 50, 50);
+		RowConstraints row2 = new RowConstraints(50, 50, 50);
+		RowConstraints row3 = new RowConstraints(25, 25, 25);
 		RowConstraints row4 = new RowConstraints();
-		row4.setPercentHeight(70);
-		RowConstraints row5 = new RowConstraints();
-		row5.setPercentHeight(5);
-		window.getRowConstraints().addAll(row1,row2,row3,row4,row5);
+		row4.setMaxHeight(Double.MAX_VALUE);
+		row4.setVgrow(Priority.ALWAYS);
+		listBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		VBox.setVgrow(mods, Priority.ALWAYS);
+		RowConstraints row5 = new RowConstraints(15, 15, 15);
+		RowConstraints row6 = new RowConstraints(25, 25, 25);
+		window.getRowConstraints().addAll(row1,row2,row3,row4,row5,row6);
 		
 		ColumnConstraints col1 = new ColumnConstraints();
 		col1.setPercentWidth(0);
@@ -218,7 +211,6 @@ public class ListCreator extends Stage {
 		});
 		//Hide the tooltip when mouse leave button
 		buttonHelp.setOnMouseExited(new EventHandler<MouseEvent>() {
-		 
 			@Override
 			public void handle(MouseEvent event) {
 				tooltipHelp.hide();
@@ -253,7 +245,7 @@ public class ListCreator extends Stage {
 		mods.getColumns().add(steamPath);
 		
 		conflictCol.setCellValueFactory(
-				new PropertyValueFactory<Mod, Boolean>("hasConflict")
+			new PropertyValueFactory<Mod, Boolean>("hasConflict")
 		);
 		modNameCol.setCellValueFactory(
 			new PropertyValueFactory<Mod,String>("name")
@@ -269,9 +261,9 @@ public class ListCreator extends Stage {
 		);
 		
 		conflictCol.setCellFactory(new Callback<TableColumn<Mod, Boolean>, TableCell<Mod, Boolean>>() {
-		      @Override public TableCell<Mod, Boolean> call(TableColumn<Mod, Boolean> personBooleanTableColumn) {
-		        return new ButtonCell();
-		      }
+			@Override public TableCell<Mod, Boolean> call(TableColumn<Mod, Boolean> personBooleanTableColumn) {
+				return new ButtonCell();
+			}
 		});
 		
 		mods.setRowFactory(tv -> {
@@ -299,10 +291,10 @@ public class ListCreator extends Stage {
 					if(!mod.isMissing()){
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
-							list.removeMod(mod);
+							//list.removeMod(mod);
 						}else{
 							selectedModsList.add(mod);
-							list.addMod(mod);
+							//list.addMod(mod);
 						}
 						mods.refresh();
 					}
@@ -328,7 +320,7 @@ public class ListCreator extends Stage {
 		//ModList list of mods (end)
 		
 		//Clear list button (start)
-		window.add(clearListBox, 1, 4, 1, 1);
+		window.add(clearListBox, 1, 5, 1, 1);
 		clearListBox.setStyle("-fx-alignment: center-left;");
 		clearListBox.getChildren().add(clearList);
 		
@@ -344,23 +336,24 @@ public class ListCreator extends Stage {
 		//Clear list button (end)
 		
 		//Buttons Cancel & Apply (start)
-		window.add(cancelListBox, 2, 4, 1, 1);
+		window.add(cancelListBox, 2, 5, 1, 1);
 		cancelListBox.setStyle("-fx-alignment: center-right;");
 		cancelListBox.getChildren().add(cancelList);
 		
-		window.add(saveListBox, 3, 4, 1, 1);
+		window.add(saveListBox, 3, 5, 1, 1);
 		saveListBox.setStyle("-fx-alignment: center-left;");
 		saveListBox.getChildren().add(saveList);
 		
 		if(missingMods.size()>0){
 			saveifMissings.setStyle("-fx-text-fill: red;");
-			saveListBox.getChildren().add(saveifMissings);
+			window.add(saveifMissings, 3, 4, 2, 1);
+			//saveListBox.getChildren().add(saveifMissings);
 		}
 		
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				list.setModlist(oldModList);
+				//list.setModlist(oldModList);
 				Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
@@ -371,6 +364,7 @@ public class ListCreator extends Stage {
 			public void handle(ActionEvent t) {
 				if (fieldListName.getText()!=null && !fieldListName.getText().equals("")) {
 					String listOldName = list.getName();
+					list.setModlist(selectedModsList);
 					list.setName(fieldListName.getText());
 					list.setDescription(fieldListDesc.getText());
 					list.setLanguage(cbListLang.getValue());
@@ -395,7 +389,7 @@ public class ListCreator extends Stage {
 		//Buttons Cancel & Apply (end)
 		
 		//Import current config button (start)
-		window.add(importCurrentListBox, 4, 4, 1, 1);
+		window.add(importCurrentListBox, 4, 5, 1, 1);
 		importCurrentListBox.setStyle("-fx-alignment: center-right;");
 		importCurrentListBox.getChildren().add(importCurrentList);
 		
