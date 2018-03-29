@@ -635,7 +635,13 @@ public class ListManager extends Stage {
 	private WorkIndicatorDialog<String> wd=null;
 	
 	void newloadModFilesArray() {
-		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), "Generate conflicts...");
+		String workLabel = "Generate mods...";
+		if(ModManager.APP_PARAMS.containsKey("DetectConflict")){
+			if(ModManager.APP_PARAMS.get("DetectConflict").equals("true"))
+				workLabel = "Generate mods and conflicts...";
+		}
+		
+		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), workLabel);
 		
 		wd.addTaskEndNotification(result -> {
 			try {

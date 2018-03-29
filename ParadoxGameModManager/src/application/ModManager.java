@@ -3,14 +3,11 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
-
-import org.jdom2.DataConversionException;
-
-import debug.ErrorPrint;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -26,6 +23,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -35,8 +33,10 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import org.jdom2.DataConversionException;
 import settings.MyXML;
 import versioning.OnlineVersionChecker;
+import debug.ErrorPrint;
 
 /**
  * Main class for Paradoxos Mod Manager
@@ -52,13 +52,13 @@ public class ModManager extends Application {
 	public static String UPDATER_NAME = "Updater.jar";
 	
 	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
-	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(									  281990,				   236850, 				203770, 			 394360);
+	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(                                281990,            236850,                203770,             394360);
 	public static String APP_NAME = "Paradoxos Mod Manager";
 	public static String PATH;
 	public static String GAME;
 	public static Integer STEAM_ID;
 	public static File xmlDir;
-	public static HashMap<String, String> APP_PARAMS;
+	public static Map<String, String> APP_PARAMS = new HashMap<String, String>();
 	
 	private static MyXML settingsXML = new MyXML();
 	private static String SETTINGS_FILE_XML = "settings.xml";
@@ -180,7 +180,9 @@ public class ModManager extends Application {
 		grid.setVgap(10);
 		grid.setPadding(new Insets(20, 10, 10, 10));
 		
-		ChoiceBox<String> game = new ChoiceBox<String>(SUPPORTED_GAMES);
+		//grid.setGridLinesVisible(true);
+		
+		ChoiceBox<String> choiceGame = new ChoiceBox<String>(SUPPORTED_GAMES);
 		
 		TextField docPath = new TextField();
 		docPath.setMinWidth(500);
@@ -192,7 +194,7 @@ public class ModManager extends Application {
 		//FileChooser exeGameChooser = new FileChooser();
 		//Button openExeGameButton = new Button("...");
 		
-		game.getSelectionModel().selectedIndexProperty().addListener(
+		choiceGame.getSelectionModel().selectedIndexProperty().addListener(
 			new ChangeListener<Number>() {
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -263,21 +265,37 @@ public class ModManager extends Application {
 		lbl.setMaxWidth(Double.MAX_VALUE);
 		lbl.setAlignment(Pos.CENTER);
 		
+		//Choice Game
 		grid.add(new Label("Game :"), 0, 0);
-		grid.add(game, 1, 0);
-		grid.add(lbl, 0, 1, 3, 1);
-		grid.add(new Label("Doc path :"), 0, 2);
-		grid.add(docPath, 1, 2);
-		grid.add(openDirDocButton, 2, 2);
+		grid.add(choiceGame, 1, 0);
+		
+		//Detect conflicts option
+		CheckBox cbConflict = new CheckBox("Active conflict detection (longer loading)");
+		//cbConflict.setIndeterminate(false);
+		
+		if(APP_PARAMS.containsKey("DetectConflict")){
+			if(APP_PARAMS.get("DetectConflict").equals("true"))
+				cbConflict.setSelected(true);
+		}
+		
+		grid.add(cbConflict, 0, 1, 2, 1);
+		
+		//Label game config
+		grid.add(lbl, 0, 2, 3, 1);
+		
+		//Game configs
+		grid.add(new Label("Doc path :"), 0, 3);
+		grid.add(docPath, 1, 3);
+		grid.add(openDirDocButton, 2, 3);
 		/*
-		grid.add(new Label("Game (exe) path :"), 0, 3);
-		grid.add(gamePath, 1, 3);
-		grid.add(openExeGameButton, 2, 3);
+		grid.add(new Label("Game (exe) path :"), 0, 4);
+		grid.add(gamePath, 1, 4);
+		grid.add(openExeGameButton, 2, 4);
 		*/
 
 		dialog.getDialogPane().setContent(grid);
 		
-		game.getSelectionModel().selectFirst();
+		choiceGame.getSelectionModel().selectFirst();
 		if(docUserPath!=null){
 			//System.out.println(userPath);
 			docPath.setText(docUserPath);
@@ -287,17 +305,17 @@ public class ModManager extends Application {
 			else
 				dirDocChooser.setInitialDirectory(new File(File.separator));
 		}
-		Platform.runLater(() -> game.requestFocus());
+		Platform.runLater(() -> choiceGame.requestFocus());
 		
 		dialog.setResultConverter(dialogButton -> {
 			if (dialogButton == okButtonType) {
-				return Arrays.asList(game.getSelectionModel().getSelectedItem(), docPath.getText(), gamePath.getText());
+				return Arrays.asList(choiceGame.getSelectionModel().getSelectedItem(), docPath.getText(), gamePath.getText(),""+cbConflict.isSelected());
 			}
 			return null;
 		});
-
+		
 		Optional<List<String>> result = dialog.showAndWait();
-				
+		
 		if(result.isPresent()){
 			List<String> result_list = result.get();
 			GAME = result_list.get(0);
@@ -305,6 +323,8 @@ public class ModManager extends Application {
 			
 			String docPathStr = result_list.get(1);
 			String exePathStr = result_list.get(2);
+			String detectConflict = result_list.get(3);
+			APP_PARAMS.put("DetectConflict", detectConflict);
 			
 			//In case the user write wrong separator
 			docPathStr = docPathStr.replaceAll("(\\\\+|/+)", Matcher.quoteReplacement(File.separator));
