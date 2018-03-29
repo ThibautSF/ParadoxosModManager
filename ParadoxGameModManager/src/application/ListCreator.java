@@ -291,10 +291,8 @@ public class ListCreator extends Stage {
 					if(!mod.isMissing()){
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
-							//list.removeMod(mod);
 						}else{
 							selectedModsList.add(mod);
-							//list.addMod(mod);
 						}
 						mods.refresh();
 					}
@@ -347,13 +345,11 @@ public class ListCreator extends Stage {
 		if(missingMods.size()>0){
 			saveifMissings.setStyle("-fx-text-fill: red;");
 			window.add(saveifMissings, 3, 4, 2, 1);
-			//saveListBox.getChildren().add(saveifMissings);
 		}
 		
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				//list.setModlist(oldModList);
 				Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
