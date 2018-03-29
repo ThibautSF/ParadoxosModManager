@@ -148,6 +148,9 @@ public class MyXML {
 				}
 					
 				Mod oneMod = availableMods.get(fileName);
+				if (oneMod == null) {
+					oneMod = new Mod(fileName, false);
+				}
 				listMods.add(oneMod);
 			}
 			
