@@ -635,12 +635,8 @@ public class ListManager extends Stage {
 	private WorkIndicatorDialog<String> wd=null;
 	
 	void newloadModFilesArray() {
-		String workLabel = "Generate mods...";
-		if(ModManager.APP_PARAMS.containsKey("DetectConflict")){
-			if(ModManager.APP_PARAMS.get("DetectConflict").equals("true"))
-				workLabel = "Generate mods and conflicts...";
-		}
-		
+		String workLabel = ModManager.isConflictComputed() ? "Generate mods and conflicts..." : "Generate mods...";
+
 		wd = new WorkIndicatorDialog<String>(window.getScene().getWindow(), workLabel);
 		
 		wd.addTaskEndNotification(result -> {
@@ -669,7 +665,7 @@ public class ListManager extends Stage {
 				wd.maxProgress = modFiles.length;
 				int i = 0;
 				for (String modDir: modFiles) {
-					availableMods.put(modDir, new Mod(modDir));
+					availableMods.put(modDir, new Mod(modDir, ModManager.isConflictComputed()));
 					i++;
 					wd.currentProgress = i;
 				}
@@ -681,21 +677,5 @@ public class ListManager extends Stage {
 		});
 	}
 	
-	private void loadModFilesArray() throws FileNotFoundException{
-		String sep = File.separator;
-		File modFile = new File(absolutePath+sep+"mod");
-		if(modFile.exists()){
-			String[] modFiles = modFile.list(new FilenameFilter(){
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".mod");
-				}
-			});
-			for (String modDir: modFiles) {
-				availableMods.put(modDir, new Mod(modDir));
-			}
-		} else {
-			throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
-		}
-	}
+	
 }

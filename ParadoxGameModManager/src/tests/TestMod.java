@@ -44,7 +44,7 @@ public class TestMod {
 
 	@Test
 	public void modifiedFilestest() {
-		Mod mod = new Mod(modName);
+		Mod mod = new Mod(modName, true);
 		Set<String> modifiedFiles = mod.getModifiedFiles();
 		Assert.assertEquals(7, modifiedFiles.size());
 		Assert.assertTrue(modifiedFiles.contains("gfx\\interface\\player_counters_toggle.dds"));

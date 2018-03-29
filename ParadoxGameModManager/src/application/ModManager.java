@@ -3,11 +3,15 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
+
+import org.jdom2.DataConversionException;
+
+import debug.ErrorPrint;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -32,11 +36,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
-import org.jdom2.DataConversionException;
 import settings.MyXML;
 import versioning.OnlineVersionChecker;
-import debug.ErrorPrint;
 
 /**
  * Main class for Paradoxos Mod Manager
@@ -363,6 +364,11 @@ public class ModManager extends Application {
 		}
 		
 		return false;
+	}
+	
+	public static boolean isConflictComputed() {
+		return (APP_PARAMS.containsKey("DetectConflict") && 
+				APP_PARAMS.get("DetectConflict").equals("true"));
 	}
 	
 	public static void main(String[] args) {

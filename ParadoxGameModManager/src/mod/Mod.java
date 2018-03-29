@@ -38,15 +38,15 @@ public class Mod {
 	/**
 	 * @param filename
 	 */
-	public Mod(String filename){
-		this(filename,null);
+	public Mod(String filename, boolean computeConflicts){
+		this(filename,null,computeConflicts);
 	}
 	
 	/**
 	 * @param filename
 	 * @param remoteFileID
 	 */
-	public Mod(String filename, String remoteFileID) {
+	public Mod(String filename, String remoteFileID, boolean computeModifiedFiles) {
 		try{
 			Integer.parseInt(filename);
 			this.fileName = new SimpleStringProperty("ugc_"+filename+".mod");
@@ -68,7 +68,9 @@ public class Mod {
 		try {
 			readFileMod();
 			this.missing = false;
-			setModifiedFiles();
+			if (computeModifiedFiles) {
+				setModifiedFiles();
+			}
 		} catch (IOException e) {
 			this.missing = true;
 			this.name = new SimpleStringProperty("MOD MISSING");
