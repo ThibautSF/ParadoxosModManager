@@ -36,15 +36,19 @@ public class Mod {
 	private Set<String> modifiedFiles = new HashSet<>();
 	
 	/**
+	 * 
 	 * @param filename
+	 * @param computeConflicts
 	 */
 	public Mod(String filename, boolean computeConflicts){
 		this(filename,null,computeConflicts);
 	}
 	
 	/**
+	 * 
 	 * @param filename
 	 * @param remoteFileID
+	 * @param computeModifiedFiles
 	 */
 	public Mod(String filename, String remoteFileID, boolean computeModifiedFiles) {
 		try{
@@ -78,6 +82,20 @@ public class Mod {
 			ErrorPrint.printError("Unable to open "+ModManager.PATH+"mod"+File.separator+filename+" ! File is missing or corrupted !");
 			//e.printStackTrace();
 		}
+	}
+	
+	public Mod(String modName, String filename, String remoteFileID) {
+		this.name = new SimpleStringProperty("MOD MISSING : " + modName);
+		this.fileName = new SimpleStringProperty(filename);
+		if((remoteFileID!=null) && !"".equals(remoteFileID)){
+			this.remoteFileID = new SimpleStringProperty(remoteFileID);
+			this.steamPath = new SimpleStringProperty("https://steamcommunity.com/sharedfiles/filedetails/?id="+this.remoteFileID.get());
+		}else{
+			this.remoteFileID = new SimpleStringProperty("");
+			this.steamPath = new SimpleStringProperty("No remote ID found");
+		}
+		this.versionCompatible = new SimpleStringProperty("?");
+		this.missing = true;
 	}
 	
 	/**

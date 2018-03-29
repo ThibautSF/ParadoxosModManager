@@ -130,14 +130,16 @@ public class MyXML {
 			List<Element> modsElements = oneListElement.getChildren(MOD);
 			for (Element modElement : modsElements) {
 				List<Attribute> modElementAttr = modElement.getAttributes();
-				String fileName="",remoteFileId=null;
+				String fileName="",modName="",remoteFileId=null;
 				for (Attribute attribute : modElementAttr) {
 					switch (attribute.getName()) {
 					case ID:
 					case FILE_NAME:
 						fileName = attribute.getValue();
 						break;
-					
+					case MOD_NAME:
+						modName = attribute.getValue();
+						break;
 					case REMOTE_ID:
 						remoteFileId = attribute.getValue();
 						break;
@@ -149,7 +151,7 @@ public class MyXML {
 					
 				Mod oneMod = availableMods.get(fileName);
 				if (oneMod == null) {
-					oneMod = new Mod(fileName, false);
+					oneMod = new Mod(modName, fileName, remoteFileId);
 				}
 				listMods.add(oneMod);
 			}
@@ -244,6 +246,7 @@ public class MyXML {
 			listMods = list.getModlist();
 			for (Mod mod : listMods) {
 				listModElement = new Element(MOD);
+				listModElement.setAttribute(MOD_NAME, mod.getName());
 				listModElement.setAttribute(FILE_NAME, mod.getFileName());
 				listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
 				oneListElement.addContent(listModElement);
