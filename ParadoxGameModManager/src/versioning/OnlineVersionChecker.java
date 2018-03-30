@@ -40,15 +40,8 @@ import window.WorkIndicatorDialog;
 public class OnlineVersionChecker {
 	private static String URL_APP_RELEASES = "https://github.com/ThibautSF/ParadoxosModManager/releases";
 	private static String URL_APP_INFO_TXT = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
-	//TESTS (Will be deleted for 0.6 release !) → see https://gist.github.com/ThibautSF/6e74782a97c4dab63a0cbb01a3a4b7c1/revisions TODO
-	//Logs for 0.5.2 and 0.5.1
-	//private static String URL_APP_INFO_TXT = "https://gist.githubusercontent.com/ThibautSF/6e74782a97c4dab63a0cbb01a3a4b7c1/raw/a8492d7b8c7450004438d639ea7159e9b077a2e9/AppInfo.test.txt";
-	//Logs for 0.5.1 only (0.5.2 is empty)
-	//private static String URL_APP_INFO_TXT = "https://gist.githubusercontent.com/ThibautSF/6e74782a97c4dab63a0cbb01a3a4b7c1/raw/e31bb161e064b3bca7d7e1198ed4cf11941e3f0f/AppInfo.test.txt";
-	//Logs for 0.5.2 only (0.5.1 is empty)
-	//private static String URL_APP_INFO_TXT = "https://gist.githubusercontent.com/ThibautSF/6e74782a97c4dab63a0cbb01a3a4b7c1/raw/a40c33cd6ebcda282fbc48ba730db5375b0deb81/AppInfo.test.txt";
 	
-	private static String VERSION = "0.5.2";
+	private static String VERSION = "0.6.0";
 	
 	private String lastestOnlineVersionNumber;
 	
