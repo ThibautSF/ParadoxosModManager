@@ -326,9 +326,10 @@ public class ListCreator extends Stage {
 			@Override
 			public void handle(ActionEvent t) {
 				selectedModsList.clear();
-				list.setModlist(new ArrayList<>());
+				listOfMods.removeAll(missingMods);
 				missingMods.clear();
 				mods.refresh();
+				saveifMissings.setVisible(false);
 			}//end action
 		});
 		//Clear list button (end)
@@ -342,10 +343,12 @@ public class ListCreator extends Stage {
 		saveListBox.setStyle("-fx-alignment: center-left;");
 		saveListBox.getChildren().add(saveList);
 		
-		if(missingMods.size()>0){
-			saveifMissings.setStyle("-fx-text-fill: red;");
-			window.add(saveifMissings, 3, 4, 2, 1);
-		}
+		saveifMissings.setStyle("-fx-text-fill: red;");
+		window.add(saveifMissings, 3, 4, 2, 1);
+		if(missingMods.size()>0)
+			saveifMissings.setVisible(true);
+		else
+			saveifMissings.setVisible(false);
 		
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -410,7 +413,6 @@ public class ListCreator extends Stage {
 					try {
 						if(choice.get() == buttonReplace){
 							selectedModsList.clear();
-							list.setModlist(new ArrayList<>());
 							missingMods.clear();
 						}
 						getModList();
@@ -532,13 +534,13 @@ public class ListCreator extends Stage {
 			
 			Mod oneMod = availableMods.get(oneModStr);
 			
-			if(oneMod.isMissing()){
+			if(oneMod == null){
+				oneMod = new Mod(oneModStr+".mod");
 				if(!missingMods.contains(oneMod))
 					missingMods.add(oneMod);
 			}else{
 				if(!selectedModsList.contains(oneMod)) {
 					selectedModsList.add(oneMod);
-					list.addMod(oneMod);
 				}
 			}
 			
@@ -558,6 +560,11 @@ public class ListCreator extends Stage {
 			if(!listOfMods.contains(mod))
 				listOfMods.add(mod);
 		}
+		
+		if (missingMods.size()>0)
+			saveifMissings.setVisible(true);
+		else
+			saveifMissings.setVisible(false);
 		
 		mods.refresh();
 	}

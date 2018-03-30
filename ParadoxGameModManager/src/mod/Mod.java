@@ -84,6 +84,15 @@ public class Mod {
 		}
 	}
 	
+	public Mod(String filename) {
+		this.name = new SimpleStringProperty("MOD MISSING");
+		this.fileName = new SimpleStringProperty(filename);
+		this.remoteFileID = new SimpleStringProperty("");
+		this.steamPath = new SimpleStringProperty("No remote ID found");
+		this.versionCompatible = new SimpleStringProperty("?");
+		this.missing = true;
+	}
+	
 	public Mod(String modName, String filename, String remoteFileID) {
 		this.name = new SimpleStringProperty("MOD MISSING : " + modName);
 		this.fileName = new SimpleStringProperty(filename);
