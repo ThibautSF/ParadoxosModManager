@@ -291,8 +291,10 @@ public class ListCreator extends Stage {
 					if(!mod.isMissing()){
 						if(selectedModsList.contains(mod)){
 							selectedModsList.remove(mod);
+							list.removeMod(mod);
 						}else{
 							selectedModsList.add(mod);
+							list.addMod(mod);
 						}
 						mods.refresh();
 					}
