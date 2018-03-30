@@ -118,6 +118,8 @@ public class ListCreator extends Stage {
 	private Map<String, Mod> availableMods;
 	private List<Mod> userMods;
 	
+	private List<Mod> modListBckp;
+	
 	/**
 	 * @param path
 	 * @param modFiles
@@ -143,6 +145,7 @@ public class ListCreator extends Stage {
 				return m1.getName().compareTo(m2.getName());
 			}
 		});
+		this.modListBckp = list.getModlist();
 		
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
@@ -330,6 +333,7 @@ public class ListCreator extends Stage {
 				selectedModsList.clear();
 				listOfMods.removeAll(missingMods);
 				missingMods.clear();
+				list.setModlist(new ArrayList<Mod>());
 				mods.refresh();
 				saveifMissings.setVisible(false);
 			}//end action
@@ -355,6 +359,7 @@ public class ListCreator extends Stage {
 		cancelList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
+				list.setModlist(modListBckp);
 				Node  source = (Node)  t.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
@@ -414,7 +419,9 @@ public class ListCreator extends Stage {
 				if(choice.get().getButtonData()!=ButtonData.CANCEL_CLOSE){
 					try {
 						if(choice.get() == buttonReplace){
+							list.setModlist(new ArrayList<Mod>());
 							selectedModsList.clear();
+							listOfMods.removeAll(missingMods);
 							missingMods.clear();
 						}
 						getModList();
@@ -538,11 +545,14 @@ public class ListCreator extends Stage {
 			
 			if(oneMod == null){
 				oneMod = new Mod(oneModStr+".mod");
-				if(!missingMods.contains(oneMod))
+				if(!missingMods.contains(oneMod)){
 					missingMods.add(oneMod);
+					list.addMod(oneMod);
+				}
 			}else{
 				if(!selectedModsList.contains(oneMod)) {
 					selectedModsList.add(oneMod);
+					list.addMod(oneMod);
 				}
 			}
 			
