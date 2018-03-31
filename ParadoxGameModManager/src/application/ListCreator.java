@@ -638,7 +638,7 @@ public class ListCreator extends Stage {
 
 			TextArea textArea = new TextArea(conflictText.toString());
 			textArea.setEditable(false);
-			textArea.setWrapText(true);
+			textArea.setWrapText(false);
 
 			textArea.setMaxWidth(Double.MAX_VALUE);
 			textArea.setMaxHeight(Double.MAX_VALUE);
