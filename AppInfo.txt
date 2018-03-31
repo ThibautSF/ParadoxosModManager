@@ -1,3 +1,14 @@
+AppVersion=0.6.0
+- Add conflict detection
+- Add auto-updater (download and extract new versions)
+- Improve new version information UI (see changelog, direct download...)
+- Main windows now in 800x600 (min and default)
+- Better window resize
+- Add a reload and back function in list manager window (no need to restart the app to change game or reload mods anymore !)
+- Add option to import the list of mods activated from the game ‘settings.txt’ (in list creation widow)
+- Add option to clear the selection (in list creation widow)
+- Fix the bug of “Missing Mod” when the .mod file name was different than the one stored in the list, if a .mod is missing, check if there is a mod with same remote file id present (case occurs mainly with list import)
+
 AppVersion=0.5.2
 - Add test and error window if mod/directory is missing in the game's document folder
 - Add support for following language : spanish, polish, italian, swedish, czech, hungarian, dutch, russian, finnish and brazilian portuguese (Remember that only english, french, german and spanish are officially supported by Paradox)
