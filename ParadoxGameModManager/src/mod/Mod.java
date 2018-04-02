@@ -187,8 +187,9 @@ public class Mod {
 					relativeDirPath + File.separator + file.getName();
 				addModifiedFiles(file, newRelativeDirPath);
 			}
-			else if (!file.getName().endsWith(".mod"))
+			else if (!"".equals(relativeDirPath) )
 			{
+				// Don't consider files in the root mod directory
 				modifiedFiles.add(relativeDirPath + File.separator + file.getName());
 			}
 		}
@@ -216,8 +217,10 @@ public class Mod {
 					continue;
 				}
 				String fileRelativePath = zEntry.getName();
-				if (!fileRelativePath.endsWith(".mod")) {
-					modifiedFiles.add(fileRelativePath.replace('/', '\\'));
+				fileRelativePath = fileRelativePath.replace('/', '\\');
+				if (fileRelativePath.contains("\\")) {
+					// Don't consider files in the root mod directory
+					modifiedFiles.add(fileRelativePath);
 				}
 			}
 		} catch (IOException e) {
