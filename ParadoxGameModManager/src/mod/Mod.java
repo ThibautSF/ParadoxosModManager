@@ -32,6 +32,7 @@ public class Mod {
 	private SimpleStringProperty steamPath;
 	private SimpleStringProperty dirPath;
 	private SimpleStringProperty archivePath;
+	private SimpleStringProperty realModDirectoryPath;
 	private boolean missing;
 	private Set<String> modifiedFiles = new HashSet<>();
 	
@@ -125,13 +126,18 @@ public class Mod {
 				    name = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
 			}else if (line.matches("\\s*path\\s*=.*") || lineWFirstChar.matches("\\s*path\\s*=.*")) {
 				m = p.matcher(line);
-				if(m.find())
+				if(m.find()){
 				    dirPath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
+				    realModDirectoryPath = new SimpleStringProperty(ModManager.PATH + dirPath.get());
+				}
 			}else if (line.matches("\\s*archive\\s*=.*") || lineWFirstChar.matches("\\s*archive\\s*=.*"))
 			{
 				m = p.matcher(line);
-				if(m.find())
+				if(m.find()){
 				    archivePath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
+				    File archive = new File(archivePath.get());
+				    realModDirectoryPath = new SimpleStringProperty(archive.getParentFile().getPath());
+				}
 			}else if (line.matches("\\s*supported_version\\s*=.*") || lineWFirstChar.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find())
@@ -274,6 +280,16 @@ public class Mod {
 	 */
 	public String getSteamPath(){
 		return steamPath.get();
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getModDirPath(){
+		if (realModDirectoryPath != null)
+			return realModDirectoryPath.get();
+		
+		return "";
 	}
 	
 	//
