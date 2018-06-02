@@ -178,7 +178,7 @@ public class Mod {
 	{
 		String dirOrArchivePath = (dirPath != null) ? dirPath.get() :
 			((archivePath != null) ? archivePath.get() : null);
-		if ((dirOrArchivePath == null) || dirOrArchivePath.length() < 1)
+		if ((dirOrArchivePath == null) || dirOrArchivePath.length() < 2)
 		{
 			ErrorPrint.printError("Unable to find mod files");
 			return;
