@@ -127,16 +127,37 @@ public class Mod {
 			}else if (line.matches("\\s*path\\s*=.*") || lineWFirstChar.matches("\\s*path\\s*=.*")) {
 				m = p.matcher(line);
 				if(m.find()){
-				    dirPath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-				    realModDirectoryPath = new SimpleStringProperty(ModManager.PATH + dirPath.get());
+					String s = (String) m.group().subSequence(1, m.group().length()-1);
+					File dir = new File(s);
+					if(dir.exists()){
+						dirPath = new SimpleStringProperty(dir.getAbsolutePath());
+						realModDirectoryPath = new SimpleStringProperty(dir.getAbsolutePath());
+					}else{
+						//maybe path was relative
+						dir = new File(ModManager.PATH + s);
+						if(dir.exists()){
+							dirPath = new SimpleStringProperty(dir.getAbsolutePath());
+							realModDirectoryPath = new SimpleStringProperty(dir.getAbsolutePath());
+						}
+					}
 				}
 			}else if (line.matches("\\s*archive\\s*=.*") || lineWFirstChar.matches("\\s*archive\\s*=.*"))
 			{
 				m = p.matcher(line);
 				if(m.find()){
-				    archivePath = new SimpleStringProperty((String) m.group().subSequence(1, m.group().length()-1));
-				    File archive = new File(archivePath.get());
-				    realModDirectoryPath = new SimpleStringProperty(archive.getParentFile().getPath());
+					String s = (String) m.group().subSequence(1, m.group().length()-1);
+					File archive = new File(s);
+					if(archive.exists()){
+						archivePath = new SimpleStringProperty(archive.getAbsolutePath());
+						realModDirectoryPath = new SimpleStringProperty(archive.getParentFile().getAbsolutePath());
+					}else{
+						//maybe path was relative
+						archive = new File(ModManager.PATH + s);
+						if(archive.exists()){
+							archivePath = new SimpleStringProperty(archive.getAbsolutePath());
+							realModDirectoryPath = new SimpleStringProperty(archive.getParentFile().getAbsolutePath());
+						}
+					}
 				}
 			}else if (line.matches("\\s*supported_version\\s*=.*") || lineWFirstChar.matches("\\s*supported_version\\s*=.*")) {
 				m = p.matcher(line);
@@ -157,16 +178,21 @@ public class Mod {
 	{
 		String dirOrArchivePath = (dirPath != null) ? dirPath.get() :
 			((archivePath != null) ? archivePath.get() : null);
-		if ((dirOrArchivePath == null) || dirOrArchivePath.length() < 2)
+		if ((dirOrArchivePath == null) || dirOrArchivePath.length() < 1)
 		{
 			ErrorPrint.printError("Unable to find mod files");
 			return;
 		}
+		/*
+		//Should be useless now (relative path is detected on .mod reading + ':' is only windows
 		if (dirOrArchivePath.charAt(1) != ':')
 		{
 			// The path was relative
 			dirOrArchivePath = ModManager.PATH + dirOrArchivePath;
 		}
+		*/
+		
+		//TODO maybe use File methods (isFile OR isDirectory)
 		if (dirOrArchivePath.endsWith(".zip")) 
 		{
 			addModifiedFiles(dirOrArchivePath);
