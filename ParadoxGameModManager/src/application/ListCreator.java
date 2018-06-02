@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import debug.ErrorPrint;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -96,7 +97,7 @@ public class ListCreator extends Stage {
 	
 	private VBox listBox = new VBox();
 	private TableView<Mod> mods = new TableView<Mod>();
-	private TableColumn<Mod,Object> optionsCol = new TableColumn<Mod,Object>("Options");
+	private TableColumn<Mod,Mod> actionsCol = new TableColumn<Mod,Mod>("Actions");
 	private TableColumn<Mod,Boolean> conflictCol = new TableColumn<Mod,Boolean>("Conflict");
 	private TableColumn<Mod,String> modNameCol = new TableColumn<Mod,String>("Mod Name");
 	private TableColumn<Mod,String> fileNameCol = new TableColumn<Mod,String>("File");
@@ -244,29 +245,33 @@ public class ListCreator extends Stage {
 		//ModList list of mods (start)
 		window.add(listBox, 1, 3, 4, 1);
 		listBox.getChildren().add(mods);
-		optionsCol.setSortable(false);
+		actionsCol.setSortable(false);
 		conflictCol.setSortable(false);
 		modNameCol.setSortable(false);
 		fileNameCol.setSortable(false);
 		versionCol.setSortable(false);
-		mods.getColumns().add(optionsCol);
+		mods.getColumns().add(actionsCol);
 		mods.getColumns().add(conflictCol);
 		mods.getColumns().add(modNameCol);
 		mods.getColumns().add(fileNameCol);
 		mods.getColumns().add(versionCol);
 		mods.getColumns().add(steamPath);
 		
-		optionsCol.setCellValueFactory(
-			new Callback<TableColumn.CellDataFeatures<Mod, Object>,
-			ObservableValue<Object>>() {
+		actionsCol.setCellValueFactory(
+			new Callback<TableColumn.CellDataFeatures<Mod, Mod>,
+			ObservableValue<Mod>>() {
 				@Override
-				public ObservableValue<Object> call(CellDataFeatures<Mod, Object> p) {
+				public ObservableValue<Mod> call(CellDataFeatures<Mod, Mod> p) {
 					return new SimpleObjectProperty<>(p.getValue());
 				}
 		});
 		conflictCol.setCellValueFactory(
-			new PropertyValueFactory<Mod,Boolean>("hasConflict")
-		);
+			new Callback<CellDataFeatures<Mod, Boolean>, ObservableValue<Boolean>>() {
+				public ObservableValue<Boolean> call(CellDataFeatures<Mod, Boolean> m) {
+					Map<Mod, List<String>> conflicts = list.getMappedConflicts(m.getValue());
+					return new SimpleBooleanProperty(!conflicts.isEmpty());
+				}
+		});
 		modNameCol.setCellValueFactory(
 			new PropertyValueFactory<Mod,String>("name")
 		);
@@ -280,8 +285,8 @@ public class ListCreator extends Stage {
 			new PropertyValueFactory<Mod,String>("steamPath")
 		);
 		
-		optionsCol.setCellFactory(new Callback<TableColumn<Mod, Object>, TableCell<Mod, Object>>() {
-			@Override public TableCell<Mod, Object> call(TableColumn<Mod, Object> personBooleanTableColumn) {
+		actionsCol.setCellFactory(new Callback<TableColumn<Mod, Mod>, TableCell<Mod, Mod>>() {
+			@Override public TableCell<Mod, Mod> call(TableColumn<Mod, Mod> personBooleanTableColumn) {
 				return new MultipleButtonCell();
 			}
 		});
@@ -634,6 +639,7 @@ public class ListCreator extends Stage {
 		protected void updateItem(Boolean t, boolean empty) {
 			super.updateItem(t, empty);
 			if (!empty) {
+				cellButton.setDisable(!t);
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(paddedButton);
 			}
@@ -680,8 +686,7 @@ public class ListCreator extends Stage {
 	}
 	
 	// Define the button cell
-	private class MultipleButtonCell extends TableCell<Mod, Object> {
-		final Button conflictButton = new Button("...");
+	private class MultipleButtonCell extends TableCell<Mod, Mod> {
 		final Button steamButton = new Button();
 		final Button dirButton = new Button("Dir");
 		final HBox paddedButtons = new HBox();
@@ -689,7 +694,7 @@ public class ListCreator extends Stage {
 		MultipleButtonCell() {
 			paddedButtons.setPadding(new Insets(-2, 0, -2, 0));
 			paddedButtons.setAlignment(Pos.CENTER);
-			paddedButtons.getChildren().addAll(steamButton,dirButton,conflictButton);
+			paddedButtons.getChildren().addAll(steamButton,dirButton);
 			
 			ImageView imageSteam = new ImageView(new Image(getClass().getResourceAsStream(Resource.steamIco)));
 			steamButton.setScaleX(0.8);
@@ -732,71 +737,30 @@ public class ListCreator extends Stage {
 					}
 				}
 			});
-			
-			conflictButton.setScaleX(0.8);
-			conflictButton.setScaleY(0.8);
-			conflictButton.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent t) {
-					Mod mod = (Mod) getTableRow().getItem();
-					Map<Mod, List<String>> conflicts = list.getMappedConflicts(mod);
-					if (conflicts.isEmpty()) {
-						BasicDialog.showGenericDialog("No conflicts", "Only highlighted items in orange have conflicts",
-								AlertType.ERROR);
-					} else {
-						displayConflicts(mod, conflicts);
-					}
-				}
-			});
 		}
 		
 		// Display button if the row is not empty
 		@Override
-		protected void updateItem(Object t, boolean empty) {
-			super.updateItem(t, empty);
+		protected void updateItem(Mod m, boolean empty) {
+			super.updateItem(m, empty);
 			if (!empty) {
+				enableOrDisableButtons(m);
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setGraphic(paddedButtons);
 			}
 		}
-		
-		// Inspired from : http://code.makery.ch/blog/javafx-dialogs-official/
-		private void displayConflicts(Mod mod, Map<Mod, List<String>> conflicts) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Conflicts");
-			alert.setHeaderText("Conflicts of the mod " + mod.getName());
-			alert.setContentText("Conflicts with other selected mods");
 
-			StringBuilder conflictText = new StringBuilder();
-			for (Entry<Mod, List<String>> entry : conflicts.entrySet()) {
-				conflictText.append(entry.getKey().getName());
-				conflictText.append(" :\n");
-				entry.getValue().sort(null);
-				for (String conflictFile : entry.getValue()) {
-					conflictText.append('\t');
-					conflictText.append(conflictFile);
-					conflictText.append('\n');
-				}
-				conflictText.append('\n');
-			}
-
-			TextArea textArea = new TextArea(conflictText.toString());
-			textArea.setEditable(false);
-			textArea.setWrapText(false);
-
-			textArea.setMaxWidth(Double.MAX_VALUE);
-			textArea.setMaxHeight(Double.MAX_VALUE);
-			GridPane.setVgrow(textArea, Priority.ALWAYS);
-			GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-			GridPane expContent = new GridPane();
-			expContent.setMaxWidth(Double.MAX_VALUE);
-			expContent.add(textArea, 0, 0);
-
-			// Set content into the dialog pane.
-			alert.getDialogPane().setContent(expContent);
-
-			alert.showAndWait();
+		private void enableOrDisableButtons(Mod mod) {
+			if (mod.getRemoteFileID()!="")
+				steamButton.setDisable(false);
+			else
+				steamButton.setDisable(true);
+			
+			File f = new File(mod.getModDirPath());
+			if (f.exists())
+				dirButton.setDisable(false);
+			else
+				dirButton.setDisable(true);
 		}
 	}
 }
