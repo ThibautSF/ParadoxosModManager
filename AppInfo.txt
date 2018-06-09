@@ -1,3 +1,10 @@
+AppVersion=0.6.1
+- Improve mod archive relative path detection
+- Correct archive path for unix system
+- Add button to open mod's steam workshop page
+- Add button to open mod's location in file system
+- Conflict detection now ignore the root folder
+
 AppVersion=0.6.0
 - Add conflict detection
 - Add auto-updater (download and extract new versions)
