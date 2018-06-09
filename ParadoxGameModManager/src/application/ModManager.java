@@ -46,7 +46,6 @@ import versioning.OnlineVersionChecker;
  * 
  */
 public class ModManager extends Application {
-	
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	
 	public static String UPDATE_ZIP_NAME = "update.zip";

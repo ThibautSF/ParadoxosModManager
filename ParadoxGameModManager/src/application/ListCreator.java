@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import debug.ErrorPrint;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -45,8 +47,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
@@ -61,7 +61,6 @@ import javafx.util.Callback;
 import mod.Languages;
 import mod.Mod;
 import mod.ModList;
-import resources.Resource;
 import settings.MyXML;
 import window.BasicDialog;
 
@@ -688,7 +687,7 @@ public class ListCreator extends Stage {
 	// Define the button cell
 	private class MultipleButtonCell extends TableCell<Mod, Mod> {
 		final Button steamButton = new Button();
-		final Button dirButton = new Button("Dir");
+		final Button dirButton = new Button();
 		final HBox paddedButtons = new HBox();
 
 		MultipleButtonCell() {
@@ -696,10 +695,11 @@ public class ListCreator extends Stage {
 			paddedButtons.setAlignment(Pos.CENTER);
 			paddedButtons.getChildren().addAll(steamButton,dirButton);
 			
-			ImageView imageSteam = new ImageView(new Image(getClass().getResourceAsStream(Resource.steamIco)));
+			//ImageView imageSteam = new ImageView(new Image(getClass().getResource(Resource.steamIco).toExternalForm()));
+			FontAwesomeIconView iconSteamButton = new FontAwesomeIconView(FontAwesomeIcon.STEAM_SQUARE);
 			steamButton.setScaleX(0.8);
 			steamButton.setScaleY(0.8);
-			steamButton.setGraphic(imageSteam);
+			steamButton.setGraphic(iconSteamButton);
 			steamButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent t) {
@@ -718,8 +718,10 @@ public class ListCreator extends Stage {
 				}
 			});
 			
+			FontAwesomeIconView iconDirButton = new FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN);
 			dirButton.setScaleX(0.8);
 			dirButton.setScaleY(0.8);
+			dirButton.setGraphic(iconDirButton);
 			dirButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent t) {
