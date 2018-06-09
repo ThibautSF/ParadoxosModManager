@@ -85,7 +85,7 @@ public class ModManager extends Application {
 			File zip = new File(UPDATE_ZIP_NAME);
 			zip.delete();
 			
-			File new_updater = new File("new_"+UPDATER_NAME);
+			File new_updater = new File("New_"+UPDATER_NAME);
 			File old_updater = new File(UPDATER_NAME);
 			new_updater.renameTo(old_updater);
 			
