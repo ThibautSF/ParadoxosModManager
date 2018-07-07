@@ -74,13 +74,13 @@ public class ListCreator extends Stage {
 	private static int WINDOW_HEIGHT = 600;
 	private GridPane window = new GridPane();
 	
-	private VBox titleBox = new VBox();	
+	private VBox titleBox = new VBox();
 	private Label lblListName = new Label("List Name : ");
 	private TextField fieldListName = new TextField ();
 	
 	private VBox helpBox = new VBox();
-	private Button buttonHelp = new Button("?");
-	private Tooltip tooltipHelp = new Tooltip("Primary Click on mod to activate/desactivate\nSecondary Click to open workshop");
+	private Button buttonHelp = new Button();
+	private Tooltip tooltipHelp = new Tooltip("Primary Click on mod to activate/desactivate\nSecondary Click to open workshop in web browser");
 	
 	private VBox descrBox = new VBox();
 	private Label lblListDesc = new Label("Description : ");
@@ -109,6 +109,7 @@ public class ListCreator extends Stage {
 	
 	private HBox clearListBox = new HBox();
 	private Button clearList = new Button("Clear");
+	private Button selectAllList = new Button("Un/Select All");
 	private HBox cancelListBox = new HBox();
 	private Button cancelList = new Button("Cancel");
 	private HBox saveListBox = new HBox();
@@ -207,6 +208,7 @@ public class ListCreator extends Stage {
 		
 		//ModList help/info fields
 		window.add(helpBox, 4, 0, 1, 1);
+		buttonHelp.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.INFO));
 		buttonHelp.setTooltip(tooltipHelp);
 		helpBox.getChildren().add(buttonHelp);
 		helpBox.setAlignment(Pos.TOP_RIGHT);
@@ -349,10 +351,11 @@ public class ListCreator extends Stage {
 		printModList();
 		//ModList list of mods (end)
 		
-		//Clear list button (start)
+		//Clear list and select all button (start)
 		window.add(clearListBox, 1, 5, 1, 1);
 		clearListBox.setStyle("-fx-alignment: center-left;");
-		clearListBox.getChildren().add(clearList);
+		clearListBox.setSpacing(5);
+		clearListBox.getChildren().addAll(clearList,selectAllList);
 		
 		clearList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -363,6 +366,23 @@ public class ListCreator extends Stage {
 				list.setModlist(new ArrayList<Mod>());
 				mods.refresh();
 				saveifMissings.setVisible(false);
+			}//end action
+		});
+		
+		selectAllList.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				if (selectedModsList.size() >= listOfMods.size()-missingMods.size()) {
+					selectedModsList.clear();
+					list.setModlist(new ArrayList<Mod>());
+				} else {
+					selectedModsList.clear();
+					selectedModsList.addAll(listOfMods);
+					selectedModsList.removeAll(missingMods);
+					list.setModlist(new ArrayList<Mod>(selectedModsList));
+				}
+				
+				mods.refresh();
 			}//end action
 		});
 		//Clear list button (end)
@@ -707,7 +727,8 @@ public class ListCreator extends Stage {
 					if(Desktop.isDesktopSupported()){
 						new Thread(() -> {
 							try {
-								URI uri = new URI(mod.getSteamPath());
+								//URI uri = new URI(mod.getSteamPath());
+								URI uri = new URI(mod.getSteamInAppPath());
 								Desktop.getDesktop().browse(uri);
 							} catch (IOException | URISyntaxException e) {
 								ErrorPrint.printError(e);

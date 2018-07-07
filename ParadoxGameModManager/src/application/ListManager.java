@@ -18,6 +18,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import debug.ErrorPrint;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -75,8 +77,8 @@ public class ListManager extends Stage {
 	private Label nbModLbl = new Label(nbModstr);
 	
 	private HBox actionsBox = new HBox(8);
-	private Button buttonRefresh = new Button("↺");
-	private Button buttonBack = new Button("←");
+	private Button buttonRefresh = new Button();
+	private Button buttonBack = new Button();
 	
 	private VBox yrListsBox = new VBox();
 	private String lblYrLists = "Your lists (%d found)";
@@ -162,6 +164,8 @@ public class ListManager extends Stage {
 		refreshTexts();
 		
 		window.add(actionsBox, 4, 0);
+		buttonRefresh.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.REFRESH));
+		buttonBack.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.LONG_ARROW_LEFT));
 		actionsBox.setAlignment(Pos.CENTER_RIGHT);
 		actionsBox.getChildren().addAll(buttonRefresh,buttonBack);
 		

@@ -311,6 +311,13 @@ public class Mod {
 	/**
 	 * @return
 	 */
+	public String getSteamInAppPath(){
+		return "steam://url/CommunityFilePage/"+remoteFileID.get();
+	}
+	
+	/**
+	 * @return
+	 */
 	public String getModDirPath(){
 		if (realModDirectoryPath != null)
 			return realModDirectoryPath.get();
