@@ -647,7 +647,7 @@ public class ListCreator extends Stage {
 						BasicDialog.showGenericDialog("No conflicts", "Only highlighted items in orange have conflicts",
 								AlertType.ERROR);
 					} else {
-						displayConflicts(mod, conflicts);
+						displayConflicts(mod, conflicts, ModManager.isShowFileConflict());
 					}
 				}
 			});
@@ -665,7 +665,7 @@ public class ListCreator extends Stage {
 		}
 		
 		// Inspired from : http://code.makery.ch/blog/javafx-dialogs-official/
-		private void displayConflicts(Mod mod, Map<Mod, List<String>> conflicts) {
+		private void displayConflicts(Mod mod, Map<Mod, List<String>> conflicts, boolean showFiles) {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Conflicts");
 			alert.setHeaderText("Conflicts of the mod " + mod.getName());
@@ -674,6 +674,11 @@ public class ListCreator extends Stage {
 			StringBuilder conflictText = new StringBuilder();
 			for (Entry<Mod, List<String>> entry : conflicts.entrySet()) {
 				conflictText.append(entry.getKey().getName());
+				if (!showFiles)
+				{
+					conflictText.append('\n');
+					continue;
+				}
 				conflictText.append(" :\n");
 				entry.getValue().sort(null);
 				for (String conflictFile : entry.getValue()) {

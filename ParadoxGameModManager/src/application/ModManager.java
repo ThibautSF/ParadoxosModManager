@@ -280,17 +280,29 @@ public class ModManager extends Application {
 		
 		grid.add(cbConflict, 0, 1, 2, 1);
 		
+		//Show files of the conflicts option
+		CheckBox cbShowFileConflict = new CheckBox("Show the conflicted files in the details");
+		cbShowFileConflict.visibleProperty().bind(cbConflict.selectedProperty());
+		
+		if(APP_PARAMS.containsKey("ShowFileConflict")){
+			if(APP_PARAMS.get("ShowFileConflict").equals("true"))
+				cbShowFileConflict.setSelected(true);
+		}
+		
+		grid.add(cbShowFileConflict, 0, 2, 2, 1);
+		
+		
 		//Label game config
-		grid.add(lbl, 0, 2, 3, 1);
+		grid.add(lbl, 0, 3, 3, 1);
 		
 		//Game configs
-		grid.add(new Label("Doc path :"), 0, 3);
-		grid.add(docPath, 1, 3);
-		grid.add(openDirDocButton, 2, 3);
+		grid.add(new Label("Doc path :"), 0, 4);
+		grid.add(docPath, 1, 4);
+		grid.add(openDirDocButton, 2, 4);
 		/*
-		grid.add(new Label("Game (exe) path :"), 0, 4);
-		grid.add(gamePath, 1, 4);
-		grid.add(openExeGameButton, 2, 4);
+		grid.add(new Label("Game (exe) path :"), 0, 5);
+		grid.add(gamePath, 1, 5);
+		grid.add(openExeGameButton, 2, 5);
 		*/
 
 		dialog.getDialogPane().setContent(grid);
@@ -309,7 +321,10 @@ public class ModManager extends Application {
 		
 		dialog.setResultConverter(dialogButton -> {
 			if (dialogButton == okButtonType) {
-				return Arrays.asList(choiceGame.getSelectionModel().getSelectedItem(), docPath.getText(), gamePath.getText(),""+cbConflict.isSelected());
+				return Arrays.asList(choiceGame.getSelectionModel().getSelectedItem(),
+						docPath.getText(), gamePath.getText(),
+						String.valueOf(cbConflict.isSelected()),
+						String.valueOf(cbShowFileConflict.isSelected()));
 			}
 			return null;
 		});
@@ -325,6 +340,8 @@ public class ModManager extends Application {
 			String exePathStr = result_list.get(2);
 			String detectConflict = result_list.get(3);
 			APP_PARAMS.put("DetectConflict", detectConflict);
+			String showFileConflict = result_list.get(4);
+			APP_PARAMS.put("ShowFileConflict", showFileConflict);
 			
 			//In case the user write wrong separator
 			docPathStr = docPathStr.replaceAll("(\\\\+|/+)", Matcher.quoteReplacement(File.separator));
@@ -368,6 +385,11 @@ public class ModManager extends Application {
 	public static boolean isConflictComputed() {
 		return (APP_PARAMS.containsKey("DetectConflict") && 
 				APP_PARAMS.get("DetectConflict").equals("true"));
+	}
+	
+	public static boolean isShowFileConflict() {
+		return (APP_PARAMS.containsKey("ShowFileConflict") && 
+				APP_PARAMS.get("ShowFileConflict").equals("true"));
 	}
 	
 	public static void main(String[] args) {
