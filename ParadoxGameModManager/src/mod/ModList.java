@@ -154,6 +154,10 @@ public class ModList {
 		return false;
 	}
 	
+	public boolean hasConflict() {
+		return !modConflicts.isEmpty();
+	}
+	
 	public boolean hasConflict(Mod mod) {
 		if (isModInList(mod) == MOD_NOT_IN_LIST) {
 			// Conflicts only concern mods in the list

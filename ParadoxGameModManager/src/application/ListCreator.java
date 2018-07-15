@@ -415,28 +415,49 @@ public class ListCreator extends Stage {
 		saveList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent t) {
-				if (fieldListName.getText()!=null && !fieldListName.getText().equals("")) {
-					String listOldName = list.getName();
-					list.setModlist(selectedModsList);
-					list.setName(fieldListName.getText());
-					list.setDescription(fieldListDesc.getText());
-					list.setLanguage(cbListLang.getValue());
-					try {
-						userlistsXML.readFile(fileXML);
-						if(listOldName!=null)
-							userlistsXML.modifyList(list,listOldName);
-						else
-							userlistsXML.modifyList(list);
-					} catch (Exception e) {
-						ErrorPrint.printError(e,"When save list in mod");
-						e.printStackTrace();
-					}
-					Node  source = (Node)  t.getSource(); 
-					Stage stage  = (Stage) source.getScene().getWindow();
-					stage.close();
-				} else {
+				if (fieldListName.getText()==null || fieldListName.getText().equals("")) {
 					BasicDialog.showGenericDialog("No list name !", "You need to give a name to the list", AlertType.WARNING);
+					return;
 				}
+				String title = "Confirm saving";
+				List<ButtonType> buttons = new ArrayList<ButtonType>();				
+				ButtonType buttonYes = new ButtonType("Yes");
+				ButtonType buttonNo = new ButtonType("No", ButtonData.CANCEL_CLOSE);				
+				buttons.add(buttonYes);
+				buttons.add(buttonNo);
+				if (!ModManager.isConflictComputed() && selectedModsList.size() > 1) {
+					String header = "The conflict manager is not activated";
+					String message = "Do you want to save this mod list even it can have conflicts between mods ?";
+					Optional<ButtonType> choice = BasicDialog.showGenericConfirm(title, header, message, buttons, false);					
+					if ( choice.get().getButtonData() == ButtonData.CANCEL_CLOSE ) {
+						return;
+					}
+				} else if (list.hasConflict()) {
+					String header = "Some conflicts have been detected between mods";
+					String message = "Do you want to save this mod list even if there is potential conflicts ?";
+					Optional<ButtonType> choice = BasicDialog.showGenericConfirm(title, header, message, buttons, false);					
+					if ( choice.get().getButtonData() == ButtonData.CANCEL_CLOSE ) {
+						return;
+					}
+				}
+				String listOldName = list.getName();
+				list.setModlist(selectedModsList);
+				list.setName(fieldListName.getText());
+				list.setDescription(fieldListDesc.getText());
+				list.setLanguage(cbListLang.getValue());
+				try {
+					userlistsXML.readFile(fileXML);
+					if(listOldName!=null)
+						userlistsXML.modifyList(list,listOldName);
+					else
+						userlistsXML.modifyList(list);
+				} catch (Exception e) {
+					ErrorPrint.printError(e,"When save list in mod");
+					e.printStackTrace();
+				}
+				Node  source = (Node)  t.getSource(); 
+				Stage stage  = (Stage) source.getScene().getWindow();
+				stage.close();
 			}//end action
 		});
 		//Buttons Cancel & Apply (end)
