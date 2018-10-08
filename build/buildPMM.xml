@@ -189,6 +189,7 @@
 			<fx:fileset dir="dist" includes="Updater.jar"/>
 			<fx:fileset dir="dist" includes="LaunchUnix.sh"/>
 			<fx:fileset dir="dist" includes="LaunchWindows.cmd"/>
+			<fx:fileset dir="dist" includes="Doc Paradoxos Mod Manager.pdf"/>
 		</fx:resources>
 	
 		<fx:application id="fxApplication"
