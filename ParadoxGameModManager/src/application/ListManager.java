@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +64,7 @@ import window.WorkIndicatorDialog;
  */
 public class ListManager extends Stage {
 	private static MyXML userlistsXML = new MyXML();
-	private static String fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
+	private static List<String> modFileNames = Arrays.asList("mod","mods");
 	
 	//Window Var
 	private static int WINDOW_WIDTH = 800;
@@ -106,9 +107,10 @@ public class ListManager extends Stage {
 	//Local Var
 	private File gameDir;
 	private String absolutePath;
+	private String fileXML;
 	private Map<String, Mod> availableMods = new HashMap<>();
-	private ArrayList<ModList> userListArray = new ArrayList<ModList>();
-	private WorkIndicatorDialog<String> wd=null;
+	private List<ModList> userListArray = new ArrayList<ModList>();
+	private WorkIndicatorDialog<String> wd = null;
 	
 	/**
 	 * @throws FileNotFoundException 
@@ -118,6 +120,7 @@ public class ListManager extends Stage {
 	public ListManager(String path) throws FileNotFoundException {
 		gameDir = new File(path);
 		absolutePath = gameDir.getAbsolutePath();
+		fileXML = ModManager.xmlDir+File.separator+"UserLists.xml";
 		
 		setTitle(ModManager.APP_NAME+" : "+ModManager.GAME);
 		
@@ -467,7 +470,7 @@ public class ListManager extends Stage {
 	/**
 	 * @throws Exception
 	 */
-	private void updateList() throws Exception{
+	private void updateList() throws Exception {
 		userlistsXML.readFile(fileXML);
 		userListArray = userlistsXML.getSavedList(availableMods);
 		
@@ -485,7 +488,7 @@ public class ListManager extends Stage {
 		exportList.setDisable(true);
 	}
 	
-	private void refreshTexts(){
+	private void refreshTexts() {
 		nbModLbl.setText(String.format(nbModstr, getModNumber()));
 		yourLists.setText(String.format(lblYrLists, getListNumber()));
 	}
@@ -591,7 +594,7 @@ public class ListManager extends Stage {
 	 * @param writer
 	 * @throws IOException
 	 */
-	private void modPrint(List<Mod> applyMods, BufferedWriter writer) throws IOException{
+	private void modPrint(List<Mod> applyMods, BufferedWriter writer) throws IOException {
 		for (Mod mod : applyMods) {
 			String addLine="\t\"mod/"+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));
@@ -636,24 +639,31 @@ public class ListManager extends Stage {
 		});
 		
 		wd.exec("LoadMods", inputParam -> {
-			String sep = File.separator;
-			File modFile = new File(absolutePath+sep+"mod");
-			if(modFile.exists()){
-				String[] modFiles = modFile.list(new FilenameFilter(){
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.toLowerCase().endsWith(".mod");
+			//String sep = File.separator;
+			File userDir = new File(absolutePath);
+			
+			File[] childs = userDir.listFiles();
+			
+			for (int i = 0; i < childs.length; i++) {
+				File modDir = childs[i];
+				
+				if (modDir.isDirectory() && ListManager.modFileNames.contains(modDir.getName().toLowerCase())) {
+					String[] modFiles = modDir.list(new FilenameFilter(){
+						@Override
+						public boolean accept(File dir, String name) {
+							return name.toLowerCase().endsWith(".mod");
+						}
+					});
+					wd.maxProgress = modFiles.length;
+					int j = 0;
+					for (String modFile : modFiles) {
+						availableMods.put(modFile, new Mod(modFile, ModManager.isConflictComputed()));
+						j++;
+						wd.currentProgress = j;
 					}
-				});
-				wd.maxProgress = modFiles.length;
-				int i = 0;
-				for (String modDir: modFiles) {
-					availableMods.put(modDir, new Mod(modDir, ModManager.isConflictComputed()));
-					i++;
-					wd.currentProgress = i;
+				} else {
+					//throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
 				}
-			} else {
-				//throw new FileNotFoundException("The folder '"+modFile.getAbsolutePath()+"' is missing, please check the path.\nBe sure to have started the game launcher once !");
 			}
 			
 			return new Integer(1);

@@ -19,22 +19,30 @@ public class ModList {
 	private SimpleStringProperty name;
 	private SimpleStringProperty description;
 	private Languages language;
+	private boolean customOrder;
 	private List<Mod> modlist;
 	private List<ModConflict> modConflicts;
 	
 	private static int MOD_NOT_IN_LIST = -1;
-
+	
 	/**
 	 * @param name
 	 * @param description
+	 * @param language
 	 * @param modlist
+	 * @param customOrder
 	 */
-	public ModList(String name, String description, Languages language, List<Mod> modlist) {
+	public ModList(String name, String description, Languages language, List<Mod> modlist, boolean customOrder) {
 		this.name=new SimpleStringProperty(name);
 		this.description=new SimpleStringProperty(description);
 		this.language=language;
+		this.customOrder = customOrder;
 		this.modlist=modlist;
 		computeConflicts(modlist);
+	}
+	
+	public ModList(String name, String description, Languages language, List<Mod> modlist) {
+		this(name, description, language, modlist, false);
 	}
 	
 	//
@@ -79,11 +87,19 @@ public class ModList {
 	public String getLanguageCode() {
 		return this.language.getCode();
 	}
-
+	
 	public void setLanguage(Languages language) {
 		this.language = language;
 	}
-
+	
+	public boolean isCustomOrder() {
+		return this.customOrder;
+	}
+	
+	public void setCustomOrder(boolean customOrder) {
+		this.customOrder = customOrder;
+	}
+	
 	/**
 	 * @return
 	 */
@@ -219,9 +235,9 @@ public class ModList {
 	}
 
 	private void addConflicts(Mod newMod) {
-		for (Mod mod1 : modlist) {
-			if (!mod1.equals(newMod)) {
-				addModsConflict(mod1, newMod);
+		for (Mod mod : modlist) {
+			if (!mod.equals(newMod)) {
+				addModsConflict(mod, newMod);
 			}
 		}
 	}

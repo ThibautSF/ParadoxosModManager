@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jdom2.Attribute;
 import org.jdom2.DataConversionException;
@@ -33,6 +36,7 @@ public class MyXML {
 	private static final String GAME_ID = "gameID";
 	private static final String LIST = "list";
 	private static final String NAME = "name";
+	private static final String CUSTOM_ORDER = "customOrder";
 	private static final String DESCR = "descr";
 	private static final String LANG = "lang";
 	private static final String MOD = "mod";
@@ -40,6 +44,7 @@ public class MyXML {
 	private static final String FILE_NAME = "fileName";
 	private static final String REMOTE_ID = "remoteID";
 	private static final String MOD_NAME = "modName";
+	private static final String MOD_ORDER = "order";
 	
 	private static final String APP_SETTINGS = "appsettings";
 	private static final String GAME = "game";
@@ -84,7 +89,7 @@ public class MyXML {
 	 * @param file
 	 * @throws Exception
 	 */
-	public void readSettingFile(String file) throws Exception{
+	public void readSettingFile(String file) throws Exception {
 		SAXBuilder sxb = new SAXBuilder();
 		File xml = new File(file);
 		if(xml.exists()){
@@ -102,7 +107,7 @@ public class MyXML {
 	/**
 	 * @throws Exception
 	 */
-	public void saveFile() throws Exception{
+	public void saveFile() throws Exception {
 		XMLOutputter sortie = new XMLOutputter(Format.getPrettyFormat());
 		sortie.output(document, new FileOutputStream(file));
 	}
@@ -111,15 +116,26 @@ public class MyXML {
 	/**
 	 * @return
 	 */
-	public ArrayList<ModList> getSavedList(Map<String, Mod> availableMods){
-		ArrayList<ModList> userLists = new ArrayList<ModList>();
+	public List<ModList> getSavedList(Map<String, Mod> availableMods) {
+		List<ModList> userLists = new ArrayList<ModList>();
 		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> i = modLists.iterator();
 		while(i.hasNext()){
-			ArrayList<Mod> listMods = new ArrayList<Mod>();
+			List<Mod> listMods = new ArrayList<Mod>();
+			Map<Integer,Mod> sortedMods = new TreeMap<Integer,Mod>();
+			List<Mod> unsortedMods = new ArrayList<Mod>();
 			
 			Element oneListElement = (Element) i.next();
 			String listName = oneListElement.getAttribute(NAME).getValue();
+			boolean listCustomOrder = false;
+			try {
+				listCustomOrder = oneListElement.getAttribute(CUSTOM_ORDER).getBooleanValue();
+			} catch (NullPointerException e) {
+				// Attribute missing
+			} catch (DataConversionException e) {
+				// Bad value
+			}
+			
 			String listDescr = oneListElement.getChild(DESCR).getText();
 			String listLang;
 			try {
@@ -131,6 +147,7 @@ public class MyXML {
 			for (Element modElement : modsElements) {
 				List<Attribute> modElementAttr = modElement.getAttributes();
 				String fileName="",modName="",remoteFileId=null;
+				int modOrder = -1;
 				for (Attribute attribute : modElementAttr) {
 					switch (attribute.getName()) {
 					case ID:
@@ -143,12 +160,20 @@ public class MyXML {
 					case REMOTE_ID:
 						remoteFileId = attribute.getValue();
 						break;
+					case MOD_ORDER:
+						try {
+							modOrder = attribute.getIntValue();
+						} catch (DataConversionException e) {
+							// TODO Bloc catch généré automatiquement
+							e.printStackTrace();
+						}
+						break;
 					
 					default:
 						break;
 					}
 				}
-					
+				
 				Mod oneMod = availableMods.get(fileName);
 				if (oneMod==null) {
 					oneMod = new Mod(modName, fileName, remoteFileId);
@@ -161,12 +186,30 @@ public class MyXML {
 					}
 				}
 				if (!listMods.contains(oneMod)) {
-					listMods.add(oneMod);
+					if (modOrder>=0) {
+						sortedMods.put(modOrder, oneMod);
+					} else {
+						unsortedMods.add(oneMod);
+					}
 				}
 			}
 			
+			//Append mods with order value
+			System.out.println(sortedMods.toString());
+			System.out.println(sortedMods.values().toString());
+			listMods.addAll(sortedMods.values());
+			
+			//Append mods without order value at the end of the list
+			Collections.sort(unsortedMods, new Comparator<Mod>() {
+				@Override
+				public int compare(Mod m1, Mod m2) {
+					return m1.getName().compareTo(m2.getName());
+				}
+			});
+			listMods.addAll(unsortedMods);
+			
 			ModList oneList = new ModList(listName, listDescr,
-					Languages.getLanguage(listLang),listMods);
+					Languages.getLanguage(listLang),listMods, listCustomOrder);
 			userLists.add(oneList);
 		}
 		return userLists;
@@ -176,7 +219,7 @@ public class MyXML {
 	 * @param listName
 	 * @throws Exception
 	 */
-	public void removeList(String listName) throws Exception{
+	public void removeList(String listName) throws Exception {
 		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> iE = modLists.iterator();
 		while(iE.hasNext()){
@@ -201,7 +244,7 @@ public class MyXML {
 	 * @param listName
 	 * @throws Exception
 	 */
-	public void modifyList(ModList list, String listName) throws Exception{
+	public void modifyList(ModList list, String listName) throws Exception {
 		Element oneListElement=null,listDescrElement,listLangElement,listModElement;
 		List<Mod> listMods;
 		
@@ -210,7 +253,7 @@ public class MyXML {
 		if(!isNew){
 			List<Element> modLists = root.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
-			while(i.hasNext()){
+			while(i.hasNext()) {
 				Element oneListElementIterated = (Element) i.next();
 				String listElementName = oneListElementIterated.getAttribute(NAME).getValue();
 				if(listElementName.equals(listName)){
@@ -220,7 +263,7 @@ public class MyXML {
 			}
 		}
 		
-		if(isNew || oneListElement==null){
+		if(isNew || oneListElement==null) {
 			oneListElement = new Element(LIST);
 			root.addContent(oneListElement);
 			listDescrElement = new Element(DESCR);
@@ -234,6 +277,7 @@ public class MyXML {
 		}
 		
 		oneListElement.setAttribute(NAME, list.getName());
+		oneListElement.setAttribute(CUSTOM_ORDER,list.isCustomOrder()+"");
 		
 		listDescrElement.setText(list.getDescription());
 		
@@ -246,13 +290,16 @@ public class MyXML {
 		}
 		
 		listMods = list.getModlist();
-		for (Mod mod : listMods) {
+		for (int i = 0; i < listMods.size(); i++) {
+			Mod mod = listMods.get(i);
 			listModElement = new Element(MOD);
 			listModElement.setAttribute(MOD_NAME, mod.getName());
 			listModElement.setAttribute(FILE_NAME, mod.getFileName());
 			listModElement.setAttribute(REMOTE_ID, mod.getRemoteFileID());
+			listModElement.setAttribute(MOD_ORDER, i+"");
 			oneListElement.addContent(listModElement);
 		}
+		
 		this.saveFile();
 	}
 	
@@ -260,7 +307,7 @@ public class MyXML {
 	 * @param listName
 	 * @throws Exception
 	 */
-	public void exportList(String listName) throws Exception{
+	public void exportList(String listName) throws Exception {
 		List<Element> modLists = root.getChildren(LIST);
 		Iterator<Element> iE_export = modLists.iterator();
 		while(iE_export.hasNext()){
@@ -276,7 +323,7 @@ public class MyXML {
 		}
 	}
 	
-	public String importList(String xml, Map<String, Mod> availableMods) throws Exception{
+	public String importList(String xml, Map<String, Mod> availableMods) throws Exception {
 		SAXBuilder sxb = new SAXBuilder();
 		Document importDocument = sxb.build(xml);
 		Element importRoot = importDocument.getRootElement();
@@ -284,16 +331,34 @@ public class MyXML {
 			List<Element> modLists = importRoot.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
 			while(i.hasNext()){
-				ArrayList<Mod> listMods = new ArrayList<Mod>();
+				List<Mod> listMods = new ArrayList<Mod>();
+				Map<Integer,Mod> sortedMods = new TreeMap<Integer,Mod>();
+				List<Mod> unsortedMods = new ArrayList<Mod>();
 				
 				Element oneListElement = (Element) i.next();
 				String listName = oneListElement.getAttribute(NAME).getValue();
+				boolean listCustomOrder = false;
+				try {
+					listCustomOrder = oneListElement.getAttribute(CUSTOM_ORDER).getBooleanValue();
+				} catch (NullPointerException e) {
+					// Attribute missing
+				} catch (DataConversionException e) {
+					// Bad value
+				}
+				
 				String listDescr = oneListElement.getChild(DESCR).getText();
-				String listLang = oneListElement.getChild(LANG).getText();
+				String listLang;
+				try {
+					listLang = oneListElement.getChild(LANG).getText();
+				} catch (RuntimeException e) {
+					listLang = null;
+				}
+				
 				List<Element> modsElements = oneListElement.getChildren(MOD);
 				for (Element modElement : modsElements) {
 					List<Attribute> modElementAttr = modElement.getAttributes();
 					String fileName="",modName="",remoteFileId=null;
+					int modOrder = -1;
 					for (Attribute attribute : modElementAttr) {
 						switch (attribute.getName()) {
 						case ID:
@@ -305,6 +370,14 @@ public class MyXML {
 							break;
 						case REMOTE_ID:
 							remoteFileId = attribute.getValue();
+							break;
+						case MOD_ORDER:
+							try {
+								modOrder = attribute.getIntValue();
+							} catch (DataConversionException e) {
+								// TODO Bloc catch généré automatiquement
+								e.printStackTrace();
+							}
 							break;
 						
 						default:
@@ -324,13 +397,31 @@ public class MyXML {
 						}
 					}
 					if (!listMods.contains(oneMod)) {
-						listMods.add(oneMod);
+						if (modOrder>=0) {
+							sortedMods.put(modOrder, oneMod);
+						} else {
+							unsortedMods.add(oneMod);
+						}
 					}
 				}
 				
+				//Append mods with order value
+				System.out.println(sortedMods.toString());
+				System.out.println(sortedMods.values().toString());
+				listMods.addAll(sortedMods.values());
+				
+				//Append mods without order value at the end of the list
+				Collections.sort(unsortedMods, new Comparator<Mod>() {
+					@Override
+					public int compare(Mod m1, Mod m2) {
+						return m1.getName().compareTo(m2.getName());
+					}
+				});
+				listMods.addAll(unsortedMods);
+				
 				
 				ModList oneList = new ModList("[Imported]"+listName+"_"+System.currentTimeMillis(), listDescr,
-						Languages.getLanguage(listLang), listMods);
+						Languages.getLanguage(listLang), listMods, listCustomOrder);
 				modifyList(oneList);
 			}
 			return "Import done.";
@@ -342,7 +433,7 @@ public class MyXML {
 	 * @throws DataConversionException 
 	 * 
 	 */
-	public HashMap<String, String> getGameSettings(Integer gameID) throws DataConversionException{
+	public HashMap<String, String> getGameSettings(Integer gameID) throws DataConversionException {
 		HashMap<String, String> params = new HashMap<>();
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
@@ -364,7 +455,7 @@ public class MyXML {
 	 * @throws DataConversionException 
 	 * 
 	 */
-	public String getOneGameSetting(Integer gameID, String attrName) throws DataConversionException{
+	public String getOneGameSetting(Integer gameID, String attrName) throws DataConversionException {
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
 		while(i.hasNext()){
@@ -406,7 +497,7 @@ public class MyXML {
 					}
 				}
 				
-				if(flag_noattrparam){
+				if(flag_noattrparam) {
 					Element newParamElement = new Element(attrName);
 					newParamElement.setAttribute(ATTR_VALUE, value);
 					oneListElement.addContent(newParamElement);
