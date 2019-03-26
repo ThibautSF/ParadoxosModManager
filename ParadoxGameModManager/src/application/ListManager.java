@@ -11,6 +11,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -501,6 +504,10 @@ public class ListManager extends Stage {
 	private boolean applyOneModList(ModList applyList) throws IOException {
 		List<Mod> applyMods = applyList.getModlist();
 		
+		if(applyList.isCustomOrder()) {
+			generateCustomModFiles(applyMods);
+		}
+		
 		String sep = File.separator;
 		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
 		File tempFile = new File(ModManager.PATH+sep+"new_setting.tmp");
@@ -555,7 +562,10 @@ public class ListManager extends Stage {
 					printLanguageBloc(applyList.getLanguageCode(), writer);
 					startLineRemove = "last_mods";
 				} else {
-					modPrint(applyMods, writer);
+					if(applyList.isCustomOrder())
+						modPrint(applyMods, writer, "customMods/");
+					else
+						modPrint(applyMods, writer);
 				}
 				startEdit = false;
 			} else {
@@ -579,7 +589,10 @@ public class ListManager extends Stage {
 		}
 		if(noLast_Mods){
 			writer.write("last_mods={" + System.getProperty("line.separator"));
-			modPrint(applyMods,writer);
+			if(applyList.isCustomOrder())
+				modPrint(applyMods, writer, "customMods/");
+			else
+				modPrint(applyMods, writer);
 			writer.write("}" + System.getProperty("line.separator"));
 		}
 		writer.close();
@@ -589,14 +602,161 @@ public class ListManager extends Stage {
 		return successful;
 	}
 	
+	private void generateCustomModFiles(List<Mod> applyMods) {
+		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/
+		
+		//Check if 'customMod/' exist in doc game folder (if not → create it)
+		String sep = File.separator;
+		File customModFolder = new File(ModManager.PATH+sep+"customMod");
+		if(!(customModFolder.exists() || customModFolder.isDirectory())) {
+			customModFolder.mkdir();
+		}
+		
+		//Make 'cutomMod/' empty
+		File[] content = customModFolder.listFiles();
+		for (File file : content) {
+			file.delete();
+		}
+		
+		//Create the custom .mod file for each mod (XXX_idorname.mod)
+		int n = applyMods.size();
+		int digits = 0;
+		while(n!=0) {
+			n = n/10;
+			digits++;
+		}
+		String numberFormat = "%0"+digits+"d";
+		String.format("%03d", 1);
+		for (int i = 0; i < applyMods.size(); i++) {
+			Mod mod = applyMods.get(i);
+			
+			String customModName = String.format(numberFormat, i)+"_"+mod.getName();
+			
+			File modFile = new File(ModManager.PATH+sep+"mod"+sep+mod.getFileName());
+			File customModFile = new File(ModManager.PATH+sep+"customMod"+sep+mod.getFileName());
+			try {
+				Files.copy(Paths.get(modFile.getAbsolutePath()), Paths.get(customModFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
+				
+				File inputFile = customModFile;
+				File tempFile = new File(ModManager.PATH+sep+"customMod"+sep+String.format(numberFormat, i)+mod.getFileName()+".tmp");
+				
+				BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+				
+				//String startLineRemove = "name";
+				String aloneLineRemove = "name";
+				String currentLine;
+				boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
+				
+				while ((currentLine = reader.readLine()) != null) {
+					// trim newline when comparing with lineToRemove
+					String trimmedLine = currentLine.trim();
+					if (hasEqual && trimmedLine.contains("{")) {
+						hasEqual = false;
+						startEdit = true;
+						writer.write(currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+					}
+					if (waitEqual && trimmedLine.contains("=")) {
+						waitEqual = false;
+						if (trimmedLine.contains("{")) {
+							startEdit = true;
+							writer.write(
+									currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+						} else {
+							hasEqual = true;
+						}
+					}
+					/*
+					if (trimmedLine.contains(startLineRemove)) {
+						String toWrite;
+						if (trimmedLine.contains(startLineRemove + "={")) {
+							startEdit = true;
+							toWrite = currentLine.substring(0, currentLine.indexOf("{") + 1);
+						} else if (trimmedLine.contains(startLineRemove + "=")) {
+							hasEqual = true;
+							toWrite = currentLine.substring(0, currentLine.indexOf("=") + 1);
+						} else {
+							waitEqual = true;
+							toWrite = currentLine.substring(0,
+									currentLine.indexOf(startLineRemove.charAt(startLineRemove.length() - 1)));
+						}
+						if (startLineRemove.equals("last_mods")) {
+							noLast_Mods = false;
+						}
+						startCopy = false;
+						writer.write(toWrite + System.getProperty("line.separator"));
+					}
+					*/
+					if (startEdit) {
+						/*
+						if (startLineRemove.equals("gui")) {
+							printLanguageBloc(applyList.getLanguageCode(), writer);
+							startLineRemove = "last_mods";
+						} else {
+							if(applyList.isCustomOrder())
+								modPrint(applyMods, writer, "customMods/");
+							else
+								modPrint(applyMods, writer);
+						}
+						*/
+						startEdit = false;
+					} else {
+						if (startCopy) {
+							if (trimmedLine.contains(aloneLineRemove)) {
+								writer.write(aloneLineRemove + "=\"" + customModName
+										+ "\"" + System.getProperty("line.separator"));
+								//startLineRemove = "last_mods";
+							} else {
+								writer.write(currentLine + System.getProperty("line.separator"));
+							}
+						}
+						if (!startCopy && !hasEqual && !waitEqual) {
+							if (trimmedLine.contains("}")) {
+								startCopy = true;
+								writer.write(currentLine.substring(currentLine.indexOf("}"), currentLine.length())
+										+ System.getProperty("line.separator"));
+							}
+						}
+					}
+				}
+				/*
+				if(noLast_Mods){
+					writer.write("last_mods={" + System.getProperty("line.separator"));
+					if(applyList.isCustomOrder())
+						modPrint(applyMods, writer, "customMods/");
+					else
+						modPrint(applyMods, writer);
+					writer.write("}" + System.getProperty("line.separator"));
+				}
+				*/
+				writer.close();
+				reader.close();
+				inputFile.delete();
+				boolean successful = tempFile.renameTo(inputFile);
+				
+			} catch (IOException e) {
+				// TODO Bloc catch généré automatiquement
+				e.printStackTrace();
+			}
+			
+			
+			
+		}
+	}
+
 	/**
 	 * @param applyMods
 	 * @param writer
 	 * @throws IOException
 	 */
 	private void modPrint(List<Mod> applyMods, BufferedWriter writer) throws IOException {
+		modPrint(applyMods, writer, "mod/");
+	}
+	
+	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String modfolder) throws IOException {
+		if(!(modfolder.lastIndexOf("/")==modfolder.length()-1)) modfolder+="/";
 		for (Mod mod : applyMods) {
-			String addLine="\t\"mod/"+mod.getFileName()+"\"";
+			String addLine="\t\""+modfolder+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));
 		}
 	}
