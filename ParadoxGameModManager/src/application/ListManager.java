@@ -563,7 +563,7 @@ public class ListManager extends Stage {
 					startLineRemove = "last_mods";
 				} else {
 					if(applyList.isCustomOrder())
-						modPrint(applyMods, writer, "customMods/");
+						modPrint(applyMods, writer, "pmm_");
 					else
 						modPrint(applyMods, writer);
 				}
@@ -590,7 +590,7 @@ public class ListManager extends Stage {
 		if(noLast_Mods){
 			writer.write("last_mods={" + System.getProperty("line.separator"));
 			if(applyList.isCustomOrder())
-				modPrint(applyMods, writer, "customMods/");
+				modPrint(applyMods, writer, "pmm_");
 			else
 				modPrint(applyMods, writer);
 			writer.write("}" + System.getProperty("line.separator"));
@@ -603,17 +603,33 @@ public class ListManager extends Stage {
 	}
 	
 	private void generateCustomModFiles(List<Mod> applyMods) {
-		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/
+		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/ → done
+		// TODO add clean custom .mod button OR clean when load .mod files → done
 		
 		//Check if 'customMod/' exist in doc game folder (if not → create it)
+		//UPDATE : is useless with mod/
 		String sep = File.separator;
-		File customModFolder = new File(ModManager.PATH+sep+"customMod");
+		File modDir = new File(ModManager.PATH+sep+"mod");
+		/*
 		if(!(customModFolder.exists() || customModFolder.isDirectory())) {
 			customModFolder.mkdir();
 		}
+		*/
 		
 		//Make 'cutomMod/' empty
+		//UPDATE : clean 'mod/' of pmm_xxxxxxx.mod files
+		/*
 		File[] content = customModFolder.listFiles();
+		for (File file : content) {
+			file.delete();
+		}
+		*/
+		File[] content = modDir.listFiles(new FilenameFilter(){
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().startsWith("pmm_") && name.toLowerCase().endsWith(".mod");
+			}
+		});
 		for (File file : content) {
 			file.delete();
 		}
@@ -621,10 +637,10 @@ public class ListManager extends Stage {
 		//Create the custom .mod file for each mod (XXX_idorname.mod)
 		int n = applyMods.size();
 		int digits = 0;
-		while(n!=0) {
+		do {
 			n = n/10;
 			digits++;
-		}
+		} while (n!=0);
 		String numberFormat = "%0"+digits+"d";
 		String.format("%03d", 1);
 		for (int i = 0; i < applyMods.size(); i++) {
@@ -633,12 +649,12 @@ public class ListManager extends Stage {
 			String customModName = String.format(numberFormat, i)+"_"+mod.getName();
 			
 			File modFile = new File(ModManager.PATH+sep+"mod"+sep+mod.getFileName());
-			File customModFile = new File(ModManager.PATH+sep+"customMod"+sep+mod.getFileName());
+			File customModFile = new File(ModManager.PATH+sep+"mod"+sep+"pmm_"+mod.getFileName());
 			try {
 				Files.copy(Paths.get(modFile.getAbsolutePath()), Paths.get(customModFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 				
 				File inputFile = customModFile;
-				File tempFile = new File(ModManager.PATH+sep+"customMod"+sep+String.format(numberFormat, i)+mod.getFileName()+".tmp");
+				File tempFile = new File(ModManager.PATH+sep+"mod"+sep+String.format(numberFormat, i)+mod.getFileName()+".tmp");
 				
 				BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 				BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
@@ -743,20 +759,24 @@ public class ListManager extends Stage {
 			
 		}
 	}
-
+	
 	/**
 	 * @param applyMods
 	 * @param writer
 	 * @throws IOException
 	 */
 	private void modPrint(List<Mod> applyMods, BufferedWriter writer) throws IOException {
-		modPrint(applyMods, writer, "mod/");
+		modPrint(applyMods, writer, "", "mod/");
 	}
 	
-	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String modfolder) throws IOException {
+	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String prefix) throws IOException {
+		modPrint(applyMods, writer, prefix, "mod/");
+	}
+	
+	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String prefix, String modfolder) throws IOException {
 		if(!(modfolder.lastIndexOf("/")==modfolder.length()-1)) modfolder+="/";
 		for (Mod mod : applyMods) {
-			String addLine="\t\""+modfolder+mod.getFileName()+"\"";
+			String addLine="\t\""+modfolder+prefix+mod.getFileName()+"\"";
 			writer.write(addLine + System.getProperty("line.separator"));
 		}
 	}
@@ -808,6 +828,17 @@ public class ListManager extends Stage {
 				File modDir = childs[i];
 				
 				if (modDir.isDirectory() && ListManager.modFileNames.contains(modDir.getName().toLowerCase())) {
+					//Clean customModFiles
+					File[] content = modDir.listFiles(new FilenameFilter(){
+						@Override
+						public boolean accept(File dir, String name) {
+							return name.toLowerCase().startsWith("pmm_") && name.toLowerCase().endsWith(".mod");
+						}
+					});
+					for (File file : content) {
+						file.delete();
+					}
+					
 					String[] modFiles = modDir.list(new FilenameFilter(){
 						@Override
 						public boolean accept(File dir, String name) {
