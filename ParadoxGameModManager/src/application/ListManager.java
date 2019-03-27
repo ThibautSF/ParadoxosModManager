@@ -504,11 +504,15 @@ public class ListManager extends Stage {
 	private boolean applyOneModList(ModList applyList) throws IOException {
 		List<Mod> applyMods = applyList.getModlist();
 		
+		String sep = File.separator;
+		
+		//Clean customModFiles
+		deleteCustomModFiles();
+		
 		if(applyList.isCustomOrder()) {
 			generateCustomModFiles(applyMods);
 		}
 		
-		String sep = File.separator;
 		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
 		File tempFile = new File(ModManager.PATH+sep+"new_setting.tmp");
 
@@ -606,24 +610,9 @@ public class ListManager extends Stage {
 		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/ → done
 		// TODO add clean custom .mod button OR clean when load .mod files → done
 		
-		//Check if 'customMod/' exist in doc game folder (if not → create it)
-		//UPDATE : is useless with mod/
 		String sep = File.separator;
 		File modDir = new File(ModManager.PATH+sep+"mod");
-		/*
-		if(!(customModFolder.exists() || customModFolder.isDirectory())) {
-			customModFolder.mkdir();
-		}
-		*/
 		
-		//Make 'cutomMod/' empty
-		//UPDATE : clean 'mod/' of pmm_xxxxxxx.mod files
-		/*
-		File[] content = customModFolder.listFiles();
-		for (File file : content) {
-			file.delete();
-		}
-		*/
 		File[] content = modDir.listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
@@ -646,7 +635,7 @@ public class ListManager extends Stage {
 		for (int i = 0; i < applyMods.size(); i++) {
 			Mod mod = applyMods.get(i);
 			
-			String customModName = String.format(numberFormat, i)+"_"+mod.getName();
+			String customModName = String.format(numberFormat, i+1)+"_"+mod.getName();
 			
 			File modFile = new File(ModManager.PATH+sep+"mod"+sep+mod.getFileName());
 			File customModFile = new File(ModManager.PATH+sep+"mod"+sep+"pmm_"+mod.getFileName());
@@ -761,6 +750,24 @@ public class ListManager extends Stage {
 	}
 	
 	/**
+	 * Clean customModFiles : "mod/pmm_xxxxx.mod" files are deleted
+	 */
+	private void deleteCustomModFiles() {
+		String sep = File.separator;
+		
+		File modDir = new File(ModManager.PATH+sep+"mod");
+		File[] content = modDir.listFiles(new FilenameFilter(){
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().startsWith("pmm_") && name.toLowerCase().endsWith(".mod");
+			}
+		});
+		for (File file : content) {
+			file.delete();
+		}
+	}
+	
+	/**
 	 * @param applyMods
 	 * @param writer
 	 * @throws IOException
@@ -829,15 +836,7 @@ public class ListManager extends Stage {
 				
 				if (modDir.isDirectory() && ListManager.modFileNames.contains(modDir.getName().toLowerCase())) {
 					//Clean customModFiles
-					File[] content = modDir.listFiles(new FilenameFilter(){
-						@Override
-						public boolean accept(File dir, String name) {
-							return name.toLowerCase().startsWith("pmm_") && name.toLowerCase().endsWith(".mod");
-						}
-					});
-					for (File file : content) {
-						file.delete();
-					}
+					deleteCustomModFiles();
 					
 					String[] modFiles = modDir.list(new FilenameFilter(){
 						@Override
