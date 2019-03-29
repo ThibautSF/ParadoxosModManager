@@ -109,7 +109,10 @@ public class ListCreator extends Stage {
 	private TableColumn<Mod, String> versionCol = new TableColumn<Mod, String>("Version");
 	private TableColumn<Mod, String> steamPath = new TableColumn<Mod, String>("Workshop");
 	
+	private HBox customOrderBox = new HBox();
 	private CheckBox cbCustomOrder = new CheckBox("Use custom order");
+	private HBox resetOrderBox = new HBox();
+	private Button btnResetOrder = new Button("Reset ASCII order");
 	
 	private VBox listOrderBox = new VBox();
 	private TableView<Mod> modsOrdering = new TableView<Mod>();
@@ -379,19 +382,21 @@ public class ListCreator extends Stage {
 		//ModList list of mods (end)
 		
 		//Use custom mod order
-		window.add(cbCustomOrder, 5, 1, 1, 1);
+		window.add(customOrderBox, 5, 1, 1, 1);
+		customOrderBox.setStyle("-fx-alignment: bottom-left;");
+		customOrderBox.getChildren().addAll(cbCustomOrder);
 		cbCustomOrder.setSelected(list.isCustomOrder());
 		
 		//TableView order mods (start)
-		window.add(listOrderBox, 5, 2, 1, 4);
+		window.add(listOrderBox, 5, 2, 1, 3);
 		listOrderBox.getChildren().add(modsOrdering);
 		orderModNameCol.setSortable(false);
 		orderPosCol.setSortable(false);
 		orderPosCol.setMinWidth(40);
 		orderPosCol.setMaxWidth(40);
 		orderActionCol.setSortable(false);
-		orderActionCol.setMinWidth(75);
-		orderActionCol.setMaxWidth(75);
+		orderActionCol.setMinWidth(100);
+		orderActionCol.setMaxWidth(100);
 		modsOrdering.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		modsOrdering.getColumns().add(orderModNameCol);
 		modsOrdering.getColumns().add(orderPosCol);
@@ -689,6 +694,41 @@ public class ListCreator extends Stage {
 			}//end action
 		});
 		//Import current config button (end)
+		
+		//Reset mod ordering button (start)
+		window.add(resetOrderBox, 5, 5, 1, 1);
+		resetOrderBox.setStyle("-fx-alignment: center;");
+		resetOrderBox.getChildren().addAll(btnResetOrder);
+		
+		btnResetOrder.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				String title = "Reset to default order";
+				String header = "What do you want to do ?";
+				String message = "";
+				
+				List<ButtonType> buttons = new ArrayList<ButtonType>();
+				
+				ButtonType buttonOk = new ButtonType("Continue");
+				
+				buttons.add(buttonOk);
+				
+				Optional<ButtonType> choice = BasicDialog.showGenericConfirm(title, header, message, buttons, true);
+				
+				if(choice.get().getButtonData()!=ButtonData.CANCEL_CLOSE){
+					if(choice.get() == buttonOk){
+						Collections.sort(selectedModsList, new Comparator<Mod>() {
+							@Override
+							public int compare(Mod m1, Mod m2) {
+								return m1.getName().compareTo(m2.getName());
+							}
+						});
+					}
+				}
+			}//end action
+		});
+		
+		//Reset mod ordering button (end)
 		
 		//Print the scene
 		Scene sc = new Scene(window, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -1014,18 +1054,19 @@ public class ListCreator extends Stage {
 	private class MultipleOrderButtonCell extends TableCell<Mod, Mod> {
 		final Button upButton = new Button();
 		final Button downButton = new Button();
+		final Button removeButton = new Button();
 		final HBox paddedButtons = new HBox();
 		
 		MultipleOrderButtonCell() {
 			paddedButtons.setPadding(new Insets(-2, 0, -2, 0));
 			paddedButtons.setAlignment(Pos.CENTER);
-			paddedButtons.getChildren().addAll(upButton,downButton);
+			paddedButtons.getChildren().addAll(upButton,downButton, removeButton);
 			
 			//ImageView imageSteam = new ImageView(new Image(getClass().getResource(Resource.steamIco).toExternalForm()));
-			FontAwesomeIconView iconSteamButton = new FontAwesomeIconView(FontAwesomeIcon.ARROW_UP);
+			FontAwesomeIconView iconUpButton = new FontAwesomeIconView(FontAwesomeIcon.ARROW_UP);
 			upButton.setScaleX(0.8);
 			upButton.setScaleY(0.8);
-			upButton.setGraphic(iconSteamButton);
+			upButton.setGraphic(iconUpButton);
 			upButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent t) {
@@ -1038,10 +1079,10 @@ public class ListCreator extends Stage {
 				}
 			});
 			
-			FontAwesomeIconView iconDirButton = new FontAwesomeIconView(FontAwesomeIcon.ARROW_DOWN);
+			FontAwesomeIconView iconDownButton = new FontAwesomeIconView(FontAwesomeIcon.ARROW_DOWN);
 			downButton.setScaleX(0.8);
 			downButton.setScaleY(0.8);
-			downButton.setGraphic(iconDirButton);
+			downButton.setGraphic(iconDownButton);
 			downButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent t) {
@@ -1051,6 +1092,21 @@ public class ListCreator extends Stage {
 						Mod mod = selectedModsList.remove(pos+1);
 						selectedModsList.add(pos, mod);
 					}
+				}
+			});
+			
+			FontAwesomeIconView iconRemoveButton = new FontAwesomeIconView(FontAwesomeIcon.REMOVE);
+			removeButton.setScaleX(0.8);
+			removeButton.setScaleY(0.8);
+			removeButton.setGraphic(iconRemoveButton);
+			removeButton.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent t) {
+					int pos = getTableRow().getIndex();
+					
+					selectedModsList.remove(pos);
+					mods.refresh();
+					modsOrdering.refresh();
 				}
 			});
 		}
