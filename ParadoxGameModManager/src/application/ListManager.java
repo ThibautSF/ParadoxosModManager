@@ -25,6 +25,7 @@ import java.util.Optional;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import debug.ErrorPrint;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -90,10 +91,11 @@ public class ListManager extends Stage {
 	
 	private VBox content = new VBox();
 	private TableView<ModList> lists = new TableView<ModList>();
-	private TableColumn<ModList,String> listNameCol = new TableColumn<ModList,String>("List Name");
+	private TableColumn<ModList, String> listNameCol = new TableColumn<ModList, String>("List Name");
 	//private TableColumn<ModList,String> listDescrCol = new TableColumn<ModList,String>("Description");
-	private TableColumn<ModList,String> languageCol = new TableColumn<ModList,String>("Language");
-	private TableColumn<ModList,Integer> nbModCol = new TableColumn<ModList,Integer>("NB");
+	private TableColumn<ModList, String> languageCol = new TableColumn<ModList, String>("Language");
+	private TableColumn<ModList, Integer> nbModCol = new TableColumn<ModList, Integer>("NB");
+	private TableColumn<ModList, String> modOrderCol = new TableColumn<ModList, String>("Order");
 	
 	private ObservableList<ModList> listOfLists = FXCollections.observableArrayList();
 	//private ObservableList<ModList> selectedListsList = FXCollections.observableArrayList();
@@ -211,12 +213,15 @@ public class ListManager extends Stage {
 		content.getChildren().add(lists);
 		content.setStyle("-fx-alignment: center;");
 		
-		listNameCol.setSortable(false);
-		languageCol.setSortable(false);
-		nbModCol.setSortable(false);
+		//TODO sort
+		listNameCol.setSortable(true);
+		languageCol.setSortable(true);
+		nbModCol.setSortable(true);
+		modOrderCol.setSortable(true);
 		lists.getColumns().add(listNameCol);
 		lists.getColumns().add(languageCol);
 		lists.getColumns().add(nbModCol);
+		lists.getColumns().add(modOrderCol);
 		
 		listNameCol.setCellValueFactory(
 			new PropertyValueFactory<ModList,String>("name")
@@ -230,6 +235,16 @@ public class ListManager extends Stage {
 		nbModCol.setCellValueFactory(
 			cell -> new SimpleIntegerProperty(cell.getValue().getModlist().size()).asObject()
 		);
+		
+		modOrderCol.setCellValueFactory(
+			cell -> {
+				boolean customOrder = cell.getValue().isCustomOrder();
+				String orderStr = "Default";
+				if(customOrder) {
+					orderStr = "Custom";
+				}
+				return new ReadOnlyStringWrapper(orderStr);
+		});
 		
 		lists.setRowFactory(tv -> {
 			TableRow<ModList> row = new TableRow<ModList>() {
@@ -483,6 +498,10 @@ public class ListManager extends Stage {
 		
 		lists.setItems(listOfLists);
 		lists.refresh();
+		
+		//TODO sort
+		// lists.getSortOrder().add(firstNameCol);
+		//lists.sort();
 		
 		//Loose selection after refresh
 		modifyList.setDisable(true);

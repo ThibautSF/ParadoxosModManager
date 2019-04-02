@@ -316,13 +316,13 @@ public class ListCreator extends Stage {
 		);
 		
 		actionsCol.setCellFactory(new Callback<TableColumn<Mod, Mod>, TableCell<Mod, Mod>>() {
-			@Override public TableCell<Mod, Mod> call(TableColumn<Mod, Mod> personBooleanTableColumn) {
+			@Override public TableCell<Mod, Mod> call(TableColumn<Mod, Mod> modTableColumn) {
 				return new MultipleButtonCell();
 			}
 		});
 		
 		conflictCol.setCellFactory(new Callback<TableColumn<Mod, Boolean>, TableCell<Mod, Boolean>>() {
-			@Override public TableCell<Mod, Boolean> call(TableColumn<Mod, Boolean> personBooleanTableColumn) {
+			@Override public TableCell<Mod, Boolean> call(TableColumn<Mod, Boolean> booleanTableColumn) {
 				return new ButtonCell();
 			}
 		});
