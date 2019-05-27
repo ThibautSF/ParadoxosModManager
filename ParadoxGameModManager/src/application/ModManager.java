@@ -51,12 +51,19 @@ public class ModManager extends Application {
 	public static String UPDATE_ZIP_NAME = "update.zip";
 	public static String UPDATER_NAME = "Updater.jar";
 	
-	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV");
-	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(                                281990,            236850,                203770,             394360);
+	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV", "Imperator");
+	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(                                281990,            236850,                203770,             394360,           859580);
+	public static List<String> GAMES_SETTING_FILES = Arrays.asList(                         "settings.txt",     "settings.txt",       "settings.txt",     "settings.txt", "pdx_settings.txt");
+	public static List<String> GAMES_ACTMOD_FILES = Arrays.asList(                          "settings.txt",     "settings.txt",       "settings.txt",     "settings.txt",  "dlc_load.json");
+	public static List<String> GAMES_ACTMOD_TYPE = Arrays.asList(                              "txt",              "txt",                "txt",              "txt",            "json");
+	
 	public static String APP_NAME = "Paradoxos Mod Manager";
 	public static String PATH;
 	public static String GAME;
 	public static Integer STEAM_ID;
+	public static String SETTING_FILE;
+	public static String ACTMOD_FILE;
+	public static String ACTMOD_TYPE;
 	public static File xmlDir;
 	public static Map<String, String> APP_PARAMS = new HashMap<String, String>();
 	
@@ -334,7 +341,11 @@ public class ModManager extends Application {
 		if(result.isPresent()){
 			List<String> result_list = result.get();
 			GAME = result_list.get(0);
-			STEAM_ID = GAMES_STEAM_ID.get(SUPPORTED_GAMES.indexOf(GAME));
+			int i = SUPPORTED_GAMES.indexOf(GAME);
+			STEAM_ID = GAMES_STEAM_ID.get(i);
+			SETTING_FILE = GAMES_SETTING_FILES.get(i);
+			ACTMOD_FILE = GAMES_ACTMOD_FILES.get(i);
+			ACTMOD_TYPE = GAMES_ACTMOD_FILES.get(i);
 			
 			String docPathStr = result_list.get(1);
 			String exePathStr = result_list.get(2);
@@ -374,7 +385,7 @@ public class ModManager extends Application {
 			if(docFolder.isDirectory()){
 				String[] docList = docFolder.list();
 				for (String file : docList) {
-					if(file.equals("settings.txt")) return true;
+					if(file.equals(SETTING_FILE)) return true;
 				}
 			}
 		}

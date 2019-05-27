@@ -775,9 +775,10 @@ public class ListCreator extends Stage {
 	 * @throws IOException
 	 */
 	private void getModList() throws IOException {
+		//TODO support Imperator Rome (→ ListManager.java)
 		String sep = File.separator;
 		Languages language = Languages.getLanguage(null);
-		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
+		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
 
 		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 		

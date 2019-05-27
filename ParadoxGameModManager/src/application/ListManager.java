@@ -15,12 +15,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -68,7 +71,7 @@ import window.WorkIndicatorDialog;
  */
 public class ListManager extends Stage {
 	private static MyXML userlistsXML = new MyXML();
-	private static List<String> modFileNames = Arrays.asList("mod","mods");
+	//private static List<String> modFileNames = Arrays.asList("mod","mods");
 	
 	//Window Var
 	private static int WINDOW_WIDTH = 800;
@@ -392,6 +395,15 @@ public class ListManager extends Stage {
 				Optional<ButtonType> result = alertConfirm.showAndWait();
 				if (result.get() == ButtonType.OK){
 					try {
+						switch (ModManager.GAME) {
+						case "Imperator":
+							applyModList(2, toApply);
+							break;
+
+						default:
+							applyModList(1, toApply);
+							break;
+						}
 						if(applyOneModList(toApply)){
 							Alert alertInfo = new Alert(AlertType.CONFIRMATION);
 							alertInfo.setTitle("Success");
@@ -515,6 +527,30 @@ public class ListManager extends Stage {
 		yourLists.setText(String.format(lblYrLists, getListNumber()));
 	}
 	
+	private boolean applyModList(Integer version, ModList applyList) throws IOException {
+		boolean status = false;
+		
+		switch (version) {
+		case 1:
+			//Version 1 → Crusader Kings II to Stellaris (like)
+			status = applyOneModList(applyList);
+			break;
+		
+		case 2:
+			//Version 2 → Imperator (like)
+			status = applyLanguageV2(applyList);
+			status = applyOneModListV2(applyList);
+			break;
+
+		default:
+			//Do version 1
+			status = applyOneModList(applyList);
+			break;
+		}
+		
+		return status;
+	}
+	
 	/**
 	 * @param selected
 	 * @return
@@ -532,8 +568,8 @@ public class ListManager extends Stage {
 			generateCustomModFiles(applyMods);
 		}
 		
-		File inputFile = new File(ModManager.PATH+sep+"settings.txt");
-		File tempFile = new File(ModManager.PATH+sep+"new_setting.tmp");
+		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
+		File tempFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE+".tmp");
 
 		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
@@ -625,6 +661,72 @@ public class ListManager extends Stage {
 		return successful;
 	}
 	
+	private boolean applyOneModListV2(ModList applyList) throws IOException {
+		//TODO
+		List<Mod> applyMods = applyList.getModlist();
+		
+		String sep = File.separator;
+		
+		//Clean customModFiles
+		deleteCustomModFiles();
+		
+		if(applyList.isCustomOrder()) {
+			generateCustomModFiles(applyMods);
+		}
+		
+		File inputFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE);
+		File tempFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE+".tmp");
+		
+		FileReader fileReader = new FileReader(inputFile);
+		FileWriter fileWriter = new FileWriter(tempFile);
+		//JsonObject json = new JsonObject();
+		
+		Gson gson = new Gson();
+		JsonObject json = new JsonObject();
+		
+		json = gson.fromJson(fileReader, JsonObject.class);
+		
+		System.out.println(json.toString());
+		
+		/*
+		if(!json.containsKey("disabled_dlcs"))
+			json.put("disabled_dlcs", new String[0]);
+		*/
+		
+		JsonArray enabled_mods = new JsonArray();
+		
+		String modfolder = "mod/";
+		//if(!(modfolder.lastIndexOf("/")==modfolder.length()-1)) modfolder+="/";
+		
+		String prefix = "";
+		if(applyList.isCustomOrder())
+			prefix = "pmm_";
+		
+		for (Mod mod : applyMods) {
+			String modpath=modfolder+prefix+mod.getFileName();
+			enabled_mods.add(modpath);
+		}
+		
+		json.add("enabled_mods", enabled_mods);
+		
+		try {
+			fileWriter.write(json.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		fileReader.close();
+		fileWriter.close();
+		inputFile.delete();
+		boolean successful = tempFile.renameTo(inputFile);
+		return successful;
+	}
+	
+	private boolean applyLanguageV2(ModList applyList) throws IOException {
+		// TODO Stub de la méthode généré automatiquement
+		return false;
+	}
+	
 	private void generateCustomModFiles(List<Mod> applyMods) {
 		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/ → done
 		// TODO add clean custom .mod button OR clean when load .mod files → done
@@ -651,6 +753,7 @@ public class ListManager extends Stage {
 		} while (n!=0);
 		String numberFormat = "%0"+digits+"d";
 		String.format("%03d", 1);
+		
 		for (int i = 0; i < applyMods.size(); i++) {
 			Mod mod = applyMods.get(i);
 			
@@ -667,7 +770,6 @@ public class ListManager extends Stage {
 				BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 				BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 				
-				//String startLineRemove = "name";
 				String aloneLineRemove = "name";
 				String currentLine;
 				boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
@@ -756,15 +858,12 @@ public class ListManager extends Stage {
 				writer.close();
 				reader.close();
 				inputFile.delete();
+				
 				boolean successful = tempFile.renameTo(inputFile);
 				
 			} catch (IOException e) {
-				// TODO Bloc catch généré automatiquement
-				e.printStackTrace();
+				ErrorPrint.printError(e, "Try to create a custom mod file");
 			}
-			
-			
-			
 		}
 	}
 	
@@ -781,8 +880,10 @@ public class ListManager extends Stage {
 				return name.toLowerCase().startsWith("pmm_") && name.toLowerCase().endsWith(".mod");
 			}
 		});
-		for (File file : content) {
-			file.delete();
+		if(content != null) {
+			for (File file : content) {
+				file.delete();
+			}
 		}
 	}
 	
@@ -853,7 +954,8 @@ public class ListManager extends Stage {
 			for (int i = 0; i < childs.length; i++) {
 				File modDir = childs[i];
 				
-				if (modDir.isDirectory() && ListManager.modFileNames.contains(modDir.getName().toLowerCase())) {
+				//if (modDir.isDirectory() && ListManager.modFileNames.contains(modDir.getName().toLowerCase())) {
+				if (modDir.isDirectory() && modDir.getName().toLowerCase().equals("mod")) {
 					//Clean customModFiles
 					deleteCustomModFiles();
 					
