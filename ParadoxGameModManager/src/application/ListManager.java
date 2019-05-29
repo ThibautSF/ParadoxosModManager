@@ -48,6 +48,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -216,7 +217,6 @@ public class ListManager extends Stage {
 		content.getChildren().add(lists);
 		content.setStyle("-fx-alignment: center;");
 		
-		//TODO sort
 		listNameCol.setSortable(true);
 		languageCol.setSortable(true);
 		nbModCol.setSortable(true);
@@ -225,6 +225,17 @@ public class ListManager extends Stage {
 		lists.getColumns().add(languageCol);
 		lists.getColumns().add(nbModCol);
 		lists.getColumns().add(modOrderCol);
+		
+		/*
+		listOfLists.addListener(new ListChangeListener<ModList>() {
+			@Override
+			public void onChanged(Change<? extends ModList> c) {
+				// TODO Improve sorting ? → maybe remake all the base of PMM...
+				System.out.println("La liste a changé");
+				System.out.println(c.toString());
+			}
+		});
+		*/
 		
 		listNameCol.setCellValueFactory(
 			new PropertyValueFactory<ModList,String>("name")
@@ -395,16 +406,7 @@ public class ListManager extends Stage {
 				Optional<ButtonType> result = alertConfirm.showAndWait();
 				if (result.get() == ButtonType.OK){
 					try {
-						switch (ModManager.GAME) {
-						case "Imperator":
-							applyModList(2, toApply);
-							break;
-
-						default:
-							applyModList(1, toApply);
-							break;
-						}
-						if(applyOneModList(toApply)){
+						if(applyModList(toApply)){
 							Alert alertInfo = new Alert(AlertType.CONFIRMATION);
 							alertInfo.setTitle("Success");
 							alertInfo.setHeaderText(null);
@@ -504,6 +506,14 @@ public class ListManager extends Stage {
 		userlistsXML.readFile(fileXML);
 		userListArray = userlistsXML.getSavedList(availableMods);
 		
+		ObservableList<TableColumn<ModList, ?>> sortOrder = lists.getSortOrder();
+		List<TableColumn<ModList, ?>> sortColumns = new ArrayList<TableColumn<ModList, ?>>();
+		List<SortType> sortTypes = new ArrayList<SortType>();
+		
+		for (TableColumn<ModList, ?> tableColumn : sortOrder) {
+			sortColumns.add(tableColumn);
+			sortTypes.add(tableColumn.getSortType());
+		}
 		
 		listOfLists.clear();
 		listOfLists.addAll(userListArray);
@@ -511,9 +521,12 @@ public class ListManager extends Stage {
 		lists.setItems(listOfLists);
 		lists.refresh();
 		
-		//TODO sort
-		// lists.getSortOrder().add(firstNameCol);
-		//lists.sort();
+		for (int i = 0; i < sortColumns.size(); i++) {
+			lists.getSortOrder().add(sortColumns.get(i));
+			sortColumns.get(i).setSortType(sortTypes.get(i));
+		}
+		
+		lists.sort();
 		
 		//Loose selection after refresh
 		modifyList.setDisable(true);
@@ -527,24 +540,19 @@ public class ListManager extends Stage {
 		yourLists.setText(String.format(lblYrLists, getListNumber()));
 	}
 	
-	private boolean applyModList(Integer version, ModList applyList) throws IOException {
+	private boolean applyModList(ModList applyList) throws IOException {
 		boolean status = false;
 		
-		switch (version) {
-		case 1:
-			//Version 1 → Crusader Kings II to Stellaris (like)
-			status = applyOneModList(applyList);
-			break;
-		
-		case 2:
+		switch (ModManager.GAME) {
+		case "Imperator":
 			//Version 2 → Imperator (like)
-			status = applyLanguageV2(applyList);
 			status = applyOneModListV2(applyList);
+			status = applyLanguageV2(applyList.getLanguageCode());
 			break;
 
 		default:
-			//Do version 1
-			status = applyOneModList(applyList);
+			//Version 1 → Crusader Kings II to Stellaris (like)
+			status = applyOneModListV1(applyList);
 			break;
 		}
 		
@@ -556,7 +564,7 @@ public class ListManager extends Stage {
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean applyOneModList(ModList applyList) throws IOException {
+	private boolean applyOneModListV1(ModList applyList) throws IOException {
 		List<Mod> applyMods = applyList.getModlist();
 		
 		String sep = File.separator;
@@ -646,9 +654,9 @@ public class ListManager extends Stage {
 				}
 			}
 		}
-		if(noLast_Mods){
+		if (noLast_Mods) {
 			writer.write("last_mods={" + System.getProperty("line.separator"));
-			if(applyList.isCustomOrder())
+			if (applyList.isCustomOrder())
 				modPrint(applyMods, writer, "pmm_");
 			else
 				modPrint(applyMods, writer);
@@ -661,8 +669,12 @@ public class ListManager extends Stage {
 		return successful;
 	}
 	
+	/**
+	 * @param applyList
+	 * @return
+	 * @throws IOException
+	 */
 	private boolean applyOneModListV2(ModList applyList) throws IOException {
-		//TODO
 		List<Mod> applyMods = applyList.getModlist();
 		
 		String sep = File.separator;
@@ -679,14 +691,11 @@ public class ListManager extends Stage {
 		
 		FileReader fileReader = new FileReader(inputFile);
 		FileWriter fileWriter = new FileWriter(tempFile);
-		//JsonObject json = new JsonObject();
 		
 		Gson gson = new Gson();
 		JsonObject json = new JsonObject();
 		
 		json = gson.fromJson(fileReader, JsonObject.class);
-		
-		System.out.println(json.toString());
 		
 		/*
 		if(!json.containsKey("disabled_dlcs"))
@@ -697,7 +706,6 @@ public class ListManager extends Stage {
 		
 		String modfolder = "mod/";
 		//if(!(modfolder.lastIndexOf("/")==modfolder.length()-1)) modfolder+="/";
-		
 		String prefix = "";
 		if(applyList.isCustomOrder())
 			prefix = "pmm_";
@@ -712,6 +720,7 @@ public class ListManager extends Stage {
 		try {
 			fileWriter.write(json.toString());
 		} catch (IOException e) {
+			ErrorPrint.printError(e, "When writing json");
 			e.printStackTrace();
 		}
 		
@@ -722,15 +731,90 @@ public class ListManager extends Stage {
 		return successful;
 	}
 	
-	private boolean applyLanguageV2(ModList applyList) throws IOException {
-		// TODO Stub de la méthode généré automatiquement
-		return false;
+	/**
+	 * @param languageCode
+	 * @return
+	 * @throws IOException
+	 */
+	private boolean applyLanguageV2(String languageCode) throws IOException {
+		String sep = File.separator;
+		
+		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
+		File tempFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE+".tmp");
+
+		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+		String startLineRemove = "\"language\"";
+		//String aloneLineRemove = "language";
+		String currentLine;
+		boolean startEdit = false, startCopy = true, hasEqual = false, waitEqual = false;
+
+		while ((currentLine = reader.readLine()) != null) {
+			// trim newline when comparing with lineToRemove
+			String trimmedLine = currentLine.trim();
+			if (hasEqual && trimmedLine.contains("{")) {
+				hasEqual = false;
+				startEdit = true;
+				writer.write(currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+			}
+			if (waitEqual && trimmedLine.contains("=")) {
+				waitEqual = false;
+				if (trimmedLine.contains("{")) {
+					startEdit = true;
+					writer.write(
+							currentLine.substring(0, currentLine.indexOf("{") + 1) + System.getProperty("line.separator"));
+				} else {
+					hasEqual = true;
+				}
+			}
+			if (trimmedLine.contains(startLineRemove)) {
+				String toWrite;
+				if (trimmedLine.contains(startLineRemove + "={")) {
+					startEdit = true;
+					toWrite = currentLine.substring(0, currentLine.indexOf("{") + 1);
+				} else if (trimmedLine.contains(startLineRemove + "=")) {
+					hasEqual = true;
+					toWrite = currentLine.substring(0, currentLine.indexOf("=") + 1);
+				} else {
+					waitEqual = true;
+					toWrite = currentLine.substring(0,
+							currentLine.indexOf(startLineRemove.charAt(startLineRemove.length() - 1)));
+				}
+				startCopy = false;
+				writer.write(toWrite + System.getProperty("line.separator"));
+			}
+			if (startEdit) {
+				if (startLineRemove.equals("\"language\"")) {
+					writer.write("\t\tversion=0" + System.getProperty("line.separator") +
+							"\t\tvalue=\"" + languageCode + "\"" + System.getProperty("line.separator"));
+					startLineRemove = "aaaaa";
+				}
+				startEdit = false;
+			} else {
+				if (startCopy) {
+					writer.write(currentLine + System.getProperty("line.separator"));
+				}
+				if (!startCopy && !hasEqual && !waitEqual) {
+					if (trimmedLine.contains("}")) {
+						startCopy = true;
+						writer.write(currentLine + System.getProperty("line.separator"));
+					}
+				}
+			}
+		}
+		
+		writer.close();
+		reader.close();
+		inputFile.delete();
+		boolean successful = tempFile.renameTo(inputFile);
+		return successful;
 	}
 	
+	/**
+	 * @param applyMods
+	 */
 	private void generateCustomModFiles(List<Mod> applyMods) {
-		// TODO Logic seems good, but the customMod/ folder idea don't work ! Need to use mod/ → done
-		// TODO add clean custom .mod button OR clean when load .mod files → done
-		
 		String sep = File.separator;
 		File modDir = new File(ModManager.PATH+sep+"mod");
 		
@@ -772,7 +856,7 @@ public class ListManager extends Stage {
 				
 				String aloneLineRemove = "name";
 				String currentLine;
-				boolean startEdit = false, startCopy = true, noLast_Mods = true, hasEqual = false, waitEqual = false;
+				boolean startEdit = false, startCopy = true, hasEqual = false, waitEqual = false;
 				
 				while ((currentLine = reader.readLine()) != null) {
 					// trim newline when comparing with lineToRemove
@@ -792,46 +876,13 @@ public class ListManager extends Stage {
 							hasEqual = true;
 						}
 					}
-					/*
-					if (trimmedLine.contains(startLineRemove)) {
-						String toWrite;
-						if (trimmedLine.contains(startLineRemove + "={")) {
-							startEdit = true;
-							toWrite = currentLine.substring(0, currentLine.indexOf("{") + 1);
-						} else if (trimmedLine.contains(startLineRemove + "=")) {
-							hasEqual = true;
-							toWrite = currentLine.substring(0, currentLine.indexOf("=") + 1);
-						} else {
-							waitEqual = true;
-							toWrite = currentLine.substring(0,
-									currentLine.indexOf(startLineRemove.charAt(startLineRemove.length() - 1)));
-						}
-						if (startLineRemove.equals("last_mods")) {
-							noLast_Mods = false;
-						}
-						startCopy = false;
-						writer.write(toWrite + System.getProperty("line.separator"));
-					}
-					*/
 					if (startEdit) {
-						/*
-						if (startLineRemove.equals("gui")) {
-							printLanguageBloc(applyList.getLanguageCode(), writer);
-							startLineRemove = "last_mods";
-						} else {
-							if(applyList.isCustomOrder())
-								modPrint(applyMods, writer, "customMods/");
-							else
-								modPrint(applyMods, writer);
-						}
-						*/
 						startEdit = false;
 					} else {
 						if (startCopy) {
 							if (trimmedLine.contains(aloneLineRemove)) {
 								writer.write(aloneLineRemove + "=\"" + customModName
 										+ "\"" + System.getProperty("line.separator"));
-								//startLineRemove = "last_mods";
 							} else {
 								writer.write(currentLine + System.getProperty("line.separator"));
 							}
@@ -845,21 +896,12 @@ public class ListManager extends Stage {
 						}
 					}
 				}
-				/*
-				if(noLast_Mods){
-					writer.write("last_mods={" + System.getProperty("line.separator"));
-					if(applyList.isCustomOrder())
-						modPrint(applyMods, writer, "customMods/");
-					else
-						modPrint(applyMods, writer);
-					writer.write("}" + System.getProperty("line.separator"));
-				}
-				*/
+				
 				writer.close();
 				reader.close();
 				inputFile.delete();
 				
-				boolean successful = tempFile.renameTo(inputFile);
+				tempFile.renameTo(inputFile);
 				
 			} catch (IOException e) {
 				ErrorPrint.printError(e, "Try to create a custom mod file");
@@ -896,10 +938,23 @@ public class ListManager extends Stage {
 		modPrint(applyMods, writer, "", "mod/");
 	}
 	
+	/**
+	 * @param applyMods
+	 * @param writer
+	 * @param prefix
+	 * @throws IOException
+	 */
 	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String prefix) throws IOException {
 		modPrint(applyMods, writer, prefix, "mod/");
 	}
 	
+	/**
+	 * @param applyMods
+	 * @param writer
+	 * @param prefix
+	 * @param modfolder
+	 * @throws IOException
+	 */
 	private void modPrint(List<Mod> applyMods, BufferedWriter writer, String prefix, String modfolder) throws IOException {
 		if(!(modfolder.lastIndexOf("/")==modfolder.length()-1)) modfolder+="/";
 		for (Mod mod : applyMods) {
@@ -908,6 +963,11 @@ public class ListManager extends Stage {
 		}
 	}
 	
+	/**
+	 * @param languageCode
+	 * @param writer
+	 * @throws IOException
+	 */
 	private void printLanguageBloc(String languageCode, BufferedWriter writer) throws IOException {
 		writer.write("\tlanguage=" + languageCode + System.getProperty("line.separator") +
 				"\thas_set_language=yes" + System.getProperty("line.separator"));
@@ -927,6 +987,9 @@ public class ListManager extends Stage {
 		return userListArray.size();
 	}
 	
+	/**
+	 * 
+	 */
 	private void loadModFilesArray() {
 		String workLabel = ModManager.isConflictComputed() ? "Generate mods and conflicts..." : "Generate mods...";
 

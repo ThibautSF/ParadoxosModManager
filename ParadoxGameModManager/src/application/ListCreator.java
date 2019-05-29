@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import debug.ErrorPrint;
@@ -770,20 +773,34 @@ public class ListCreator extends Stage {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * @param version
 	 * @throws IOException
 	 */
 	private void getModList() throws IOException {
-		//TODO support Imperator Rome (→ ListManager.java)
+		switch (ModManager.GAME) {
+		case "Imperator":
+			getModListV2();
+			getLanguageV2();
+			break;
+
+		default:
+			getModListV1();
+			break;
+		}
+	}
+	
+	/**
+	 * @throws IOException
+	 */
+	private void getModListV1() throws IOException {
 		String sep = File.separator;
 		Languages language = Languages.getLanguage(null);
-		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
+		File inputFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE);
 
 		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 		
-		String startLineRemove = "last_mods";
-		String aloneLineRemove = "language";
+		String startLineRead = "last_mods";
+		String aloneLineRead = "language";
 		String currentLine;
 		boolean startEdit = false, startRead = false, hasEqual = false, waitEqual = false, languageFound = false;
 
@@ -802,10 +819,10 @@ public class ListCreator extends Stage {
 					hasEqual = true;
 				}
 			}
-			if (trimmedLine.contains(startLineRemove)) {
-				if (trimmedLine.contains(startLineRemove + "={")) {
+			if (trimmedLine.contains(startLineRead)) {
+				if (trimmedLine.contains(startLineRead + "={")) {
 					startEdit = true;
-				} else if (trimmedLine.contains(startLineRemove + "=")) {
+				} else if (trimmedLine.contains(startLineRead + "=")) {
 					hasEqual = true;
 				} else {
 					waitEqual = true;
@@ -813,19 +830,17 @@ public class ListCreator extends Stage {
 				startRead = true;
 			}
 			if (startEdit) {
-				if (startLineRemove.equals("gui")) {
-					startLineRemove = "last_mods";
-				} else {
-					readMods(trimmedLine);
-				}
+				System.out.println(trimmedLine);
+				readMods(trimmedLine);
+				
 				startEdit = false;
 			} else {
 				if (!startRead) {
-					if (!languageFound && trimmedLine.contains(aloneLineRemove)) {
+					if (!languageFound && trimmedLine.contains(aloneLineRead)) {
 						String languageStr = trimmedLine.substring(trimmedLine.indexOf("l_")+2);
 						language = Languages.getLanguage(languageStr.replace("\"", ""));
 						languageFound = true;
-						startLineRemove = "last_mods";
+						startLineRead = "last_mods";
 					}
 					
 				}
@@ -843,26 +858,122 @@ public class ListCreator extends Stage {
 		refresh(language);
 	}
 	
+	/**
+	 * @throws IOException
+	 */
+	private void getModListV2() throws IOException {
+		String sep = File.separator;
+		
+		File inputFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE);
+		
+		FileReader fileReader = new FileReader(inputFile);
+		
+		Gson gson = new Gson();
+		JsonObject json = new JsonObject();
+		
+		json = gson.fromJson(fileReader, JsonObject.class);
+		
+		if(json.keySet().contains("enabled_mods")) {
+			String[] mods = gson.fromJson(json.get("enabled_mods"), String[].class);
+			
+			for (String mod : mods) {
+				readMods(mod);
+			}
+		}
+		
+		fileReader.close();
+	}
+	
+	private void getLanguageV2() throws IOException {
+		String sep = File.separator;
+		Languages language = Languages.getLanguage(null);
+		
+		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
+
+		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+		
+		String startLineRead = "\"language\"";
+		//String aloneLineRead = "language";
+		String currentLine;
+		boolean startEdit = false, startRead = false, hasEqual = false, waitEqual = false, languageFound = false;
+
+		while ((currentLine = reader.readLine()) != null) {
+			// trim newline when comparing with lineToRemove
+			String trimmedLine = currentLine.trim();
+			if (hasEqual && trimmedLine.contains("{")) {
+				hasEqual = false;
+				startEdit = true;
+			}
+			if (waitEqual && trimmedLine.contains("=")) {
+				waitEqual = false;
+				if (trimmedLine.contains("{")) {
+					startEdit = true;
+				} else {
+					hasEqual = true;
+				}
+			}
+			if (trimmedLine.contains(startLineRead)) {
+				if (trimmedLine.contains(startLineRead + "={")) {
+					startEdit = true;
+				} else if (trimmedLine.contains(startLineRead + "=")) {
+					hasEqual = true;
+				} else {
+					waitEqual = true;
+				}
+				startRead = true;
+			}
+			if (startEdit) {
+				if(trimmedLine.indexOf("value=")>=0){
+					String languageStr = trimmedLine.substring(trimmedLine.indexOf("\"")+1, trimmedLine.indexOf("\"")+1);
+					
+					language = Languages.getLanguage(languageStr.replace("\"", ""));
+				}
+				
+				startEdit = false;
+			} else {
+				if (!startRead) {
+					//
+				}
+				
+				if (startRead && !hasEqual && !waitEqual) {
+					if (trimmedLine.contains("}")) {
+						startRead = false;
+					}
+					
+					if (!languageFound && trimmedLine.contains("value=")) {
+						String languageStr = trimmedLine.substring(trimmedLine.indexOf("l_")+2);
+						language = Languages.getLanguage(languageStr.replace("\"", ""));
+						languageFound = true;
+						startLineRead = "aaaaa";
+					}
+				}
+			}
+		}
+		reader.close();
+		
+		refresh(language);
+	}
+	
 	private void readMods(String trimmedLine) {
 		while(trimmedLine.indexOf("/")>=0){
-			String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod\"")+4);
+			String oneModStr = trimmedLine.substring(trimmedLine.indexOf("/")+1, trimmedLine.indexOf(".mod")+4);
 			
 			Mod oneMod = availableMods.get(oneModStr);
 			
-			if(oneMod == null){
-				oneMod = new Mod(oneModStr+".mod");
-				if(!missingMods.contains(oneMod)){
+			if (oneMod == null) {
+				oneMod = new Mod(oneModStr);
+				if (!missingMods.contains(oneMod)) {
 					missingMods.add(oneMod);
 					list.addMod(oneMod);
 				}
-			}else{
-				if(!selectedModsList.contains(oneMod)) {
+			} else {
+				if (!selectedModsList.contains(oneMod)) {
 					selectedModsList.add(oneMod);
 					list.addMod(oneMod);
 				}
 			}
 			
-			trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod\"")+5, trimmedLine.length());
+			trimmedLine = trimmedLine.substring(trimmedLine.indexOf(".mod")+4, trimmedLine.length());
 		}
 	}
 	

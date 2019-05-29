@@ -22,6 +22,7 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import application.ModManager;
+import debug.ErrorPrint;
 import mod.Languages;
 import mod.Mod;
 import mod.ModList;
@@ -164,7 +165,7 @@ public class MyXML {
 						try {
 							modOrder = attribute.getIntValue();
 						} catch (DataConversionException e) {
-							// TODO Bloc catch généré automatiquement
+							ErrorPrint.printError(e, "When reading mod order attribute (import)");
 							e.printStackTrace();
 						}
 						break;
@@ -195,8 +196,6 @@ public class MyXML {
 			}
 			
 			//Append mods with order value
-			System.out.println(sortedMods.toString());
-			System.out.println(sortedMods.values().toString());
 			listMods.addAll(sortedMods.values());
 			
 			//Append mods without order value at the end of the list
@@ -375,7 +374,7 @@ public class MyXML {
 							try {
 								modOrder = attribute.getIntValue();
 							} catch (DataConversionException e) {
-								// TODO Bloc catch généré automatiquement
+								ErrorPrint.printError(e, "When reading mod order attribute (import)");
 								e.printStackTrace();
 							}
 							break;
@@ -406,8 +405,6 @@ public class MyXML {
 				}
 				
 				//Append mods with order value
-				System.out.println(sortedMods.toString());
-				System.out.println(sortedMods.values().toString());
 				listMods.addAll(sortedMods.values());
 				
 				//Append mods without order value at the end of the list
