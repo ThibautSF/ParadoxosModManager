@@ -20,6 +20,26 @@
 		<mkdir dir="externalLibs" />
 	
 		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.opentest4j_1.1.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.junit.platform.engine_1.3.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.junit.jupiter.params_5.3.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.junit.jupiter.api_5.3.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins/org.junit_4.12.0.v201504281640">
 				<filename name="junit.jar"/>
 			</fileset>
@@ -31,32 +51,17 @@
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.platform.launcher_1.1.0.v20180327-1502.jar"/>
+				<filename name="org.junit.platform.runner_1.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.platform.engine_1.1.0.v20180327-1502.jar"/>
+				<filename name="org.junit.platform.commons_1.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.apiguardian_1.0.0.v20180327-1502.jar"/>
-			</fileset>
-		</copy>
-		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.jupiter.api_5.1.0.v20180327-1502.jar"/>
-			</fileset>
-		</copy>
-		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.vintage.engine_5.1.0.v20180327-1502.jar"/>
-			</fileset>
-		</copy>
-		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.jupiter.params_5.1.0.v20180327-1502.jar"/>
+				<filename name="org.apiguardian_1.0.0.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
@@ -71,17 +76,27 @@
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.opentest4j_1.0.0.v20180327-1502.jar"/>
+				<filename name="org.junit.jupiter.engine_5.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.jupiter.migrationsupport_5.1.0.v20180327-1502.jar"/>
+				<filename name="org.junit.vintage.engine_5.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
 			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.platform.runner_1.1.0.v20180327-1502.jar"/>
+				<filename name="org.junit.platform.launcher_1.3.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.junit.jupiter.migrationsupport_5.3.1.v20181005-1442.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
+				<filename name="org.junit.platform.suite.api_1.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
@@ -90,18 +105,8 @@
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.platform.commons_1.1.0.v20180327-1502.jar"/>
-			</fileset>
-		</copy>
-		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.platform.suite.api_1.1.0.v20180327-1502.jar"/>
-			</fileset>
-		</copy>
-		<copy todir="externalLibs">
-			<fileset dir="/home/tsimonfine/.p2/pool/plugins">
-				<filename name="org.junit.jupiter.engine_5.1.0.v20180327-1502.jar"/>
+			<fileset dir="/home/tsimonfine/git/ParadoxosModManager/ParadoxGameModManager">
+				<filename name="gson-2.8.5.jar"/>
 			</fileset>
 		</copy>
 	
@@ -123,23 +128,24 @@
 		<!-- Copy project-libs references -->
 		<copy todir="build/libs">
 			<fileset dir="externalLibs">
-				<include name="org.junit.jupiter.api_5.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.platform.suite.api_1.1.0.v20180327-1502.jar"/>
-				<include name="org.opentest4j_1.0.0.v20180327-1502.jar"/>
+				<include name="org.junit.platform.engine_1.3.1.v20181005-1442.jar"/>
+				<include name="org.junit.jupiter.engine_5.3.1.v20181005-1442.jar"/>
 				<include name="org.hamcrest.core_1.3.0.v20180420-1519.jar"/>
-				<include name="org.junit.platform.commons_1.1.0.v20180327-1502.jar"/>
-				<include name="org.apiguardian_1.0.0.v20180327-1502.jar"/>
 				<include name="junit.jar"/>
+				<include name="org.junit.jupiter.params_5.3.1.v20181005-1442.jar"/>
 				<include name="mockito-all-1.9.5.jar"/>
-				<include name="org.junit.platform.engine_1.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.jupiter.engine_5.1.0.v20180327-1502.jar"/>
+				<include name="org.apiguardian_1.0.0.v20181005-1442.jar"/>
+				<include name="org.junit.vintage.engine_5.3.1.v20181005-1442.jar"/>
+				<include name="org.junit.platform.suite.api_1.3.1.v20181005-1442.jar"/>
 				<include name="fontawesomefx-8.9.jar"/>
+				<include name="org.junit.jupiter.api_5.3.1.v20181005-1442.jar"/>
+				<include name="gson-2.8.5.jar"/>
+				<include name="org.opentest4j_1.1.1.v20181005-1442.jar"/>
 				<include name="jdom-2.0.6.jar"/>
-				<include name="org.junit.platform.launcher_1.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.jupiter.migrationsupport_5.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.vintage.engine_5.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.jupiter.params_5.1.0.v20180327-1502.jar"/>
-				<include name="org.junit.platform.runner_1.1.0.v20180327-1502.jar"/>
+				<include name="org.junit.platform.runner_1.3.1.v20181005-1442.jar"/>
+				<include name="org.junit.platform.commons_1.3.1.v20181005-1442.jar"/>
+				<include name="org.junit.platform.launcher_1.3.1.v20181005-1442.jar"/>
+				<include name="org.junit.jupiter.migrationsupport_5.3.1.v20181005-1442.jar"/>
 			</fileset>
 		</copy>
 	
@@ -211,7 +217,7 @@
 			<manifest>
 				<attribute name="Implementation-Vendor" value="ParadoxosModManager"/>
 				<attribute name="Implementation-Title" value="Paradoxos Mod Manager"/>
-				<attribute name="Implementation-Version" value="0.6.1"/>
+				<attribute name="Implementation-Version" value="0.7.0"/>
 				<attribute name="JavaFX-Feature-Proxy" value="None"/>
 			</manifest>
 		</fx:jar>
