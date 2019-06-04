@@ -39,7 +39,7 @@ import window.WorkIndicatorDialog;
  */
 public class OnlineVersionChecker {
 	private static String URL_APP_RELEASES = "https://github.com/ThibautSF/ParadoxosModManager/releases";
-	private static String URL_APP_INFO_TXT = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
+	private static String URL_APP_INFO_TXT = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfoV2.txt";
 	
 	private static String VERSION = "0.7.0";
 	
