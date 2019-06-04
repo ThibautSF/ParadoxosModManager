@@ -1,3 +1,13 @@
+AppVersion=0.7.0
+- WARNING : AUTOMATIC UPDATE DON'T WORK. Sorry for the inconvenience.
+You will need to use "All versions" option, then download "ParadoxosModManager0.7.0.zip" (or more recent) and extract&replace content of the zip file in your previous installation (in order to keep your lists)
+- Mod Ordering : You can now make your own mod order and chose which mod will be loaded first !
+- Imperator Rome : Add support for the new Paradox game !
+- Click on steam icon for a mod will now open the mod's workshop page through steam app (right click on the line will still open it with web navigator)
+- Add a "select all" button to select (or deselect) all mods during a Modlist edition
+- Mod conflict : add parameter to show the conflicted files (since this information is useless for common user, it's now hidden by default)
+- Add new confirm dialogs (we don't like to make mistakes...)
+
 AppVersion=0.6.1
 - Improve mod archive relative path detection
 - Correct archive path for unix system
