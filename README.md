@@ -8,6 +8,7 @@ I develop this app because i often have lots of mods and games with differents l
 * Europa Universalis IV
 * Stellaris
 * Hearts of Iron 4
+* Imperator Rome
 
 ## Requirements
 * OS : Windows, Linux, MacOS
@@ -36,7 +37,6 @@ On this [Google Doc (https://drive.google.com/open?id=1DFCgmSFUUZ2IRY-ON1bOVZki9
 * [GROSJEAN Nicolas (alias Mouchi)](https://github.com/NicolasGrosjean) : Contributor
 
 ### Contact (suggestions, reports...)
-* Send a mail at contact.paradoxos@gmail.com
-  - For a bug report : Add all informations you can add (OS, java version, image(s), file “DebugLog.txt”...)
+**For a bug report : Add all informations you can add (OS, java version, image(s), file “DebugLog.txt”...)**
 * Use one of the presentation thread on the paradoxplazza forum
 * Open an [issue thread](https://github.com/ThibautSF/ParadoxosModManager/issues)
