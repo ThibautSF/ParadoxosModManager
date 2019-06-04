@@ -41,7 +41,7 @@ public class OnlineVersionChecker {
 	private static String URL_APP_RELEASES = "https://github.com/ThibautSF/ParadoxosModManager/releases";
 	private static String URL_APP_INFO_TXT = "https://raw.githubusercontent.com/ThibautSF/ParadoxosModManager/master/AppInfo.txt";
 	
-	private static String VERSION = "0.6.1";
+	private static String VERSION = "0.7.0";
 	
 	private String lastestOnlineVersionNumber;
 	
