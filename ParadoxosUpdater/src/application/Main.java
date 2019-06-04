@@ -19,7 +19,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Unzipper.unZipIt(UPDATE_ZIP_NAME, EXTRACT_DIR);
+		Unzipper.extract(UPDATE_ZIP_NAME, EXTRACT_DIR);
 		
 		File zip = new File(UPDATE_ZIP_NAME);
 		zip.delete();

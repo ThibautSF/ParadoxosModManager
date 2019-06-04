@@ -3,6 +3,7 @@
  */
 package application;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,59 +13,74 @@ import java.util.zip.ZipInputStream;
 
 /**
  * @author mkyong (Founder of Mkyong.com), SIMON-FINE Thibaut (alias Bisougai)
- *
+ * Updated src : https://stackoverflow.com/a/10634536
  */
 public class Unzipper {
+	private static final int BUFFER_SIZE = 4096;
 	
 	/**
-	 * Unzip it
-	 * @param zipFile input zip file
-	 * @param output zip file output folder
+	 * Extract zipfile to outdir with complete directory structure
+	 * @param zipFile input zip file string
+	 * @param output zip file output folder string
 	 */
-	public static void unZipIt(String zipFile, String outputFolder){
-		byte[] buffer = new byte[1024];
-		try{
-			//create output directory is not exists
-			File folder = new File(outputFolder);
-			if(!folder.exists()){
-				folder.mkdir();
-			}
-			
-			//get the zip file content
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-			//get the zipped file list entry
-			ZipEntry ze = zis.getNextEntry();
-			
-			while(ze!=null){
-				String fileName = ze.getName();
-				if (fileName.equals(Main.UPDATER_NAME)) {
-					fileName = "New_"+fileName;
+	public static void extract(String zipFile, String outputFolder) {
+		extract(new File(zipFile), new File(outputFolder));
+	}
+	
+	/***
+	 * Extract zipfile to outdir with complete directory structure
+	 * @param zipfile Input .zip file
+	 * @param outdir Output directory
+	 */
+	public static void extract(File zipfile, File outdir) {
+		try {
+			ZipInputStream zin = new ZipInputStream(new FileInputStream(zipfile));
+			ZipEntry entry;
+			String name, dir;
+			while ((entry = zin.getNextEntry()) != null) {
+				name = entry.getName();
+				if(entry.isDirectory()) {
+					mkdirs(outdir,name);
+					continue;
 				}
-				File newFile = new File(outputFolder + File.separator + fileName);
-				
-				//System.out.println("file unzip : "+ newFile.getAbsoluteFile());
-				
-				//create all non exists folders
-				//else you will hit FileNotFoundException for compressed folder
-				new File(newFile.getParent()).mkdirs();
-				
-				FileOutputStream fos = new FileOutputStream(newFile);
-				
-				int len;
-				while ((len = zis.read(buffer)) > 0) {
-					fos.write(buffer, 0, len);
+				if (name.equals(Main.UPDATER_NAME)) {
+					name = "New_"+name;
 				}
+				/* this part is necessary because file entry can come before
+				 * directory entry where is file located
+				 * i.e.:
+				 *   /foo/foo.txt
+				 *   /foo/
+				 */
+				dir = dirpart(name);
+				if(dir != null)
+					mkdirs(outdir,dir);
 				
-				fos.close();
-				ze = zis.getNextEntry();
+				extractFile(zin, outdir, name);
 			}
-			
-			zis.closeEntry();
-			zis.close();
-			
-			//System.out.println("Done");
-		}catch(IOException ex){
-			ex.printStackTrace();
+			zin.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
+		byte[] buffer = new byte[BUFFER_SIZE];
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outdir,name)));
+		int count = -1;
+		while ((count = in.read(buffer)) != -1)
+			out.write(buffer, 0, count);
+		out.close();
+	}
+	
+	private static void mkdirs(File outdir,String path) {
+		File d = new File(outdir, path);
+		if(!d.exists())
+			d.mkdirs();
+	}
+	
+	private static String dirpart(String name) {
+		int s = name.lastIndexOf(File.separatorChar);
+		return s == -1 ? null : name.substring(0, s);
 	}
 }
