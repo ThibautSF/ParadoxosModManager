@@ -39,6 +39,7 @@ public class MyXML {
 	private static final String NAME = "name";
 	private static final String CUSTOM_ORDER = "customOrder";
 	private static final String DESCR = "descr";
+	private static final String LAUNCHARGS = "launchargs";
 	private static final String LANG = "lang";
 	private static final String MOD = "mod";
 	private static final String ID = "id";
@@ -128,22 +129,32 @@ public class MyXML {
 			
 			Element oneListElement = (Element) i.next();
 			String listName = oneListElement.getAttribute(NAME).getValue();
+			
 			boolean listCustomOrder = false;
 			try {
-				listCustomOrder = oneListElement.getAttribute(CUSTOM_ORDER).getBooleanValue();
-			} catch (NullPointerException e) {
-				// Attribute missing
+				Attribute customOrderAttribute = oneListElement.getAttribute(CUSTOM_ORDER);
+				if (customOrderAttribute != null) {
+					listCustomOrder = customOrderAttribute.getBooleanValue();
+				}
 			} catch (DataConversionException e) {
 				// Bad value
 			}
 			
-			String listDescr = oneListElement.getChild(DESCR).getText();
-			String listLang;
-			try {
-				listLang = oneListElement.getChild(LANG).getText();
-			} catch (RuntimeException e) {
-				listLang = null;
-			}
+			String listDescr = "";
+			Element listDescrElement = oneListElement.getChild(DESCR);
+			if (listDescrElement != null)
+				listDescr = listDescrElement.getText();
+			
+			String launchArgs = "";
+			Element listArgsElement = oneListElement.getChild(LAUNCHARGS);
+			if (listArgsElement != null)
+				launchArgs = listArgsElement.getText();
+			
+			String listLang = null;
+			Element listLangElement = oneListElement.getChild(LANG);
+			if (listLangElement != null)
+				listLang = listLangElement.getText();
+			
 			List<Element> modsElements = oneListElement.getChildren(MOD);
 			for (Element modElement : modsElements) {
 				List<Attribute> modElementAttr = modElement.getAttributes();
@@ -208,7 +219,7 @@ public class MyXML {
 			listMods.addAll(unsortedMods);
 			
 			ModList oneList = new ModList(listName, listDescr,
-					Languages.getLanguage(listLang),listMods, listCustomOrder);
+					Languages.getLanguage(listLang),listMods, listCustomOrder, launchArgs);
 			userLists.add(oneList);
 		}
 		return userLists;
@@ -244,12 +255,12 @@ public class MyXML {
 	 * @throws Exception
 	 */
 	public void modifyList(ModList list, String listName) throws Exception {
-		Element oneListElement=null,listDescrElement,listLangElement,listModElement;
+		Element oneListElement=null, listDescrElement, listArgsElement, listLangElement, listModElement;
 		List<Mod> listMods;
 		
 		boolean isNew = (listName!=null) ? false : true;
 		
-		if(!isNew){
+		if (!isNew) {
 			List<Element> modLists = root.getChildren(LIST);
 			Iterator<Element> i = modLists.iterator();
 			while(i.hasNext()) {
@@ -262,31 +273,37 @@ public class MyXML {
 			}
 		}
 		
-		if(isNew || oneListElement==null) {
+		if (oneListElement != null) {
+			oneListElement.removeChildren(MOD);
+		} else {
 			oneListElement = new Element(LIST);
 			root.addContent(oneListElement);
+		}
+		
+		listDescrElement = oneListElement.getChild(DESCR);
+		if (listDescrElement == null) {
 			listDescrElement = new Element(DESCR);
 			oneListElement.addContent(listDescrElement);
+		}
+		
+		listLangElement = oneListElement.getChild(LANG);
+		if (listLangElement == null) {
 			listLangElement = new Element(LANG);
 			oneListElement.addContent(listLangElement);
-		} else {
-			oneListElement.removeChildren(MOD);
-			listDescrElement = oneListElement.getChild(DESCR);
-			listLangElement = oneListElement.getChild(LANG);
+		}
+		
+		listArgsElement = oneListElement.getChild(LAUNCHARGS);
+		if (listArgsElement == null) {
+			listArgsElement = new Element(LAUNCHARGS);
+			oneListElement.addContent(listArgsElement);
 		}
 		
 		oneListElement.setAttribute(NAME, list.getName());
 		oneListElement.setAttribute(CUSTOM_ORDER, list.isCustomOrder()+"");
 		
 		listDescrElement.setText(list.getDescription());
-		
-		if (listLangElement != null) {
-			listLangElement.setText(list.getLanguageName());
-		} else {
-			listLangElement = new Element(LANG);
-			listLangElement.setText(list.getLanguageName());
-			oneListElement.addContent(listLangElement);
-		}
+		listArgsElement.setText(list.getLaunchArgs());
+		listLangElement.setText(list.getLanguageName());
 		
 		listMods = list.getModlist();
 		for (int i = 0; i < listMods.size(); i++) {
@@ -336,22 +353,31 @@ public class MyXML {
 				
 				Element oneListElement = (Element) i.next();
 				String listName = oneListElement.getAttribute(NAME).getValue();
+				
 				boolean listCustomOrder = false;
 				try {
-					listCustomOrder = oneListElement.getAttribute(CUSTOM_ORDER).getBooleanValue();
-				} catch (NullPointerException e) {
-					// Attribute missing
+					Attribute customOrderAttribute = oneListElement.getAttribute(CUSTOM_ORDER);
+					if (customOrderAttribute != null) {
+						listCustomOrder = customOrderAttribute.getBooleanValue();
+					}
 				} catch (DataConversionException e) {
 					// Bad value
 				}
 				
-				String listDescr = oneListElement.getChild(DESCR).getText();
-				String listLang;
-				try {
-					listLang = oneListElement.getChild(LANG).getText();
-				} catch (RuntimeException e) {
-					listLang = null;
-				}
+				String listDescr = "";
+				Element listDescrElement = oneListElement.getChild(DESCR);
+				if (listDescrElement != null)
+					listDescr = listDescrElement.getText();
+				
+				String launchArgs = "";
+				Element listArgsElement = oneListElement.getChild(LAUNCHARGS);
+				if (listArgsElement != null)
+					launchArgs = listArgsElement.getText();
+				
+				String listLang = null;
+				Element listLangElement = oneListElement.getChild(LANG);
+				if (listLangElement != null)
+					listLang = listLangElement.getText();
 				
 				List<Element> modsElements = oneListElement.getChildren(MOD);
 				for (Element modElement : modsElements) {
@@ -418,7 +444,7 @@ public class MyXML {
 				
 				
 				ModList oneList = new ModList("[Imported]"+listName+"_"+System.currentTimeMillis(), listDescr,
-						Languages.getLanguage(listLang), listMods, listCustomOrder);
+						Languages.getLanguage(listLang), listMods, listCustomOrder, launchArgs);
 				modifyList(oneList);
 			}
 			return "Import done.";

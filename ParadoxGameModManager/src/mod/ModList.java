@@ -18,6 +18,7 @@ public class ModList {
 	//
 	private SimpleStringProperty name;
 	private SimpleStringProperty description;
+	private SimpleStringProperty launchargs;
 	private Languages language;
 	private boolean customOrder;
 	private List<Mod> modlist;
@@ -31,48 +32,42 @@ public class ModList {
 	 * @param language
 	 * @param modlist
 	 * @param customOrder
+	 * @param launchargs
 	 */
-	public ModList(String name, String description, Languages language, List<Mod> modlist, boolean customOrder) {
-		this.name=new SimpleStringProperty(name);
-		this.description=new SimpleStringProperty(description);
-		this.language=language;
+	public ModList(String name, String description, Languages language, List<Mod> modlist, boolean customOrder, String launchargs) {
+		this.name = new SimpleStringProperty(name);
+		this.description = new SimpleStringProperty(description);
+		this.language = language;
+		this.modlist = modlist;
 		this.customOrder = customOrder;
-		this.modlist=modlist;
+		this.launchargs = new SimpleStringProperty(launchargs);
 		computeConflicts(modlist);
 	}
 	
 	public ModList(String name, String description, Languages language, List<Mod> modlist) {
-		this(name, description, language, modlist, false);
+		this(name, description, language, modlist, false, "");
 	}
 	
 	//
 	// Getters and Setters
 	//
-	/**
-	 * @return
-	 */
 	public String getName() {
 		return name.get();
 	}
-
-	/**
-	 * @param name
-	 */
+	
 	public void setName(String name) {
+		if (name != null)
+			name = name.trim();
 		this.name = new SimpleStringProperty(name);
 	}
-
-	/**
-	 * @return
-	 */
+	
 	public String getDescription() {
 		return description.get();
 	}
 	
-	/**
-	 * @param description
-	 */
 	public void setDescription(String description){
+		if (description != null)
+			description = description.trim();
 		this.description = new SimpleStringProperty(description);
 	}
 	
@@ -98,6 +93,16 @@ public class ModList {
 	
 	public void setCustomOrder(boolean customOrder) {
 		this.customOrder = customOrder;
+	}
+	
+	public String getLaunchArgs() {
+		return this.launchargs.get();
+	}
+	
+	public void setLaunchArgs(String launchargs) {
+		if (launchargs != null)
+			launchargs = launchargs.trim();
+		this.launchargs = new SimpleStringProperty(launchargs);
 	}
 	
 	/**

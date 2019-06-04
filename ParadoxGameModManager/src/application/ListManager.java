@@ -424,7 +424,10 @@ public class ListManager extends Stage {
 								if(Desktop.isDesktopSupported()){
 									new Thread(() -> {
 										try {
-											URI uri = new URI("steam://run/"+ModManager.STEAM_ID);
+											String uristr = "steam://run/"+ModManager.STEAM_ID;
+											if (toApply.getLaunchArgs().length()>0)
+												uristr += "//"+toApply.getLaunchArgs();
+											URI uri = new URI(uristr);
 											Desktop.getDesktop().browse(uri);
 										} catch (IOException | URISyntaxException e) {
 											ErrorPrint.printError(e);
