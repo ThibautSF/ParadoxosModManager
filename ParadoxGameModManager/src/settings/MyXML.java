@@ -186,7 +186,7 @@ public class MyXML {
 						}
 					}
 				}
-				if (!listMods.contains(oneMod)) {
+				if (!unsortedMods.contains(oneMod) && !sortedMods.values().contains(oneMod)) {
 					if (modOrder>=0) {
 						sortedMods.put(modOrder, oneMod);
 					} else {
@@ -276,7 +276,7 @@ public class MyXML {
 		}
 		
 		oneListElement.setAttribute(NAME, list.getName());
-		oneListElement.setAttribute(CUSTOM_ORDER,list.isCustomOrder()+"");
+		oneListElement.setAttribute(CUSTOM_ORDER, list.isCustomOrder()+"");
 		
 		listDescrElement.setText(list.getDescription());
 		
@@ -395,7 +395,7 @@ public class MyXML {
 							}
 						}
 					}
-					if (!listMods.contains(oneMod)) {
+					if (!unsortedMods.contains(oneMod) && !sortedMods.values().contains(oneMod)) {
 						if (modOrder>=0) {
 							sortedMods.put(modOrder, oneMod);
 						} else {

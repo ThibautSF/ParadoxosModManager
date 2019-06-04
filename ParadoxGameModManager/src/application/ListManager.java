@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -572,8 +574,17 @@ public class ListManager extends Stage {
 		//Clean customModFiles
 		deleteCustomModFiles();
 		
-		if(applyList.isCustomOrder()) {
+		if (applyList.isCustomOrder()) {
+			//Generate .mod files with custom name
 			generateCustomModFiles(applyMods);
+		} else {
+			//Sort list to ASCII order before apply
+			Collections.sort(applyMods, new Comparator<Mod>() {
+				@Override
+				public int compare(Mod m1, Mod m2) {
+					return m1.getName().compareTo(m2.getName());
+				}
+			});
 		}
 		
 		File inputFile = new File(ModManager.PATH+sep+ModManager.SETTING_FILE);
@@ -682,8 +693,17 @@ public class ListManager extends Stage {
 		//Clean customModFiles
 		deleteCustomModFiles();
 		
-		if(applyList.isCustomOrder()) {
+		if (applyList.isCustomOrder()) {
+			//Generate .mod files with custom name
 			generateCustomModFiles(applyMods);
+		} else {
+			//Sort list to ASCII order before apply
+			Collections.sort(applyMods, new Comparator<Mod>() {
+				@Override
+				public int compare(Mod m1, Mod m2) {
+					return m1.getName().compareTo(m2.getName());
+				}
+			});
 		}
 		
 		File inputFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE);
