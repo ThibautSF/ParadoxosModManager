@@ -2,6 +2,7 @@ package application;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.jdom2.DataConversionException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import debug.ErrorPrint;
 import javafx.application.Application;
@@ -51,14 +55,19 @@ public class ModManager extends Application {
 	public static String UPDATE_ZIP_NAME = "update.zip";
 	public static String UPDATER_NAME = "Updater.jar";
 	
-	public static ObservableList<String> SUPPORTED_GAMES = FXCollections.observableArrayList("Stellaris", "Europa Universalis IV", "Crusader Kings II", "Hearts of Iron IV", "Imperator");
+	private static String SUPPORTED_GAMES_FILE = "supported_games.json";
+	private static ObservableList<String> SUPPORTED_GAMES_LABELS = FXCollections.observableArrayList();
+	private static JsonObject SUPPORTED_GAMES_JSON;
+	/*
 	public static List<Integer> GAMES_STEAM_ID = Arrays.asList(                                281990,            236850,                203770,             394360,           859580);
 	public static List<String> GAMES_SETTING_FILES = Arrays.asList(                         "settings.txt",     "settings.txt",       "settings.txt",     "settings.txt", "pdx_settings.txt");
 	public static List<String> GAMES_ACTMOD_FILES = Arrays.asList(                          "settings.txt",     "settings.txt",       "settings.txt",     "settings.txt",  "dlc_load.json");
 	public static List<String> GAMES_ACTMOD_TYPE = Arrays.asList(                              "txt",              "txt",                "txt",              "txt",            "json");
+	*/
 	
 	public static String APP_NAME = "Paradoxos Mod Manager";
 	public static String PATH;
+	public static String GAME_LABEL;
 	public static String GAME;
 	public static Integer STEAM_ID;
 	public static String SETTING_FILE;
@@ -83,12 +92,29 @@ public class ModManager extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		Gson gson = new Gson();
+		JsonObject supportedGamesJson = new JsonObject();
+		
+		File inputFile = new File(SUPPORTED_GAMES_FILE);
+		
+		FileReader fileReader = new FileReader(inputFile);
+		
+		supportedGamesJson = gson.fromJson(fileReader, JsonObject.class);
+		supportedGamesJson.remove("_comment");
+		SUPPORTED_GAMES_JSON = supportedGamesJson;
+		
+		for (String gameLabel : supportedGamesJson.keySet()) {
+			SUPPORTED_GAMES_LABELS.add(gameLabel);
+		}
+		
+		fileReader.close();
+		
 		start(primaryStage, false);
 	}
 	
 	public void start(Stage primaryStage, boolean reload) throws Exception {
 		
-		if(!reload){
+		if (!reload) {
 			File zip = new File(UPDATE_ZIP_NAME);
 			zip.delete();
 			
@@ -102,7 +128,7 @@ public class ModManager extends Application {
 		settingsXML.readSettingFile(SETTINGS_FILE_XML);
 		
 		if(initApp()){
-			settingsXML.modifyGameSettings(STEAM_ID, "docfolderpath", PATH);
+			settingsXML.modifyGameSettings(GAME_LABEL, "docfolderpath", PATH);
 			
 			//Create a dir to save lists of the selected game
 			xmlDir = new File(GAME);
@@ -173,7 +199,7 @@ public class ModManager extends Application {
 	 * @param exeUserPath
 	 * @return
 	 */
-	private boolean initApp(String docUserPath, String exeUserPath){
+	private boolean initApp(String docUserPath, String exeUserPath) {
 		Dialog<List<String>> dialog = new Dialog<>();
 		dialog.setTitle(APP_NAME);
 		dialog.setHeaderText("Choose a game");
@@ -189,7 +215,7 @@ public class ModManager extends Application {
 		
 		//grid.setGridLinesVisible(true);
 		
-		ChoiceBox<String> choiceGame = new ChoiceBox<String>(SUPPORTED_GAMES);
+		ChoiceBox<String> choiceGame = new ChoiceBox<String>(SUPPORTED_GAMES_LABELS);
 		
 		TextField docPath = new TextField();
 		docPath.setMinWidth(500);
@@ -205,28 +231,30 @@ public class ModManager extends Application {
 			new ChangeListener<Number>() {
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					String newGame = SUPPORTED_GAMES.get((int) newValue);
-					Integer newSteamID = GAMES_STEAM_ID.get((int) newValue);
-					String docPathParam=null;
+					String newLabel = SUPPORTED_GAMES_LABELS.get((int) newValue);
+					JsonObject json = SUPPORTED_GAMES_JSON.get(newLabel).getAsJsonObject();
+					String newGame = json.get("game_name").getAsString();
+					Integer newSteamID = json.get("steam_id").getAsInt();
+					String docPathParam = null;
 					try {
 						//ModManager.APP_PARAMS = settingsXML.getGameSettings(newSteamID);
-						docPathParam = settingsXML.getOneGameSetting(newSteamID,"docfolderpath");
+						docPathParam = settingsXML.getOneGameSetting(newLabel, "docfolderpath");
 					} catch (DataConversionException e) {
 						ErrorPrint.printError(e, "Error reading the saved params for gameID : '"+newSteamID+"'");
 						e.printStackTrace();
 					}
 					String newPath;
 					//String docPathParam = ModManager.APP_PARAMS.get("docfolderpath");
-					if(docPathParam!=null){
+					if (docPathParam!=null) {
 						newPath = docPathParam;
-					} else{
+					} else {
 						newPath = generatePath(newGame);
 					}
 					docPath.setText(newPath);
 					gamePath.setText("Steam launch | steam://run/"+newSteamID);
 					dirDocChooser.setTitle("Choose document path for "+newGame);
 					File f = new File(newPath);
-					if(f.isDirectory())
+					if (f.isDirectory())
 						dirDocChooser.setInitialDirectory(f);
 					else
 						dirDocChooser.setInitialDirectory(new File(File.separator));
@@ -340,12 +368,14 @@ public class ModManager extends Application {
 		
 		if(result.isPresent()){
 			List<String> result_list = result.get();
-			GAME = result_list.get(0);
-			int i = SUPPORTED_GAMES.indexOf(GAME);
-			STEAM_ID = GAMES_STEAM_ID.get(i);
-			SETTING_FILE = GAMES_SETTING_FILES.get(i);
-			ACTMOD_FILE = GAMES_ACTMOD_FILES.get(i);
-			ACTMOD_TYPE = GAMES_ACTMOD_FILES.get(i);
+			
+			GAME_LABEL = result_list.get(0);
+			JsonObject json = SUPPORTED_GAMES_JSON.get(GAME_LABEL).getAsJsonObject();
+			GAME = json.get("game_name").getAsString();
+			STEAM_ID = json.get("steam_id").getAsInt();
+			SETTING_FILE = json.get("setting_file").getAsString();
+			ACTMOD_FILE = json.get("actmod_file").getAsString();
+			ACTMOD_TYPE = json.get("actmod_type").getAsString();
 			
 			String docPathStr = result_list.get(1);
 			String exePathStr = result_list.get(2);
@@ -358,17 +388,17 @@ public class ModManager extends Application {
 			docPathStr = docPathStr.replaceAll("(\\\\+|/+)", Matcher.quoteReplacement(File.separator));
 			if(!(docPathStr.lastIndexOf(File.separator)==docPathStr.length()-1)) docPathStr+=File.separator;
 			
-			if(checkPath(docPathStr)){
+			if (checkPath(docPathStr)) {
 				PATH = docPathStr;
 				return true;
-			}else{
+			} else {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Error Dialog");
 				alert.setHeaderText(null);
 				alert.setContentText("The document path is not correct !");
 				alert.showAndWait();
 				
-				return initApp(docPathStr,exePathStr);
+				return initApp(docPathStr, exePathStr);
 			}
 		}
 		return false;
@@ -378,7 +408,7 @@ public class ModManager extends Application {
 	 * @param path
 	 * @return
 	 */
-	public boolean checkPath(String path){
+	public boolean checkPath(String path) {
 		File docFolder = new File(path);
 		
 		if(docFolder.exists()){

@@ -100,8 +100,8 @@ public class ListCreator extends Stage {
 	private ComboBox<Languages> cbListLang = new ComboBox<>(FXCollections.observableArrayList(Languages.values()));
 	
 	private VBox yrModsBox = new VBox();
-	private String lblYrMods = "Your mods (%d founds)";
-	private Label yourMods = new Label(lblYrMods);
+	private String strYrMods = "Your mods (%d founds)";
+	private Label lblYrMods = new Label(strYrMods);
 	
 	private VBox listBox = new VBox();
 	private TableView<Mod> mods = new TableView<Mod>();
@@ -112,10 +112,13 @@ public class ListCreator extends Stage {
 	private TableColumn<Mod, String> versionCol = new TableColumn<Mod, String>("Version");
 	private TableColumn<Mod, String> steamPath = new TableColumn<Mod, String>("Workshop");
 	
-	private HBox customOrderBox = new HBox();
-	private CheckBox cbCustomOrder = new CheckBox("Use custom order");
+	private VBox customOrderBox = new VBox();
+	private CheckBox cbCustomOrder = new CheckBox("Use custom order (ASCII order otherwise)");
+	private String strOrderInfo = "";
+	private Label lblOrderInfo = new Label(strOrderInfo);
 	private HBox resetOrderBox = new HBox();
 	private Button btnResetOrder = new Button("Reset ASCII order");
+	private Button btnResetInvOrder = new Button("Reset reverse ASCII order");
 	
 	private VBox listOrderBox = new VBox();
 	private TableView<Mod> modsOrdering = new TableView<Mod>();
@@ -265,10 +268,10 @@ public class ListCreator extends Stage {
 		
 		//ModList "Your mods" field
 		window.add(yrModsBox, 1, 2, 4, 1);
-		yrModsBox.getChildren().add(yourMods);
+		yrModsBox.getChildren().add(lblYrMods);
 		yrModsBox.setStyle("-fx-alignment: center;");
-		yourMods.setText(String.format(lblYrMods,userMods.size()));
-		yourMods.setStyle("-fx-font: bold 20 serif;");
+		lblYrMods.setText(String.format(strYrMods,userMods.size()));
+		lblYrMods.setStyle("-fx-font: bold 20 serif;");
 		
 		//ModList list of mods (start)
 		window.add(listBox, 1, 3, 4, 1);
@@ -387,8 +390,20 @@ public class ListCreator extends Stage {
 		//Use custom mod order
 		window.add(customOrderBox, 5, 1, 1, 1);
 		customOrderBox.setStyle("-fx-alignment: bottom-left;");
-		customOrderBox.getChildren().addAll(cbCustomOrder);
+		customOrderBox.getChildren().addAll(cbCustomOrder, lblOrderInfo);
 		cbCustomOrder.setSelected(list.isCustomOrder());
+		
+		switch (ModManager.ACTMOD_TYPE) {
+		case "json":
+			//Version 2 → Imperator, new launcher Stellaris/EU4 (like)
+			lblOrderInfo.setText("New order detected: #1 is loaded firstly by the game.\nThus mods will be applied bottom to top.");
+			break;
+
+		default:
+			//Version 1 → Crusader Kings II to Stellaris legacy (like)
+			lblOrderInfo.setText("Legacy order detected: #1 is loaded lastly by the game.\nThus mods will be applied top to bottom.");
+			break;
+		}
 		
 		//TableView order mods (start)
 		window.add(listOrderBox, 5, 2, 1, 3);
@@ -701,7 +716,8 @@ public class ListCreator extends Stage {
 		//Reset mod ordering button (start)
 		window.add(resetOrderBox, 5, 5, 1, 1);
 		resetOrderBox.setStyle("-fx-alignment: center;");
-		resetOrderBox.getChildren().addAll(btnResetOrder);
+		resetOrderBox.setSpacing(5);
+		resetOrderBox.getChildren().addAll(btnResetOrder, btnResetInvOrder);
 		
 		btnResetOrder.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -724,6 +740,34 @@ public class ListCreator extends Stage {
 							@Override
 							public int compare(Mod m1, Mod m2) {
 								return m1.getName().compareTo(m2.getName());
+							}
+						});
+					}
+				}
+			}//end action
+		});
+		
+		btnResetInvOrder.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent t) {
+				String title = "Reset to default reverse order";
+				String header = "What do you want to do ?";
+				String message = "";
+				
+				List<ButtonType> buttons = new ArrayList<ButtonType>();
+				
+				ButtonType buttonOk = new ButtonType("Continue");
+				
+				buttons.add(buttonOk);
+				
+				Optional<ButtonType> choice = BasicDialog.showGenericConfirm(title, header, message, buttons, true);
+				
+				if(choice.get().getButtonData()!=ButtonData.CANCEL_CLOSE){
+					if(choice.get() == buttonOk){
+						Collections.sort(selectedModsList, new Comparator<Mod>() {
+							@Override
+							public int compare(Mod m1, Mod m2) {
+								return -m1.getName().compareTo(m2.getName());
 							}
 						});
 					}
@@ -777,8 +821,8 @@ public class ListCreator extends Stage {
 	 * @throws IOException
 	 */
 	private void getModList() throws IOException {
-		switch (ModManager.GAME) {
-		case "Imperator":
+		switch (ModManager.ACTMOD_TYPE) {
+		case "json":
 			getModListV2();
 			getLanguageV2();
 			break;

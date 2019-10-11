@@ -548,8 +548,8 @@ public class ListManager extends Stage {
 	private boolean applyModList(ModList applyList) throws IOException {
 		boolean status = false;
 		
-		switch (ModManager.GAME) {
-		case "Imperator":
+		switch (ModManager.ACTMOD_TYPE) {
+		case "json":
 			//Version 2 → Imperator (like)
 			status = applyOneModListV2(applyList);
 			status = applyLanguageV2(applyList.getLanguageCode());
@@ -708,6 +708,8 @@ public class ListManager extends Stage {
 				}
 			});
 		}
+		
+		Collections.reverse(applyMods);
 		
 		File inputFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE);
 		File tempFile = new File(ModManager.PATH+sep+ModManager.ACTMOD_FILE+".tmp");

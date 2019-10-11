@@ -50,7 +50,7 @@ public class MyXML {
 	
 	private static final String APP_SETTINGS = "appsettings";
 	private static final String GAME = "game";
-	private static final String ATTR_STEAMID = "steamid";
+	private static final String ATTR_GAMELABEL = "gamelabel";
 	private static final String ATTR_VALUE = "value";
 	
 	private static Element root;
@@ -456,14 +456,14 @@ public class MyXML {
 	 * @throws DataConversionException 
 	 * 
 	 */
-	public HashMap<String, String> getGameSettings(Integer gameID) throws DataConversionException {
+	public HashMap<String, String> getGameSettings(String gameLabel) throws DataConversionException {
 		HashMap<String, String> params = new HashMap<>();
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
 		while(i.hasNext()){
 			Element oneListElement = (Element) i.next();
 			
-			if (gameID==oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+			if (gameLabel.equals(oneListElement.getAttributeValue(ATTR_GAMELABEL))) {
 				List<Element> gameParamsElements = oneListElement.getChildren();
 				for (Element element : gameParamsElements) {
 					params.put(element.getName(), element.getAttributeValue(ATTR_VALUE));
@@ -478,13 +478,13 @@ public class MyXML {
 	 * @throws DataConversionException 
 	 * 
 	 */
-	public String getOneGameSetting(Integer gameID, String attrName) throws DataConversionException {
+	public String getOneGameSetting(String gameLabel, String attrName) throws DataConversionException {
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
 		while(i.hasNext()){
 			Element oneListElement = (Element) i.next();
 			
-			if (gameID==oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+			if (gameLabel.equals(oneListElement.getAttributeValue(ATTR_GAMELABEL))) {
 				List<Element> gameParamsElements = oneListElement.getChildren();
 				for (Element element : gameParamsElements) {
 					if(element.getName().equals(attrName)){
@@ -497,14 +497,14 @@ public class MyXML {
 		return null;
 	}
 	
-	public void modifyGameSettings(Integer gameID, String attrName, String value) throws Exception {
+	public void modifyGameSettings(String gameLabel, String attrName, String value) throws Exception {
 		List<Element> gameLists = root.getChildren(GAME);
 		Iterator<Element> i = gameLists.iterator();
 		Boolean flag_nogame=true, flag_noattrparam=true;
 		while(i.hasNext()){
 			Element oneListElement = (Element) i.next();
 			
-			if(gameID == oneListElement.getAttribute(ATTR_STEAMID).getIntValue()) {
+			if(gameLabel.equals(oneListElement.getAttributeValue(ATTR_GAMELABEL))) {
 				flag_nogame=false;
 				List<Element> gameParamsElements = oneListElement.getChildren();
 				Iterator<Element> j = gameParamsElements.iterator();
@@ -532,10 +532,10 @@ public class MyXML {
 		
 		if(flag_nogame) {
 			Element newGameElement = new Element(GAME);
-			newGameElement.setAttribute(ATTR_STEAMID,gameID.toString());
+			newGameElement.setAttribute(ATTR_GAMELABEL, gameLabel.toString());
 			root.addContent(newGameElement);
 			Element newParamElement = new Element(attrName);
-			newParamElement.setAttribute(ATTR_VALUE,value);
+			newParamElement.setAttribute(ATTR_VALUE, value);
 			newGameElement.addContent(newParamElement);
 		}
 		
