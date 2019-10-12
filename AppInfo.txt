@@ -1,5 +1,11 @@
+AppVersion=0.7.1
+- Support for new launcher (Stellaris & EUIV)
+- Improve UI info for the mod order system
+- Make game compatibility external: supported_games.json (Note: previous non-default save/mod folder settings will be lost, sorry for the inconvenience)
+- ABOUT: With the new launcher system; PMM objective is to keep order logic like the legacy launcher. That's mean: in PMM order, a patch must always be sorted before the patched mods
+
 AppVersion=0.7.0
-- WARNING : AUTOMATIC UPDATE DON'T WORK. Sorry for the inconvenience.
+- WARNING : AUTOMATIC UPDATE DON'T WORK from 0.6.1 and below. Sorry for the inconvenience.
 You will need to use "All versions" option, then download "ParadoxosModManager0.7.0.zip" (or more recent) and extract&replace content of the zip file in your previous installation (in order to keep your lists)
 - Mod Ordering : You can now make your own mod order and chose which mod will be loaded first !
 - Imperator Rome : Add support for the new Paradox game !
