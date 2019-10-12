@@ -1,4 +1,5 @@
 AppVersion=0.7.1
+- WARNING AGAIN : AUTOMATIC UPDATE DON'T WORK (realy need to fix that !)
 - Support for new launcher (Stellaris & EUIV)
 - Improve UI info for the mod order system
 - Make game compatibility external: supported_games.json (Note: previous non-default save/mod folder settings will be lost, sorry for the inconvenience)

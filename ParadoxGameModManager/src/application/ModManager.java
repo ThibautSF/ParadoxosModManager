@@ -120,6 +120,7 @@ public class ModManager extends Application {
 			
 			File new_updater = new File("New_"+UPDATER_NAME);
 			File old_updater = new File(UPDATER_NAME);
+			old_updater.delete();
 			new_updater.renameTo(old_updater);
 			
 			new OnlineVersionChecker();
