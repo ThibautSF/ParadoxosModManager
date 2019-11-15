@@ -43,7 +43,14 @@
     "actmod_file":"settings.txt",
     "actmod_type":"txt"
   },
-  "Hearts of Iron IV":{
+  "Hearts of Iron IV >= 1.8":{
+    "game_name":"Hearts of Iron IV",
+    "steam_id":394360,
+    "setting_file":"settings.txt",
+    "actmod_file":"dlc_load.json",
+    "actmod_type":"json"
+  },
+  "Hearts of Iron IV <= 1.7 (legacy launcher)":{
     "game_name":"Hearts of Iron IV",
     "steam_id":394360,
     "setting_file":"settings.txt",
