@@ -46,7 +46,7 @@
   "Hearts of Iron IV >= 1.8":{
     "game_name":"Hearts of Iron IV",
     "steam_id":394360,
-    "setting_file":"settings.txt",
+    "setting_file":"pdx_settings.txt",
     "actmod_file":"dlc_load.json",
     "actmod_type":"json"
   },
