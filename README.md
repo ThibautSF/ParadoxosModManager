@@ -1,3 +1,15 @@
+# README IMPORTANT
+With the new launcher released by Paradox for their games, some changements were mades :
+- better UI
+- mods not ordered alphabetically by default
+- allow user to order all their mods
+
+But when launcher were released, I didn't have the time to work a lot to update PMM, so I updated PMM based on code previously made for Imperator Rome launcher.
+So PMM is able to apply modlist and custom order, it is functional.
+PMM isn't able (for now, improvement is planed [#52](https://github.com/ThibautSF/ParadoxosModManager/issues/52#issue-506377801)) to update the visual order in the launcher when you apply a list, but it still working. So don't add/remove active mod or change order of mods with the game launcher, just launch the game and the order from PMM should be keeped.
+
+I am (slowly dues to school projects and futur exams) on a rework with a more recent version of Java (and also with java packaged, so no installation needed) in the following new repo https://github.com/ThibautSF/ParadoxosModManagerRework
+
 # Paradoxos Mod Manager
 Paradoxos Mod Manager is a java application which can be used to manage your mods in recent Paradox Interactive’s games
 
