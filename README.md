@@ -1,4 +1,6 @@
 # README IMPORTANT
+## FAQ : "Mod order don't apply" and also why it takes time
+
 With the new launcher released by Paradox for their games, some changements were mades :
 - better UI
 - mods not ordered alphabetically by default
