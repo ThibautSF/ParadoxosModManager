@@ -1,4 +1,16 @@
 # README IMPORTANT
+
+14 Feb:
+The Java 11 upgrade of PMM is almost ready
+I made a Pre-release :
+https://github.com/ThibautSF/ParadoxosModManagerRework/releases/tag/0.8.0-pre
+
+- Just download and extract, no installation needed.
+- Previous mod list won't be compatible.
+- should "work" like the Java 8 version
+
+The app and repository will be slowly moved to the new repo : https://github.com/ThibautSF/ParadoxosModManagerRework
+
 ## FAQ : "Mod order don't apply" and also why it takes time
 
 With the new launcher released by Paradox for their games, some changements were mades :
