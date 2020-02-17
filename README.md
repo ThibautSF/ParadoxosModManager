@@ -1,3 +1,6 @@
+# This repository is discontinued !
+Please redirect to https://github.com/ThibautSF/ParadoxosModManagerRework/
+
 # README IMPORTANT
 
 14 Feb:
